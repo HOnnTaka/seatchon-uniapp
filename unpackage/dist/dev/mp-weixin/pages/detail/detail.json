@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "座位表详情",
+  "usingComponents": {
+    "uni-group": "../../uni_modules/uni-group/components/uni-group/uni-group"
+  }
+}
