@@ -26,9 +26,11 @@ exports.main = async (event, context) => {
       nickName: "",
       avatarUrl: "",
       type: 0,
-      stuClass: "",
-      stuId: "",
-      stuName: "",
+      stuInfo: {
+        name: "",
+        id: "",
+        clas: "",
+      },
     });
   }
   return {
@@ -37,8 +39,6 @@ exports.main = async (event, context) => {
     _openid: openid,
     unionId: "",
     type: data[0]?.type,
-    stuClass: data[0]?.stuClass,
-    stuId: data[0]?.stuId,
-    stuName: data[0]?.stuName,
+    stuInfo: data[0]?.stuInfo,
   };
 };

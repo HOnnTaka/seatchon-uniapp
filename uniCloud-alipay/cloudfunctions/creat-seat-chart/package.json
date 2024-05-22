@@ -1,0 +1,7 @@
+{
+  "name": "creat-seat-chart",
+  "dependencies": {},
+  "extensions": {
+    "uni-cloud-jql": {}
+  }
+}

@@ -1,1 +1,36 @@
-.containeer.data-v-1cf27b2a{font-size:14px;line-height:24px}.search-bar.data-v-1cf27b2a{background:#fff}
+/* 水平间距 */
+/* 水平间距 */
+view.data-v-1cf27b2a, button.data-v-1cf27b2a {
+  transition: all 0.3s ease-in-out;
+  box-sizing: border-box;
+}
+.containeer.data-v-1cf27b2a {
+  font-size: 14px;
+  line-height: 24px;
+}
+.search-bar.data-v-1cf27b2a {
+  background: #fff;
+}
+.item-title.data-v-1cf27b2a {
+  font-size: 24px;
+  font-weight: bold;
+}
+.item-note.data-v-1cf27b2a {
+  color: #999;
+  font-size: 12px;
+  margin-left: 5px;
+}
+.item-time.data-v-1cf27b2a {
+  font-size: 12px;
+  color: #999;
+  display: flex;
+  flex-direction: column;
+}
+.item-footer.data-v-1cf27b2a {
+  align-self: center;
+  margin-left: auto;
+}
+.edgeInsetBottom.data-v-1cf27b2a {
+  width: 100%;
+  height: var(--window-bottom);
+}

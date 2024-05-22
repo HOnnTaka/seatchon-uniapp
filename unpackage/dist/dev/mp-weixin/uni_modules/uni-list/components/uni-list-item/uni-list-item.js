@@ -1,1 +1,322 @@
-"use strict";const i=require("../../../../common/vendor.js"),d={name:"UniListItem",emits:["click","switchChange"],props:{direction:{type:String,default:"row"},title:{type:String,default:""},note:{type:String,default:""},ellipsis:{type:[Number,String],default:0},disabled:{type:[Boolean,String],default:!1},clickable:{type:Boolean,default:!1},showArrow:{type:[Boolean,String],default:!1},link:{type:[Boolean,String],default:!1},to:{type:String,default:""},showBadge:{type:[Boolean,String],default:!1},showSwitch:{type:[Boolean,String],default:!1},switchChecked:{type:[Boolean,String],default:!1},badgeText:{type:String,default:""},badgeType:{type:String,default:"success"},badgeStyle:{type:Object,default(){return{}}},rightText:{type:String,default:""},thumb:{type:String,default:""},thumbSize:{type:String,default:"base"},showExtraIcon:{type:[Boolean,String],default:!1},extraIcon:{type:Object,default(){return{type:"",color:"#000000",size:20,customPrefix:""}}},border:{type:Boolean,default:!0},customStyle:{type:Object,default(){return{padding:"",backgroundColor:"#FFFFFF"}}},keepScrollPosition:{type:Boolean,default:!1}},watch:{"customStyle.padding":{handler(n){typeof n=="number"&&(n+="");let e=n.split(" ");if(e.length===1){const t=e[0];this.padding={top:t,right:t,bottom:t,left:t}}else if(e.length===2){const[t,o]=e;this.padding={top:t,right:o,bottom:t,left:o}}else if(e.length===4){const[t,o,a,l]=e;this.padding={top:t,right:o,bottom:a,left:l}}},immediate:!0}},data(){return{isFirstChild:!1,padding:{top:"",right:"",bottom:"",left:""}}},mounted(){this.list=this.getForm(),this.list&&(this.list.firstChildAppend||(this.list.firstChildAppend=!0,this.isFirstChild=!0))},methods:{getForm(n="uniList"){let e=this.$parent,t=e.$options.name;for(;t!==n;){if(e=e.$parent,!e)return!1;t=e.$options.name}return e},onClick(){if(this.to!==""){this.openPage();return}(this.clickable||this.link)&&this.$emit("click",{data:{}})},onSwitchChange(n){this.$emit("switchChange",n.detail)},openPage(){["navigateTo","redirectTo","reLaunch","switchTab"].indexOf(this.link)!==-1?this.pageApi(this.link):this.pageApi("navigateTo")},pageApi(n){let e={url:this.to,success:t=>{this.$emit("click",{data:t})},fail:t=>{this.$emit("click",{data:t})}};switch(n){case"navigateTo":i.index.navigateTo(e);break;case"redirectTo":i.index.redirectTo(e);break;case"reLaunch":i.index.reLaunch(e);break;case"switchTab":i.index.switchTab(e);break;default:i.index.navigateTo(e)}}}};if(!Array){const n=i.resolveComponent("uni-icons"),e=i.resolveComponent("uni-badge");(n+e)()}const h=()=>"../../../uni-icons/components/uni-icons/uni-icons.js",s=()=>"../../../uni-badge/components/uni-badge/uni-badge.js";Math||(h+s)();function u(n,e,t,o,a,l){return i.e({a:!a.isFirstChild},a.isFirstChild?{}:{b:t.border?1:""},{c:t.thumb},t.thumb?{d:t.thumb,e:i.n("uni-list--"+t.thumbSize)}:t.showExtraIcon?{g:i.p({customPrefix:t.extraIcon.customPrefix,color:t.extraIcon.color,size:t.extraIcon.size,type:t.extraIcon.type})}:{},{f:t.showExtraIcon,h:t.title},t.title?{i:i.t(t.title),j:i.n(t.ellipsis!==0&&t.ellipsis<=2?"uni-ellipsis-"+t.ellipsis:"")}:{},{k:t.note},t.note?{l:i.t(t.note)}:{},{m:t.thumb||t.showExtraIcon||t.showBadge||t.showSwitch?1:"",n:t.rightText||t.showBadge||t.showSwitch},t.rightText||t.showBadge||t.showSwitch?i.e({o:t.rightText},t.rightText?{p:i.t(t.rightText)}:{},{q:t.showBadge},t.showBadge?{r:i.p({type:t.badgeType,text:t.badgeText,"custom-style":t.badgeStyle})}:{},{s:t.showSwitch},t.showSwitch?{t:t.disabled,v:t.switchChecked,w:i.o((...c)=>l.onSwitchChange&&l.onSwitchChange(...c))}:{},{x:t.direction==="column"?1:""}):{},{y:t.showArrow||t.link?1:"",z:t.direction==="column"?1:"",A:a.padding.top,B:a.padding.left,C:a.padding.right,D:a.padding.bottom,E:t.showArrow||t.link},t.showArrow||t.link?{F:i.p({size:16,color:"#bbb",type:"arrowright"})}:{},{G:t.disabled?1:"",H:t.customStyle.backgroundColor,I:!t.clickable&&!t.link||t.disabled||t.showSwitch?"":"uni-list-item--hover",J:i.o((...c)=>l.onClick&&l.onClick(...c))})}const g=i._export_sfc(d,[["render",u],["__file","D:/code/seatchon-uniapp/uni_modules/uni-list/components/uni-list-item/uni-list-item.vue"]]);wx.createComponent(g);
+"use strict";
+const common_vendor = require("../../../../common/vendor.js");
+const _sfc_main = {
+  name: "UniListItem",
+  emits: ["click", "switchChange"],
+  props: {
+    direction: {
+      type: String,
+      default: "row"
+    },
+    title: {
+      type: String,
+      default: ""
+    },
+    note: {
+      type: String,
+      default: ""
+    },
+    ellipsis: {
+      type: [Number, String],
+      default: 0
+    },
+    disabled: {
+      type: [Boolean, String],
+      default: false
+    },
+    clickable: {
+      type: Boolean,
+      default: false
+    },
+    showArrow: {
+      type: [Boolean, String],
+      default: false
+    },
+    link: {
+      type: [Boolean, String],
+      default: false
+    },
+    to: {
+      type: String,
+      default: ""
+    },
+    showBadge: {
+      type: [Boolean, String],
+      default: false
+    },
+    showSwitch: {
+      type: [Boolean, String],
+      default: false
+    },
+    switchChecked: {
+      type: [Boolean, String],
+      default: false
+    },
+    badgeText: {
+      type: String,
+      default: ""
+    },
+    badgeType: {
+      type: String,
+      default: "success"
+    },
+    badgeStyle: {
+      type: Object,
+      default() {
+        return {};
+      }
+    },
+    rightText: {
+      type: String,
+      default: ""
+    },
+    thumb: {
+      type: String,
+      default: ""
+    },
+    thumbSize: {
+      type: String,
+      default: "base"
+    },
+    showExtraIcon: {
+      type: [Boolean, String],
+      default: false
+    },
+    extraIcon: {
+      type: Object,
+      default() {
+        return {
+          type: "",
+          color: "#000000",
+          size: 20,
+          customPrefix: ""
+        };
+      }
+    },
+    border: {
+      type: Boolean,
+      default: true
+    },
+    customStyle: {
+      type: Object,
+      default() {
+        return {
+          padding: "",
+          backgroundColor: "#FFFFFF"
+        };
+      }
+    },
+    keepScrollPosition: {
+      type: Boolean,
+      default: false
+    }
+  },
+  watch: {
+    "customStyle.padding": {
+      handler(padding) {
+        if (typeof padding == "number") {
+          padding += "";
+        }
+        let paddingArr = padding.split(" ");
+        if (paddingArr.length === 1) {
+          const allPadding = paddingArr[0];
+          this.padding = {
+            "top": allPadding,
+            "right": allPadding,
+            "bottom": allPadding,
+            "left": allPadding
+          };
+        } else if (paddingArr.length === 2) {
+          const [verticalPadding, horizontalPadding] = paddingArr;
+          this.padding = {
+            "top": verticalPadding,
+            "right": horizontalPadding,
+            "bottom": verticalPadding,
+            "left": horizontalPadding
+          };
+        } else if (paddingArr.length === 4) {
+          const [topPadding, rightPadding, bottomPadding, leftPadding] = paddingArr;
+          this.padding = {
+            "top": topPadding,
+            "right": rightPadding,
+            "bottom": bottomPadding,
+            "left": leftPadding
+          };
+        }
+      },
+      immediate: true
+    }
+  },
+  // inject: ['list'],
+  data() {
+    return {
+      isFirstChild: false,
+      padding: {
+        top: "",
+        right: "",
+        bottom: "",
+        left: ""
+      }
+    };
+  },
+  mounted() {
+    this.list = this.getForm();
+    if (this.list) {
+      if (!this.list.firstChildAppend) {
+        this.list.firstChildAppend = true;
+        this.isFirstChild = true;
+      }
+    }
+  },
+  methods: {
+    /**
+     * 获取父元素实例
+     */
+    getForm(name = "uniList") {
+      let parent = this.$parent;
+      let parentName = parent.$options.name;
+      while (parentName !== name) {
+        parent = parent.$parent;
+        if (!parent)
+          return false;
+        parentName = parent.$options.name;
+      }
+      return parent;
+    },
+    onClick() {
+      if (this.to !== "") {
+        this.openPage();
+        return;
+      }
+      if (this.clickable || this.link) {
+        this.$emit("click", {
+          data: {}
+        });
+      }
+    },
+    onSwitchChange(e) {
+      this.$emit("switchChange", e.detail);
+    },
+    openPage() {
+      if (["navigateTo", "redirectTo", "reLaunch", "switchTab"].indexOf(this.link) !== -1) {
+        this.pageApi(this.link);
+      } else {
+        this.pageApi("navigateTo");
+      }
+    },
+    pageApi(api) {
+      let callback = {
+        url: this.to,
+        success: (res) => {
+          this.$emit("click", {
+            data: res
+          });
+        },
+        fail: (err) => {
+          this.$emit("click", {
+            data: err
+          });
+        }
+      };
+      switch (api) {
+        case "navigateTo":
+          common_vendor.index.navigateTo(callback);
+          break;
+        case "redirectTo":
+          common_vendor.index.redirectTo(callback);
+          break;
+        case "reLaunch":
+          common_vendor.index.reLaunch(callback);
+          break;
+        case "switchTab":
+          common_vendor.index.switchTab(callback);
+          break;
+        default:
+          common_vendor.index.navigateTo(callback);
+      }
+    }
+  }
+};
+if (!Array) {
+  const _easycom_uni_icons2 = common_vendor.resolveComponent("uni-icons");
+  const _easycom_uni_badge2 = common_vendor.resolveComponent("uni-badge");
+  (_easycom_uni_icons2 + _easycom_uni_badge2)();
+}
+const _easycom_uni_icons = () => "../../../uni-icons/components/uni-icons/uni-icons.js";
+const _easycom_uni_badge = () => "../../../uni-badge/components/uni-badge/uni-badge.js";
+if (!Math) {
+  (_easycom_uni_icons + _easycom_uni_badge)();
+}
+function _sfc_render(_ctx, _cache, $props, $setup, $data, $options) {
+  return common_vendor.e({
+    a: !$data.isFirstChild
+  }, !$data.isFirstChild ? {
+    b: $props.border ? 1 : ""
+  } : {}, {
+    c: $props.thumb
+  }, $props.thumb ? {
+    d: $props.thumb,
+    e: common_vendor.n("uni-list--" + $props.thumbSize)
+  } : $props.showExtraIcon ? {
+    g: common_vendor.p({
+      customPrefix: $props.extraIcon.customPrefix,
+      color: $props.extraIcon.color,
+      size: $props.extraIcon.size,
+      type: $props.extraIcon.type
+    })
+  } : {}, {
+    f: $props.showExtraIcon,
+    h: $props.title
+  }, $props.title ? {
+    i: common_vendor.t($props.title),
+    j: common_vendor.n($props.ellipsis !== 0 && $props.ellipsis <= 2 ? "uni-ellipsis-" + $props.ellipsis : "")
+  } : {}, {
+    k: $props.note
+  }, $props.note ? {
+    l: common_vendor.t($props.note)
+  } : {}, {
+    m: $props.thumb || $props.showExtraIcon || $props.showBadge || $props.showSwitch ? 1 : "",
+    n: $props.rightText || $props.showBadge || $props.showSwitch
+  }, $props.rightText || $props.showBadge || $props.showSwitch ? common_vendor.e({
+    o: $props.rightText
+  }, $props.rightText ? {
+    p: common_vendor.t($props.rightText)
+  } : {}, {
+    q: $props.showBadge
+  }, $props.showBadge ? {
+    r: common_vendor.p({
+      type: $props.badgeType,
+      text: $props.badgeText,
+      ["custom-style"]: $props.badgeStyle
+    })
+  } : {}, {
+    s: $props.showSwitch
+  }, $props.showSwitch ? {
+    t: $props.disabled,
+    v: $props.switchChecked,
+    w: common_vendor.o((...args) => $options.onSwitchChange && $options.onSwitchChange(...args))
+  } : {}, {
+    x: $props.direction === "column" ? 1 : ""
+  }) : {}, {
+    y: $props.showArrow || $props.link ? 1 : "",
+    z: $props.direction === "column" ? 1 : "",
+    A: $data.padding.top,
+    B: $data.padding.left,
+    C: $data.padding.right,
+    D: $data.padding.bottom,
+    E: $props.showArrow || $props.link
+  }, $props.showArrow || $props.link ? {
+    F: common_vendor.p({
+      size: 16,
+      color: "#bbb",
+      type: "arrowright"
+    })
+  } : {}, {
+    G: $props.disabled ? 1 : "",
+    H: $props.customStyle.backgroundColor,
+    I: !$props.clickable && !$props.link || $props.disabled || $props.showSwitch ? "" : "uni-list-item--hover",
+    J: common_vendor.o((...args) => $options.onClick && $options.onClick(...args))
+  });
+}
+const Component = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["render", _sfc_render], ["__file", "D:/code/seatchon-uniapp/uni_modules/uni-list/components/uni-list-item/uni-list-item.vue"]]);
+wx.createComponent(Component);

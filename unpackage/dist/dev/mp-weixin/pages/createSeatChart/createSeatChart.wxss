@@ -1,0 +1,55 @@
+
+.contaioner {
+  padding-bottom: 50px;
+}
+.seat-group {
+  position: relative;
+}
+.seatTable {
+  width: calc(100vmin - 50px);
+  height: calc(100vmin - 50px);
+  display: flex;
+  flex-wrap: wrap;
+  background: #fff;
+}
+.refresh-btn {
+  margin-left: auto;
+  align-self: flex-end;
+  float: right;
+  margin: 10px 2.5px;
+}
+.seat {
+  box-sizing: border-box;
+  border-radius: 5px;
+  border: 1px solid #eeeeee;
+  width: calc(100% / var(--size) - 5px);
+  height: calc(100% / var(--size) - 5px);
+  margin: 2.5px;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-size: cover;
+  cursor: pointer;
+  font-size: calc(50vmin / var(--size));
+  color: #eeeeee;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+.seat.hide {
+  opacity: 0;
+  pointer-events: none;
+}
+.seat.selected {
+  border: 2px solid #3292ff;
+}
+.btn {
+  position: fixed;
+  bottom: 20px;
+  left: 10px;
+  z-index: 100;
+  gap: 10px;
+  width: calc(100% - 20px);
+  -webkit-backdrop-filter: blur(10px);
+          backdrop-filter: blur(10px);
+}

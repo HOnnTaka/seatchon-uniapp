@@ -1,13 +1,36 @@
 {
   "pages": [
     "pages/index/index",
-    "pages/detail/detail"
+    "pages/detail/detail",
+    "pages/myseat/myseat",
+    "pages/createSeatChart/createSeatChart"
   ],
   "window": {
     "navigationBarTextStyle": "black",
     "navigationBarTitleText": "uni-app",
     "navigationBarBackgroundColor": "#F8F8F8",
     "backgroundColor": "#F8F8F8"
+  },
+  "tabBar": {
+    "color": "#7A7E83",
+    "selectedColor": "#07c160",
+    "borderStyle": "black",
+    "blurEffect": "extralight",
+    "backgroundColor": "rgba(248, 248, 248, 0.5)",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "iconPath": "static/home.png",
+        "selectedIconPath": "static/home-selected.png",
+        "text": "主页"
+      },
+      {
+        "pagePath": "pages/myseat/myseat",
+        "iconPath": "static/myseat.png",
+        "selectedIconPath": "static/myseat-selected.png",
+        "text": "我的"
+      }
+    ]
   },
   "usingComponents": {}
 }

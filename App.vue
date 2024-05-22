@@ -1,29 +1,33 @@
 <script>
 export default {
 	onLaunch: async () => {
-		await login();
+		uni.showLoading({
+			title: '加载中',
+			mask: true
+		});
+		const { code } = await uni.login({
+			timeout: 6000
+		});
+		const { result } = await uniCloud.callFunction({
+			name: 'login',
+			data: { code }
+		});
+		console.log(result);
+		getApp().globalData.userinfo = result;
+		uni.$emit('userinfo');
+		uni.hideLoading();
 	},
 	onShow() {},
 	onHide() {},
-	globalData: {}
-};
-const login = async () => {
-	uni.showLoading({
-		title: '加载中',
-		mask: true
-	});
-	const { code } = await uni.login({
-		timeout: 6000
-	});
-
-	const { result } = await uniCloud.callFunction({
-		name: 'login',
-		data: { code }
-	});
-
-	console.log(result);
-	getApp().globalData.userinfo = result;
-	uni.hideLoading();
+	globalData: {},
+	onError(err) {
+		console.err(err);
+		uni.hideLoading();
+		uni.showToast({
+			title: err.message,
+			icon: 'none'
+		});
+	}
 };
 </script>
 
@@ -34,7 +38,7 @@ const login = async () => {
 @import '@/static/customicons.css';
 // 设置整个项目的背景色
 page {
-	background-image: linear-gradient(90deg, #47c5ff20, #ff8fde20);
+	// background-image: linear-gradient(90deg, #47c5ff20, #ff8fde20);
 }
 
 /* #endif */

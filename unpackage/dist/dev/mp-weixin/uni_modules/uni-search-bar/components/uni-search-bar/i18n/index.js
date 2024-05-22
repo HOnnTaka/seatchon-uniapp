@@ -1,1 +1,19 @@
-"use strict";const a={"uni-search-bar.cancel":"cancel","uni-search-bar.placeholder":"Search enter content"},c={"uni-search-bar.cancel":"cancel","uni-search-bar.placeholder":"请输入搜索内容"},e={"uni-search-bar.cancel":"cancel","uni-search-bar.placeholder":"請輸入搜索內容"},n={en:a,"zh-Hans":c,"zh-Hant":e};exports.messages=n;
+"use strict";
+const en = {
+  "uni-search-bar.cancel": "cancel",
+  "uni-search-bar.placeholder": "Search enter content"
+};
+const zhHans = {
+  "uni-search-bar.cancel": "cancel",
+  "uni-search-bar.placeholder": "请输入搜索内容"
+};
+const zhHant = {
+  "uni-search-bar.cancel": "cancel",
+  "uni-search-bar.placeholder": "請輸入搜索內容"
+};
+const messages = {
+  en,
+  "zh-Hans": zhHans,
+  "zh-Hant": zhHant
+};
+exports.messages = messages;
