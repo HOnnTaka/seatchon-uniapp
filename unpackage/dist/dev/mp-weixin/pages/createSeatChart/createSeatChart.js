@@ -3,20 +3,22 @@ const common_vendor = require("../../common/vendor.js");
 if (!Array) {
   const _easycom_uni_easyinput2 = common_vendor.resolveComponent("uni-easyinput");
   const _easycom_uni_forms_item2 = common_vendor.resolveComponent("uni-forms-item");
+  const _easycom_uni_number_box2 = common_vendor.resolveComponent("uni-number-box");
   const _easycom_uni_datetime_picker2 = common_vendor.resolveComponent("uni-datetime-picker");
   const _easycom_uni_data_checkbox2 = common_vendor.resolveComponent("uni-data-checkbox");
   const _easycom_uni_group2 = common_vendor.resolveComponent("uni-group");
   const _easycom_uni_forms2 = common_vendor.resolveComponent("uni-forms");
-  (_easycom_uni_easyinput2 + _easycom_uni_forms_item2 + _easycom_uni_datetime_picker2 + _easycom_uni_data_checkbox2 + _easycom_uni_group2 + _easycom_uni_forms2)();
+  (_easycom_uni_easyinput2 + _easycom_uni_forms_item2 + _easycom_uni_number_box2 + _easycom_uni_datetime_picker2 + _easycom_uni_data_checkbox2 + _easycom_uni_group2 + _easycom_uni_forms2)();
 }
 const _easycom_uni_easyinput = () => "../../uni_modules/uni-easyinput/components/uni-easyinput/uni-easyinput.js";
 const _easycom_uni_forms_item = () => "../../uni_modules/uni-forms/components/uni-forms-item/uni-forms-item.js";
+const _easycom_uni_number_box = () => "../../uni_modules/uni-number-box/components/uni-number-box/uni-number-box.js";
 const _easycom_uni_datetime_picker = () => "../../uni_modules/uni-datetime-picker/components/uni-datetime-picker/uni-datetime-picker.js";
 const _easycom_uni_data_checkbox = () => "../../uni_modules/uni-data-checkbox/components/uni-data-checkbox/uni-data-checkbox.js";
 const _easycom_uni_group = () => "../../uni_modules/uni-group/components/uni-group/uni-group.js";
 const _easycom_uni_forms = () => "../../uni_modules/uni-forms/components/uni-forms/uni-forms.js";
 if (!Math) {
-  (_easycom_uni_easyinput + _easycom_uni_forms_item + _easycom_uni_datetime_picker + _easycom_uni_data_checkbox + _easycom_uni_group + _easycom_uni_forms)();
+  (_easycom_uni_easyinput + _easycom_uni_forms_item + _easycom_uni_number_box + _easycom_uni_datetime_picker + _easycom_uni_data_checkbox + _easycom_uni_group + _easycom_uni_forms)();
 }
 const _sfc_main = {
   __name: "createSeatChart",
@@ -39,7 +41,6 @@ const _sfc_main = {
     const seats = common_vendor.computed(() => {
       const col = parseInt(baseFormData.col);
       const row = parseInt(baseFormData.row);
-      console.log(col, row);
       loading.value = true;
       let arr = [];
       seatStatus.value = [];
@@ -160,8 +161,6 @@ const _sfc_main = {
         }),
         g: common_vendor.o(($event) => baseFormData.row = $event),
         h: common_vendor.p({
-          type: "number",
-          placeholder: "请输入行数",
           modelValue: baseFormData.row
         }),
         i: common_vendor.p({
@@ -171,8 +170,6 @@ const _sfc_main = {
         }),
         j: common_vendor.o(($event) => baseFormData.col = $event),
         k: common_vendor.p({
-          type: "number",
-          placeholder: "请输入列数",
           modelValue: baseFormData.col
         }),
         l: common_vendor.p({
@@ -233,7 +230,7 @@ const _sfc_main = {
           mode: "card"
         }),
         A: common_vendor.o(() => submit("valiForm")),
-        B: common_vendor.sr("valiForm", "03a545ff-0"),
+        B: common_vendor.sr("valiForm", "05355019-0"),
         C: common_vendor.p({
           ["label-width"]: "100%",
           modelValue: baseFormData,
@@ -244,5 +241,5 @@ const _sfc_main = {
     };
   }
 };
-const MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__file", "D:/code/seatchon-uniapp/pages/createSeatChart/createSeatChart.vue"]]);
+const MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__file", "D:/mcct/seatchon-uniapp/pages/createSeatChart/createSeatChart.vue"]]);
 wx.createPage(MiniProgramPage);

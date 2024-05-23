@@ -15,10 +15,12 @@
           <uni-easyinput trim="true" v-model="baseFormData.note" placeholder="请输入备注" />
         </uni-forms-item>
         <uni-forms-item label="行" required name="row">
-          <uni-easyinput v-model="baseFormData.row" type="number" placeholder="请输入行数" />
+          <uni-number-box v-model="baseFormData.row" />
+          <!-- <uni-easyinput v-model="baseFormData.row" type="number" placeholder="请输入行数" /> -->
         </uni-forms-item>
         <uni-forms-item label="列" required name="col">
-          <uni-easyinput v-model="baseFormData.col" type="number" placeholder="请输入列数" />
+          <uni-number-box v-model="baseFormData.col" />
+          <!-- <uni-easyinput v-model="baseFormData.col" type="number" placeholder="请输入列数" /> -->
         </uni-forms-item>
         <uni-forms-item required label="开放选择时间" name="selectableTimeRange">
           <uni-datetime-picker
@@ -86,7 +88,7 @@ const seatStatus = ref([]);
 const seats = computed(() => {
   const col = parseInt(baseFormData.col);
   const row = parseInt(baseFormData.row);
-  console.log(col, row);
+  // console.log(col, row);
   loading.value = true;
   let arr = [];
   seatStatus.value = [];

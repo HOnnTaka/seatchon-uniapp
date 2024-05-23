@@ -1,7 +1,37 @@
 
-.header{
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		padding: 15px;
+.userinfo {
+  font-size: 20px;
+}
+.uni-list-item__container {
+  align-items: center;
+}
+.uni-list-item__content {
+  flex-direction: row !important;
+}
+.edit-avatar {
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+.hover .uni-list-item {
+  background: #f1f1f1 !important;
+}
+.edit-avatar image {
+  width: 80px;
+  height: 80px;
+  border-radius: 5px;
+}
+.stuInfo {
+  font-size: 18px;
+}
+.stuInfo view {
+  cursor: pointer;
+  margin-bottom: 5px;
+}
+.stuInfo view:last-child {
+  margin-bottom: 0;
+}
+.stuInfo text,
+.title {
+  margin-right: 5px;
 }

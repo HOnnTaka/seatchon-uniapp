@@ -1,1 +1,41 @@
-{"bsonType":"object","required":[],"permission":{"read":true,"create":true,"update":true,"delete":true},"properties":{"_id":{"description":"ID，系统自动生成"}}}
+{
+	"bsonType": "object",
+	"required": [],
+	"permission": {
+		"read": true,
+		"create": true,
+		"update": true,
+		"delete": true
+	},
+	"properties": {
+		"_id": {
+			"description": "ID，系统自动生成"
+		},
+		"avatarUrl": {
+			"description": "头像"
+		},
+		"nickName": {
+			"description": "昵称",
+			"trim": "both"
+		},
+		"_openid": {
+			"description": "用户唯一标识符"
+		},
+		"stuInfo": {
+			"bsonType": "object",
+			"description": "学生信息"
+		},
+		"type": {
+			"description": "是否为管理员"
+		},
+		"stuInfo.id": {
+			"description": "学号"
+		},
+		"stuInfo.name": {
+			"description": "姓名"
+		},
+		"stuInfo.class": {
+			"description": "班级"
+		}
+	}
+}

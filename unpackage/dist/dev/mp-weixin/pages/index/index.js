@@ -20,11 +20,28 @@ const _sfc_main = {
     const searchValue = common_vendor.ref("");
     const charts = common_vendor.ref([]);
     const userinfo = common_vendor.ref({});
-    common_vendor.index.$on("userinfo", () => {
-      userinfo.value = common_vendor.index.getStorageSync("userinfo");
+    common_vendor.onLoad(async () => {
+      common_vendor.index.showLoading({
+        title: "加载中",
+        mask: true
+      });
+      try {
+        const { code } = await common_vendor.index.login();
+        const { result } = await common_vendor.Ws.callFunction({ name: "login", data: { code } });
+        userinfo.value = result;
+        common_vendor.index.setStorageSync("userinfo", result);
+        console.log(userinfo.value);
+      } catch (err) {
+        common_vendor.index.showToast({
+          title: err.message,
+          icon: "none"
+        });
+        console.log(err);
+      }
+      common_vendor.index.hideLoading();
     });
     common_vendor.onShow(async () => {
-      getCharts();
+      getCharts(false);
     });
     const getCharts = async (showToast = true) => {
       if (showToast) {
@@ -99,5 +116,5 @@ const _sfc_main = {
     };
   }
 };
-const MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__scopeId", "data-v-1cf27b2a"], ["__file", "D:/code/seatchon-uniapp/pages/index/index.vue"]]);
+const MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__scopeId", "data-v-1cf27b2a"], ["__file", "D:/mcct/seatchon-uniapp/pages/index/index.vue"]]);
 wx.createPage(MiniProgramPage);

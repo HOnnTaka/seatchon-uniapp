@@ -1,33 +1,7 @@
 <script>
 export default {
   onLaunch: async () => {
-    uni.showLoading({
-      title: "加载中",
-      mask: true,
-    });
-    try {
-      // uni.checkSession({
-      //   success: () => {
-      //     console.log(uni.getStorageSync("userinfo"));
-      //   },
 
-      //   fail: async () => {
-          const { code } = await uni.login();
-          const { result } = await uniCloud.callFunction({ name: "login", data: { code } });
-          uni.setStorageSync("userinfo", result);
-          console.log(uni.getStorageSync("userinfo"));
-        // },
-      // });
-    } catch (err) {
-      uni.showToast({
-        title: err.message,
-        icon: "none",
-      });
-      console.log(err);
-    }
-    uni.hideLoading();
-
-    uni.$emit("userinfo");
   },
   onShow() {},
   onHide() {},

@@ -48,18 +48,35 @@
 
 <script setup>
 import { ref } from "vue";
-import { onLoad,onShow } from "@dcloudio/uni-app";
+import { onLoad, onShow } from "@dcloudio/uni-app";
 
 const searchValue = ref("");
 const charts = ref([]);
 const userinfo = ref({});
 
-uni.$on("userinfo", () => {
-  userinfo.value = uni.getStorageSync("userinfo");
+onLoad(async () => {
+  uni.showLoading({
+    title: "加载中",
+    mask: true,
+  });
+  try {
+    const { code } = await uni.login();
+    const { result } = await uniCloud.callFunction({ name: "login", data: { code } });
+    userinfo.value = result;
+    uni.setStorageSync("userinfo", result);
+    console.log(userinfo.value);
+  } catch (err) {
+    uni.showToast({
+      title: err.message,
+      icon: "none",
+    });
+    console.log(err);
+  }
+  uni.hideLoading();
 });
 
 onShow(async () => {
-  getCharts();
+  getCharts(false);
 });
 
 const getCharts = async (showToast = true) => {

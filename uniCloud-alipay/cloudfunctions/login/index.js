@@ -34,7 +34,7 @@ exports.main = async (event, context) => {
 			_openid: openid,
 			nickName: "微信用户",
 			avatarUrl: defaultUrl,
-			type: 0,
+			type: 1,
 			stuInfo: {
 				name: "",
 				id: "",
@@ -44,6 +44,7 @@ exports.main = async (event, context) => {
 
 	}
 	return {
+		_id: data[0]?._id,
 		avatarUrl: data[0] ? data[0]?.avatarUrl : defaultUrl,
 		nickName: data[0] ? data[0]?.nickName : "微信用户",
 		_openid: openid,
