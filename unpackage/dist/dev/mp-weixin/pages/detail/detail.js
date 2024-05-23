@@ -17,7 +17,7 @@ const _sfc_main = {
     const chartId = common_vendor.ref(null);
     const chartDetail = common_vendor.ref();
     const loading = common_vendor.ref(false);
-    const userinfo = common_vendor.ref(getApp().globalData.userinfo);
+    const userinfo = common_vendor.ref(common_vendor.index.getStorageSync("userinfo"));
     const showDrawer = common_vendor.ref(false);
     const isSelectSubmit = common_vendor.ref(true);
     common_vendor.onLoad(async (option) => {
@@ -36,24 +36,29 @@ const _sfc_main = {
       loading.value = false;
     };
     const onrefreshBtnClick = async (showToast = true) => {
-      if (showToast) {
-        common_vendor.index.showToast({
-          title: "加载中",
-          icon: "loading",
-          mask: true
-        });
-      }
       await getChartDetail(chartId.value);
-      selectedItem.value = chartDetail.value.seats[selectedItem.value.index - 1];
       if (showToast) {
         common_vendor.index.showToast({
           title: "刷新成功",
           icon: "success"
         });
       }
+      selectedItem.value = chartDetail.value.seats[selectedItem.value.index - 1];
     };
-    const onSelectBtnClick = () => {
+    const onSelectBtnClick = async () => {
       var _a;
+      const { stuInfo } = userinfo.value;
+      if (stuInfo.class == "" || stuInfo.id == "" || stuInfo.name == "") {
+        const { confirm } = await common_vendor.index.showModal({
+          title: "提示",
+          content: "请先填写个人信息",
+          confirmText: "去填写",
+          mask: true
+        });
+        if (!confirm)
+          return;
+        return common_vendor.index.navigateTo({ url: "/pages/myseat/myseat" });
+      }
       isSelectSubmit.value = ((_a = selectedItem.value.stuInfo) == null ? void 0 : _a.openid) != userinfo.value._openid;
       showDrawer.value = true;
     };
@@ -94,8 +99,8 @@ const _sfc_main = {
       var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _A, _B, _C, _D, _E;
       return common_vendor.e({
         a: common_vendor.t((_a = chartDetail.value) == null ? void 0 : _a.note),
-        b: common_vendor.t((_b = chartDetail.value) == null ? void 0 : _b.selectableTime),
-        c: common_vendor.t((_c = chartDetail.value) == null ? void 0 : _c.effectiveTime),
+        b: common_vendor.t((_b = chartDetail.value) == null ? void 0 : _b.selectableTimeRange.join(" 至 ")),
+        c: common_vendor.t((_c = chartDetail.value) == null ? void 0 : _c.effectiveTimeRange.join(" 至 ")),
         d: common_vendor.p({
           title: "课室信息",
           mode: "card"
@@ -111,7 +116,7 @@ const _sfc_main = {
             f: common_vendor.o(() => selectedItem.value = item, index)
           };
         }),
-        f: common_vendor.s("--size:" + Math.max((_e = chartDetail.value) == null ? void 0 : _e.col, (_f = chartDetail.value) == null ? void 0 : _f.row) + ";"),
+        f: common_vendor.s(`--col:${(_e = chartDetail.value) == null ? void 0 : _e.col};--row:${(_f = chartDetail.value) == null ? void 0 : _f.row};`),
         g: common_vendor.o(onrefreshBtnClick),
         h: loading.value,
         i: common_vendor.p({
@@ -150,7 +155,7 @@ const _sfc_main = {
         A: common_vendor.t((_B = chartDetail.value) == null ? void 0 : _B.title),
         B: common_vendor.t((_C = selectedItem.value) == null ? void 0 : _C.x),
         C: common_vendor.t((_D = selectedItem.value) == null ? void 0 : _D.y),
-        D: common_vendor.t((_E = chartDetail.value) == null ? void 0 : _E.effectiveTime),
+        D: common_vendor.t((_E = chartDetail.value) == null ? void 0 : _E.effectiveTimeRange.join(" 至 ")),
         E: common_vendor.p({
           mode: "card"
         }),

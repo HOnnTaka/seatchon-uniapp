@@ -4,8 +4,9 @@ const common_vendor = require("./common/vendor.js");
 if (!Math) {
   "./pages/index/index.js";
   "./pages/detail/detail.js";
-  "./pages/myseat/myseat.js";
+  "./pages/user/user.js";
   "./pages/createSeatChart/createSeatChart.js";
+  "./pages/user/updateUserInfo.js";
 }
 const _sfc_main = {
   onLaunch: async () => {
@@ -13,17 +14,20 @@ const _sfc_main = {
       title: "加载中",
       mask: true
     });
-    const { code } = await common_vendor.index.login({
-      timeout: 6e3
-    });
-    const { result } = await common_vendor.Ws.callFunction({
-      name: "login",
-      data: { code }
-    });
-    console.log(result);
-    getApp().globalData.userinfo = result;
-    common_vendor.index.$emit("userinfo");
+    try {
+      const { code } = await common_vendor.index.login();
+      const { result } = await common_vendor.Ws.callFunction({ name: "login", data: { code } });
+      common_vendor.index.setStorageSync("userinfo", result);
+      console.log(common_vendor.index.getStorageSync("userinfo"));
+    } catch (err) {
+      common_vendor.index.showToast({
+        title: err.message,
+        icon: "none"
+      });
+      console.log(err);
+    }
     common_vendor.index.hideLoading();
+    common_vendor.index.$emit("userinfo");
   },
   onShow() {
   },
@@ -31,12 +35,6 @@ const _sfc_main = {
   },
   globalData: {},
   onError(err) {
-    console.err(err);
-    common_vendor.index.hideLoading();
-    common_vendor.index.showToast({
-      title: err.message,
-      icon: "none"
-    });
   }
 };
 const App = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__file", "D:/code/seatchon-uniapp/App.vue"]]);

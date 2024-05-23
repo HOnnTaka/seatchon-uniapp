@@ -10,6 +10,44 @@
 	"properties": {
 		"_id": {
 			"description": "ID，系统自动生成"
+		},
+		"title": {
+			"bsonType": "string",
+			"description": "标题",
+			"trim": "both"
+		},
+		"note": {
+			"bsonType": "string",
+			"description": "备注",
+			"trim": "both"
+		},
+		"row": {
+			"description": "行数"
+		},
+
+		"col": {
+			"description": "列数"
+		},
+		"effectiveTimeRange": {
+			"description": "有效时间范围"
+		},
+		"selectableTimeRange": {
+			"description": "可选时间范围"
+		},
+		"stuInfoVisible": {
+			"description": "学生信息可见性"
+		},
+		"seats": {
+			"description": "座位信息"
+		},
+		"creator": {
+			"description": "创建者"
+		},
+		"creatorId": {
+			"description": "创建者ID"
+		},
+		"createTime": {
+			"description": "创建时间"
 		}
 	}
 }

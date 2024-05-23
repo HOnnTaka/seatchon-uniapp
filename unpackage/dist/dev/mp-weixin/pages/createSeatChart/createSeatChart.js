@@ -5,26 +5,27 @@ if (!Array) {
   const _easycom_uni_forms_item2 = common_vendor.resolveComponent("uni-forms-item");
   const _easycom_uni_datetime_picker2 = common_vendor.resolveComponent("uni-datetime-picker");
   const _easycom_uni_data_checkbox2 = common_vendor.resolveComponent("uni-data-checkbox");
-  const _easycom_uni_forms2 = common_vendor.resolveComponent("uni-forms");
   const _easycom_uni_group2 = common_vendor.resolveComponent("uni-group");
-  (_easycom_uni_easyinput2 + _easycom_uni_forms_item2 + _easycom_uni_datetime_picker2 + _easycom_uni_data_checkbox2 + _easycom_uni_forms2 + _easycom_uni_group2)();
+  const _easycom_uni_forms2 = common_vendor.resolveComponent("uni-forms");
+  (_easycom_uni_easyinput2 + _easycom_uni_forms_item2 + _easycom_uni_datetime_picker2 + _easycom_uni_data_checkbox2 + _easycom_uni_group2 + _easycom_uni_forms2)();
 }
 const _easycom_uni_easyinput = () => "../../uni_modules/uni-easyinput/components/uni-easyinput/uni-easyinput.js";
 const _easycom_uni_forms_item = () => "../../uni_modules/uni-forms/components/uni-forms-item/uni-forms-item.js";
 const _easycom_uni_datetime_picker = () => "../../uni_modules/uni-datetime-picker/components/uni-datetime-picker/uni-datetime-picker.js";
 const _easycom_uni_data_checkbox = () => "../../uni_modules/uni-data-checkbox/components/uni-data-checkbox/uni-data-checkbox.js";
-const _easycom_uni_forms = () => "../../uni_modules/uni-forms/components/uni-forms/uni-forms.js";
 const _easycom_uni_group = () => "../../uni_modules/uni-group/components/uni-group/uni-group.js";
+const _easycom_uni_forms = () => "../../uni_modules/uni-forms/components/uni-forms/uni-forms.js";
 if (!Math) {
-  (_easycom_uni_easyinput + _easycom_uni_forms_item + _easycom_uni_datetime_picker + _easycom_uni_data_checkbox + _easycom_uni_forms + _easycom_uni_group)();
+  (_easycom_uni_easyinput + _easycom_uni_forms_item + _easycom_uni_datetime_picker + _easycom_uni_data_checkbox + _easycom_uni_group + _easycom_uni_forms)();
 }
 const _sfc_main = {
   __name: "createSeatChart",
   setup(__props) {
-    common_vendor.onLoad(() => {
+    common_vendor.onLoad(async () => {
     });
+    f;
     const today = (/* @__PURE__ */ new Date()).toJSON().substring(0, 10);
-    const baseFormData = common_vendor.ref({
+    const baseFormData = common_vendor.reactive({
       title: "",
       note: "",
       col: "10",
@@ -33,123 +34,211 @@ const _sfc_main = {
       effectiveTimeRange: [],
       selectableTimeRange: []
     });
+    const loading = common_vendor.ref(false);
+    const seatStatus = common_vendor.ref([]);
+    const seats = common_vendor.computed(() => {
+      const col = parseInt(baseFormData.col);
+      const row = parseInt(baseFormData.row);
+      console.log(col, row);
+      loading.value = true;
+      let arr = [];
+      seatStatus.value = [];
+      for (let i = 0; i < row; i++) {
+        for (let j = 0; j < col; j++) {
+          arr.push({
+            x: j + 1,
+            y: i + 1
+          });
+          seatStatus.value.push(1);
+        }
+      }
+      loading.value = false;
+      return arr;
+    });
     const stuInfoVisible = common_vendor.ref([
       { text: "允许", value: 0 },
       { text: "不允许", value: 1 }
     ]);
     const rules = {
-      col: [
-        { required: true, message: "请输入列数", trigger: "blur" },
-        { type: "number", message: "请输入正确的数字", trigger: "blur" }
-      ],
-      row: [
-        { required: true, message: "请输入行数", trigger: "blur" },
-        { type: "number", message: "请输入正确的数字", trigger: "blur" }
-      ]
+      title: {
+        rules: [{ required: true, errorMessage: "请输入标题" }]
+      },
+      col: {
+        rules: [
+          { required: true, errorMessage: "请输入列数" },
+          { format: "number", errorMessage: "请输入正确的数字" }
+        ]
+      },
+      row: {
+        rules: [
+          { required: true, errorMessage: "请输入行数" },
+          { format: "number", errorMessage: "请输入正确的数字" }
+        ]
+      },
+      selectableTimeRange: {
+        rules: [
+          { required: true, errorMessage: "请选择开放选择时间" },
+          { type: "array", errorMessage: "请选择开放选择时间" }
+        ]
+      },
+      effectiveTimeRange: {
+        rules: [
+          { required: true, errorMessage: "请选择座位有效时间" },
+          { type: "array", errorMessage: "请选择座位有效时间" }
+        ]
+      }
+    };
+    const submit = async (ref) => {
+      const page = getCurrentPages()[1];
+      const vm = page.$vm;
+      try {
+        const data = await vm.$refs[ref].validate();
+        console.log(data);
+        const modal = await common_vendor.index.showModal({
+          title: "提示",
+          content: "将创建新座位表" + baseFormData.title,
+          showCancel: true
+        });
+        if (modal.confirm) {
+          loading.value = true;
+          const userinfo = common_vendor.index.getStorageSync("userinfo");
+          const db = common_vendor.Ws.database();
+          const res = await db.collection("seat-chart").add({
+            ...data,
+            stuInfoVisible: data.stuInfoVisible == 0 ? true : false,
+            createTime: (/* @__PURE__ */ new Date()).toJSON(),
+            creator: userinfo.nickName,
+            creatorId: userinfo._openid,
+            seats: seats.value.map((item, index) => ({
+              x: item.x,
+              y: item.y,
+              status: seatStatus.value[index],
+              index: index + 1
+            }))
+          });
+          console.log(res);
+          if (res.result.errCode == 0) {
+            common_vendor.index.showToast({
+              title: "创建成功",
+              icon: "none"
+            });
+            setTimeout(() => {
+              common_vendor.index.navigateBack();
+            }, 1e3);
+          }
+        }
+      } catch (e) {
+        console.log(e);
+        common_vendor.index.showToast({
+          title: e[0].errorMessage,
+          icon: "none"
+        });
+      }
     };
     return (_ctx, _cache) => {
       return {
-        a: common_vendor.o(($event) => baseFormData.value.title = $event),
+        a: common_vendor.o(($event) => baseFormData.title = $event),
         b: common_vendor.p({
+          trim: "both",
           placeholder: "请输入标题",
-          modelValue: baseFormData.value.title
+          modelValue: baseFormData.title
         }),
         c: common_vendor.p({
           label: "标题（课室）",
-          required: true
+          required: true,
+          name: "title"
         }),
-        d: common_vendor.o(($event) => baseFormData.value.note = $event),
+        d: common_vendor.o(($event) => baseFormData.note = $event),
         e: common_vendor.p({
+          trim: "true",
           placeholder: "请输入备注",
-          modelValue: baseFormData.value.note
+          modelValue: baseFormData.note
         }),
         f: common_vendor.p({
-          label: "备注"
+          label: "备注",
+          name: "note"
         }),
-        g: common_vendor.o(($event) => baseFormData.value.row = $event),
+        g: common_vendor.o(($event) => baseFormData.row = $event),
         h: common_vendor.p({
           type: "number",
           placeholder: "请输入行数",
-          modelValue: baseFormData.value.row
+          modelValue: baseFormData.row
         }),
         i: common_vendor.p({
           label: "行",
-          required: true
+          required: true,
+          name: "row"
         }),
-        j: common_vendor.o(($event) => baseFormData.value.col = $event),
+        j: common_vendor.o(($event) => baseFormData.col = $event),
         k: common_vendor.p({
           type: "number",
           placeholder: "请输入列数",
-          modelValue: baseFormData.value.col
+          modelValue: baseFormData.col
         }),
         l: common_vendor.p({
           label: "列",
-          required: true
+          required: true,
+          name: "col"
         }),
-        m: common_vendor.o(($event) => baseFormData.value.selectableTimeRange = $event),
+        m: common_vendor.o(($event) => baseFormData.selectableTimeRange = $event),
         n: common_vendor.p({
           start: common_vendor.unref(today),
           ["start-placeholder"]: common_vendor.unref(today),
           type: "daterange",
           rangeSeparator: "至",
-          modelValue: baseFormData.value.selectableTimeRange
+          modelValue: baseFormData.selectableTimeRange
         }),
         o: common_vendor.p({
           required: true,
-          label: "开放选择时间"
+          label: "开放选择时间",
+          name: "selectableTimeRange"
         }),
-        p: common_vendor.o(($event) => baseFormData.value.effectiveTimeRange = $event),
+        p: common_vendor.o(($event) => baseFormData.effectiveTimeRange = $event),
         q: common_vendor.p({
           ["start-placeholder"]: common_vendor.unref(today),
           start: common_vendor.unref(today),
           type: "daterange",
           rangeSeparator: "至",
-          modelValue: baseFormData.value.effectiveTimeRange
+          modelValue: baseFormData.effectiveTimeRange
         }),
         r: common_vendor.p({
           required: true,
-          label: "座位有效时间"
+          label: "座位有效时间",
+          name: "effectiveTimeRange"
         }),
-        s: common_vendor.o(($event) => baseFormData.value.stuInfoVisible = $event),
+        s: common_vendor.o(($event) => baseFormData.stuInfoVisible = $event),
         t: common_vendor.p({
           localdata: stuInfoVisible.value,
-          modelValue: baseFormData.value.stuInfoVisible
+          modelValue: baseFormData.stuInfoVisible
         }),
         v: common_vendor.p({
           label: "是否允许查看其它学生信息",
-          required: true
+          required: true,
+          name: "stuInfoVisible"
         }),
-        w: common_vendor.sr("baseForm", "03a545ff-2,03a545ff-1"),
-        x: common_vendor.p({
-          ["label-width"]: "100%",
-          modelValue: baseFormData.value,
-          ["label-position"]: "top",
-          validateTrigger: "bind",
-          rules
-        }),
-        y: common_vendor.p({
-          title: "基本用法",
-          type: "line"
-        }),
-        z: common_vendor.p({
+        w: common_vendor.p({
           title: "课室信息",
           mode: "card"
         }),
-        A: common_vendor.f(baseFormData.value.col * baseFormData.value.row, (item, index, i0) => {
-          var _a;
+        x: common_vendor.f(seats.value, (item, index, i0) => {
           return {
             a: index,
-            b: item.status == 2 ? 1 : "",
-            c: item.index == ((_a = _ctx.selectedItem) == null ? void 0 : _a.index) ? 1 : "",
-            d: common_vendor.o(() => _ctx.selectedItem = item, index)
+            b: seatStatus.value[index] == 1 ? 1 : "",
+            c: common_vendor.o(() => seatStatus.value[index] = seatStatus.value[index] == 1 ? 2 : 1, index)
           };
         }),
-        B: common_vendor.s("--size:" + Math.max(baseFormData.value.col, baseFormData.value.row) + ";"),
-        C: common_vendor.o((...args) => _ctx.onrefreshBtnClick && _ctx.onrefreshBtnClick(...args)),
-        D: _ctx.loading,
-        E: common_vendor.p({
+        y: common_vendor.s(`--col:${baseFormData.col};--row:${baseFormData.row};`),
+        z: common_vendor.p({
           title: "座位表",
           mode: "card"
+        }),
+        A: common_vendor.o(() => submit("valiForm")),
+        B: common_vendor.sr("valiForm", "03a545ff-0"),
+        C: common_vendor.p({
+          ["label-width"]: "100%",
+          modelValue: baseFormData,
+          ["label-position"]: "top",
+          rules
         })
       };
     };

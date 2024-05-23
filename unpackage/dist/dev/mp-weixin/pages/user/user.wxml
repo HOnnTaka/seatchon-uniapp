@@ -1,0 +1,1 @@
+<view class="container"><view class="header"><image src="{{a}}" mode="scaleToFill"/><view class="title">{{b}}</view></view><uni-group wx:if="{{f}}" u-s="{{['d']}}" class="detail-group" u-i="2d0e1023-0" bind:__l="__l" u-p="{{f}}"><view>姓名：{{c}}</view><view>学号：{{d}}</view><view>班级：{{e}}</view><button>编辑</button></uni-group></view>

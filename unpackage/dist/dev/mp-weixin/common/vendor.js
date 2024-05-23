@@ -7898,7 +7898,7 @@ const pages = [
   {
     path: "pages/index/index",
     style: {
-      navigationBarTitleText: "所有课室"
+      navigationBarTitleText: "主页"
     }
   },
   {
@@ -7908,7 +7908,7 @@ const pages = [
     }
   },
   {
-    path: "pages/myseat/myseat",
+    path: "pages/user/user",
     style: {
       navigationBarTitleText: "我的"
     }
@@ -7917,6 +7917,12 @@ const pages = [
     path: "pages/createSeatChart/createSeatChart",
     style: {
       navigationBarTitleText: "创建座位表"
+    }
+  },
+  {
+    path: "pages/user/updateUserInfo",
+    style: {
+      navigationBarTitleText: "更新信息"
     }
   }
 ];
@@ -7934,7 +7940,7 @@ const tabBar = {
       text: "主页"
     },
     {
-      pagePath: "pages/myseat/myseat",
+      pagePath: "pages/user/user",
       iconPath: "static/myseat.png",
       selectedIconPath: "static/myseat-selected.png",
       text: "我的"
@@ -10652,9 +10658,11 @@ var Ws = Bs;
 const createHook = (lifecycle) => (hook, target = getCurrentInstance()) => {
   !isInSSRComponentSetup && injectHook(lifecycle, hook, target);
 };
+const onShow = /* @__PURE__ */ createHook(ON_SHOW);
 const onLoad = /* @__PURE__ */ createHook(ON_LOAD);
 exports.Ws = Ws;
 exports._export_sfc = _export_sfc;
+exports.computed = computed;
 exports.createSSRApp = createSSRApp;
 exports.e = e$1;
 exports.f = f$1;
@@ -10663,7 +10671,9 @@ exports.initVueI18n = initVueI18n;
 exports.n = n$1;
 exports.o = o$1;
 exports.onLoad = onLoad;
+exports.onShow = onShow;
 exports.p = p$1;
+exports.reactive = reactive;
 exports.ref = ref;
 exports.resolveComponent = resolveComponent;
 exports.s = s$1;

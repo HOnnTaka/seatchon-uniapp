@@ -2,7 +2,7 @@
 	"pages": [{
 			"path": "pages/index/index",
 			"style": {
-				"navigationBarTitleText": "所有课室"
+				"navigationBarTitleText": "主页"
 			}
 		},
 		{
@@ -12,7 +12,7 @@
 			}
 		},
 		{
-			"path": "pages/myseat/myseat",
+			"path": "pages/user/user",
 			"style": {
 				"navigationBarTitleText": "我的"
 			}
@@ -21,6 +21,12 @@
 			"path": "pages/createSeatChart/createSeatChart",
 			"style": {
 				"navigationBarTitleText": "创建座位表"
+			}
+		},
+		{
+			"path": "pages/user/updateUserInfo",
+			"style": {
+				"navigationBarTitleText": "更新信息"
 			}
 		}
 	],
@@ -37,7 +43,7 @@
 				"text": "主页"
 			},
 			{
-				"pagePath": "pages/myseat/myseat",
+				"pagePath": "pages/user/user",
 				"iconPath": "static/myseat.png",
 				"selectedIconPath": "static/myseat-selected.png",
 				"text": "我的"

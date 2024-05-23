@@ -19,15 +19,19 @@ const _sfc_main = {
   setup(__props) {
     const searchValue = common_vendor.ref("");
     const charts = common_vendor.ref([]);
-    const userinfo = common_vendor.ref();
+    const userinfo = common_vendor.ref({});
     common_vendor.index.$on("userinfo", () => {
-      userinfo.value = getApp().globalData.userinfo;
+      userinfo.value = common_vendor.index.getStorageSync("userinfo");
     });
-    common_vendor.onLoad(async () => {
+    common_vendor.onShow(async () => {
       getCharts();
-      console.log(userinfo.value);
     });
-    const getCharts = async () => {
+    const getCharts = async (showToast = true) => {
+      if (showToast) {
+        common_vendor.index.showLoading({
+          title: "加载中"
+        });
+      }
       const db = common_vendor.Ws.database();
       const res = await db.collection("seat-chart").aggregate().project({
         _id: 1,
@@ -35,13 +39,16 @@ const _sfc_main = {
         note: 1,
         creator: 1,
         creatorId: 1,
-        selectableTime: 1,
-        effectiveTime: 1
+        selectableTimeRange: 1,
+        effectiveTimeRange: 1
       }).end();
       charts.value = res.result.data;
+      common_vendor.index.hideLoading();
+    };
+    const formatTimeRange = (timeRange) => {
+      return timeRange.join(" 至 ");
     };
     const availabale = (e) => {
-      console.log(e);
       return "选座中";
     };
     const search = async () => {
@@ -52,7 +59,6 @@ const _sfc_main = {
       });
     };
     return (_ctx, _cache) => {
-      var _a, _b;
       return common_vendor.e({
         a: common_vendor.o(search),
         b: common_vendor.o(($event) => searchValue.value = $event),
@@ -64,9 +70,9 @@ const _sfc_main = {
           return {
             a: common_vendor.t(item.title),
             b: common_vendor.t(item.note),
-            c: common_vendor.t(item.selectableTime),
-            d: common_vendor.t(item.effectiveTime),
-            e: common_vendor.t(availabale(item)),
+            c: common_vendor.t(formatTimeRange(item.selectableTimeRange)),
+            d: common_vendor.t(formatTimeRange(item.effectiveTimeRange)),
+            e: common_vendor.t(availabale()),
             f: item.chartId,
             g: "1cf27b2a-2-" + i0 + ",1cf27b2a-1",
             h: common_vendor.p({
@@ -78,8 +84,8 @@ const _sfc_main = {
             })
           };
         }),
-        e: ((_a = userinfo.value) == null ? void 0 : _a.type) == 1
-      }, ((_b = userinfo.value) == null ? void 0 : _b.type) == 1 ? {
+        e: userinfo.value.type == 1
+      }, userinfo.value.type == 1 ? {
         f: common_vendor.sr("fab", "1cf27b2a-3"),
         g: common_vendor.o(fabClick),
         h: common_vendor.p({

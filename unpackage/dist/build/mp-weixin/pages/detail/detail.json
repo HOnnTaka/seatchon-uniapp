@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "座位表详情",
+  "usingComponents": {
+    "uni-group": "../../uni_modules/uni-group/components/uni-group/uni-group",
+    "uni-dateformat": "../../uni_modules/uni-dateformat/components/uni-dateformat/uni-dateformat"
+  }
+}

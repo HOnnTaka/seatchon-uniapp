@@ -20,8 +20,8 @@
               <text class="item-note">{{ item.note }}</text>
             </view>
             <view class="item-time">
-              <text>选座时间：{{ item.selectableTime }}</text>
-              <text>有效时间：{{ item.effectiveTime }}</text>
+              <text>选座时间：{{ formatTimeRange(item.selectableTimeRange) }}</text>
+              <text>有效时间：{{ formatTimeRange(item.effectiveTimeRange) }}</text>
             </view>
           </view>
         </template>
@@ -34,7 +34,7 @@
     </uni-list>
 
     <uni-fab
-      v-if="userinfo?.type == 1"
+      v-if="userinfo.type == 1"
       ref="fab"
       :pattern="{ buttonColor: '#07c160' }"
       horizontal="right"
@@ -48,22 +48,26 @@
 
 <script setup>
 import { ref } from "vue";
-import { onLoad } from "@dcloudio/uni-app";
+import { onLoad,onShow } from "@dcloudio/uni-app";
 
 const searchValue = ref("");
 const charts = ref([]);
-const userinfo = ref();
+const userinfo = ref({});
 
 uni.$on("userinfo", () => {
-  userinfo.value = getApp().globalData.userinfo;
+  userinfo.value = uni.getStorageSync("userinfo");
 });
 
-onLoad(async () => {
+onShow(async () => {
   getCharts();
-  console.log(userinfo.value);
 });
 
-const getCharts = async () => {
+const getCharts = async (showToast = true) => {
+  if (showToast) {
+    uni.showLoading({
+      title: "加载中",
+    });
+  }
   const db = uniCloud.database();
   const res = await db
     .collection("seat-chart")
@@ -74,16 +78,22 @@ const getCharts = async () => {
       note: 1,
       creator: 1,
       creatorId: 1,
-      selectableTime: 1,
-      effectiveTime: 1,
+      selectableTimeRange: 1,
+      effectiveTimeRange: 1,
     })
     .end();
   // console.log(res);
   charts.value = res.result.data;
+  uni.hideLoading();
 };
-
+const formatTimeRange = timeRange => {
+  return timeRange.join(" 至 ");
+};
 const availabale = e => {
-  console.log(e);
+  const { selectableTime, effectiveTime } = e;
+  const now = new Date();
+  const selectableTimeDate = new Date(selectableTime);
+  const effectiveTimeDate = new Date(effectiveTime);
   return "选座中";
 };
 
