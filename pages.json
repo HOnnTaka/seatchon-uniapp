@@ -22,20 +22,13 @@
 			"style": {
 				"navigationBarTitleText": "创建座位表"
 			}
-		},
-		{
-			"path": "pages/user/updateUserInfo",
-			"style": {
-				"navigationBarTitleText": "更新信息"
-			}
 		}
 	],
 	"tabBar": {
 		"color": "#7A7E83",
 		"selectedColor": "#07c160",
-		"borderStyle": "black",
-		"blurEffect": "extralight",
-		"backgroundColor": "rgba(248, 248, 248, 0.5)",
+		"borderStyle": "white",
+		"backgroundColor": "#f8f8f8",
 		"list": [{
 				"pagePath": "pages/index/index",
 				"iconPath": "static/home.png",
@@ -57,6 +50,8 @@
 		"backgroundColor": "#F8F8F8",
 		"app-plus": {
 			"background": "#efeff4"
-		}
+		},
+		"enablePullDownRefresh": true
+
 	}
 }

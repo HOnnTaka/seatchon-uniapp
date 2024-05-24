@@ -6,7 +6,6 @@ if (!Math) {
   "./pages/detail/detail.js";
   "./pages/user/user.js";
   "./pages/createSeatChart/createSeatChart.js";
-  "./pages/user/updateUserInfo.js";
 }
 const _sfc_main = {
   onLaunch: async () => {
@@ -15,11 +14,9 @@ const _sfc_main = {
   },
   onHide() {
   },
-  globalData: {},
-  onError(err) {
-  }
+  globalData: {}
 };
-const App = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__file", "D:/mcct/seatchon-uniapp/App.vue"]]);
+const App = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__file", "D:/code/seatchon-uniapp/App.vue"]]);
 function createApp() {
   const app = common_vendor.createSSRApp(App);
   return {

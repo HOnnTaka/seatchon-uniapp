@@ -1,42 +1,92 @@
 <template>
   <view class="container">
-    <uni-list class="userinfo">
-      <button
-        @longpress="onLongPress"
-        @chooseavatar="onChooseAvatar"
-        open-type="chooseAvatar"
-        hover-class="hover"
-        class="edit-avatar"
-      >
-        <uni-list-item clickable showArrow title="头像">
+    <uni-card padding="0">
+      <template v-slot:title>
+        <uni-section title="我的信息" type="line"></uni-section>
+      </template>
+      <uni-list class="userinfo">
+        <button
+          @longpress="onLongPress"
+          @chooseavatar="onChooseAvatar"
+          open-type="chooseAvatar"
+          hover-class="hover"
+          class="edit-avatar"
+        >
+          <uni-list-item :border="false" clickable showArrow title="头像">
+            <template v-slot:footer>
+              <image :src="userinfo.avatarUrl" />
+            </template>
+          </uni-list-item>
+        </button>
+        <uni-list-item clickable @click="edit('昵称', userinfo.nickName)" showArrow title="昵称">
           <template v-slot:footer>
-            <image :src="userinfo.avatarUrl" />
+            <text class="title">{{ userinfo.nickName }}</text>
           </template>
         </uni-list-item>
-      </button>
-      <uni-list-item clickable @click="edit('昵称')" showArrow title="昵称">
-        <template v-slot:footer>
-          <view class="title">{{ userinfo.nickName }}</view>
-        </template>
-      </uni-list-item>
-      <uni-list-item clickable @click="edit('姓名')" showArrow title="姓名">
-        <template v-slot:footer>
-          <text>{{ userinfo.stuInfo.name || "未设置" }}</text>
-        </template>
-      </uni-list-item>
-      <uni-list-item clickable @click="edit('学号')" showArrow title="学号">
-        <template v-slot:footer>
-          <text>{{ userinfo.stuInfo.id || "未设置" }}</text>
-        </template>
-      </uni-list-item>
-      <uni-list-item clickable @click="edit('班级')" showArrow title="班级">
-        <template v-slot:footer>
-          <text>{{ userinfo.stuInfo.class || "未设置" }}</text>
-        </template>
-      </uni-list-item>
-    </uni-list>
+        <uni-list-item clickable @click="edit('姓名', userinfo.stuInfo.name)" showArrow title="姓名">
+          <template v-slot:footer>
+            <text>{{ userinfo.stuInfo.name || "未设置" }}</text>
+          </template>
+        </uni-list-item>
+        <uni-list-item clickable @click="edit('学号', userinfo.stuInfo.id)" showArrow title="学号">
+          <template v-slot:footer>
+            <text>{{ userinfo.stuInfo.id || "未设置" }}</text>
+          </template>
+        </uni-list-item>
+        <uni-list-item clickable @click="edit('班级', userinfo.stuInfo.class)" showArrow title="班级">
+          <template v-slot:footer>
+            <text>{{ userinfo.stuInfo.class || "未设置" }}</text>
+          </template>
+        </uni-list-item>
+      </uni-list>
+    </uni-card>
 
-    <uni-popup ref="inputDialog" type="dialog">
+    <uni-card padding="0">
+      <template v-slot:title>
+        <uni-section title="我的预定" type="line"></uni-section>
+      </template>
+      <unicloud-db
+        ref="udb"
+        :options="options"
+        v-if="userinfo"
+        v-slot:default="{ data, loading, hasMore, error, options }"
+        collection="order"
+        :where="`openid=='${userinfo._openid}'`"
+        orderby="orderTime desc"
+      >
+        <view v-if="error">{{ error.message }}</view>
+        <uni-list>
+          <uni-list-item
+            v-for="(item, index) in data"
+            :key="item.chartId"
+            clickable
+            link
+            :to="'/pages/detail/detail?chartId=' + item.chartId"
+            :title="item.title"
+            :note="item.note"
+          >
+            <template v-slot:body>
+              <view class="item-body">
+                <view class="item-content">
+                  <text class="item-title">{{ item.title }}</text>
+                  <text class="item-note">{{ item.note }}</text>
+                </view>
+                <view class="item-time">
+                  <text>选座时间：{{ formatTimeRange(item.selectableTimeRange) }}</text>
+                  <text>有效时间：{{ formatTimeRange(item.effectiveTimeRange) }}</text>
+                </view>
+              </view>
+            </template>
+            <template v-slot:footer>
+              <view class="item-footer">第{{ item.x }}列 第{{ item.y }}行</view>
+            </template>
+          </uni-list-item>
+        </uni-list>
+        <uni-load-more :status="loading ? 'loading' : hasMore ? 'default' : 'no-more'"></uni-load-more>
+      </unicloud-db>
+    </uni-card>
+
+    <uni-popup v-if="ifRenderDialog" ref="inputDialog" type="dialog">
       <uni-popup-dialog
         ref="inputClose"
         mode="input"
@@ -44,21 +94,42 @@
         :placeholder="popupData.placeholder"
         v-model="popupData.value"
         @confirm="dialogInputConfirm"
+        @cancel="ifRenderDialog = false"
       ></uni-popup-dialog>
     </uni-popup>
+
+    <view class="edgeInsetBottom"></view>
   </view>
 </template>
 
 <script setup>
 import { ref } from "vue";
-import { onLoad, onShow } from "@dcloudio/uni-app";
+import { onLoad, onShow, onPullDownRefresh } from "@dcloudio/uni-app";
 const userinfo = ref(uni.getStorageSync("userinfo"));
 const popupData = ref({
   value: "",
   title: "",
   placeholder: "",
 });
-
+const formatTimeRange = timeRange => {
+  return timeRange.join(" 至 ");
+};
+onShow(() => {
+  getCurrentPages()[0].$vm.$refs.udb.loadData({ clear: true });
+});
+onPullDownRefresh(async () => {
+  await getCurrentPages()[0].$vm.$refs.udb.loadData({ clear: true }, () => {
+    uni.stopPullDownRefresh();
+  });
+  uni.showToast({
+    title: "刷新成功",
+    icon: "success",
+  });
+});
+// const onReachBottom = () => {
+//   //上拉加载更多
+//   getCurrentPages()[0].$vm.$refs.udb.loadMore();
+// };
 const onChooseAvatar = async e => {
   const tmpUrl = e.detail.avatarUrl;
   uni.showLoading({
@@ -98,13 +169,19 @@ const onChooseAvatar = async e => {
     icon: "none",
   });
 };
-const edit = type => {
+const ifRenderDialog = ref(false);
+const inputDialog = ref(null);
+const edit = async (type, value) => {
   popupData.value = {
     type: type,
     title: "编辑" + type,
     placeholder: "请输入" + type,
+    value: value,
   };
-  getCurrentPages()[0].$vm.$refs.inputDialog.open();
+  ifRenderDialog.value = true;
+  setTimeout(() => {
+    getCurrentPages()[0].$vm.$refs.inputDialog.open();
+  });
 };
 const types = {
   昵称: "nickName",
@@ -141,13 +218,14 @@ const dialogInputConfirm = async input => {
       title: "修改成功",
       icon: "success",
     });
+    ifRenderDialog.value = true;
     getCurrentPages()[0].$vm.$refs.inputDialog.close();
-  } else {
-    uni.showToast({
-      title: "修改失败",
-      icon: "none",
-    });
+    return;
   }
+  uni.showToast({
+    title: "修改失败",
+    icon: "none",
+  });
 };
 const count = ref(0);
 const onLongPress = async () => {
@@ -188,7 +266,10 @@ const onLongPress = async () => {
 .edit-avatar {
   margin: 0;
   padding: 0;
-  border: none;
+  border: none !important;
+}
+.edit-avatar::after {
+  border: none !important;
 }
 
 .hover .uni-list-item {
@@ -213,9 +294,28 @@ const onLongPress = async () => {
 .stuInfo view:last-child {
   margin-bottom: 0;
 }
-
-.stuInfo text,
-.title {
-  margin-right: 5px;
+.item-title {
+  font-size: 24px;
+  font-weight: bold;
+}
+.item-note {
+  color: #999;
+  font-size: 12px;
+  margin-left: 5px;
+}
+.item-time {
+  font-size: 12px;
+  color: #999;
+  display: flex;
+  flex-direction: column;
+}
+.item-footer {
+  align-self: center;
+  margin-left: auto;
+}
+.edgeInsetBottom {
+  width: 100%;
+  height: var(--window-bottom);
+  padding: 10px;
 }
 </style>

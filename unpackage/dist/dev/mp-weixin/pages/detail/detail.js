@@ -24,11 +24,17 @@ const _sfc_main = {
       chartId.value = option.chartId;
       await getChartDetail(option.chartId);
     });
+    common_vendor.onPullDownRefresh(async () => {
+      await getChartDetail(chartId.value);
+      common_vendor.index.showToast({
+        title: "刷新成功",
+        icon: "success"
+      });
+    });
     const getChartDetail = async (id) => {
       loading.value = true;
       const db = common_vendor.Ws.database();
       const { result } = await db.collection("seat-chart").doc(id).get();
-      console.log(result);
       chartDetail.value = result.data[0];
       common_vendor.index.setNavigationBarTitle({
         title: chartDetail.value.title
@@ -57,7 +63,9 @@ const _sfc_main = {
         });
         if (!confirm)
           return;
-        return common_vendor.index.navigateTo({ url: "/pages/myseat/myseat" });
+        return common_vendor.index.switchTab({
+          url: "/pages/user/user"
+        });
       }
       isSelectSubmit.value = ((_a = selectedItem.value.stuInfo) == null ? void 0 : _a.openid) != userinfo.value._openid;
       showDrawer.value = true;
@@ -73,7 +81,8 @@ const _sfc_main = {
           chartId: chartId.value,
           seatIndex: selectedItem.value.index,
           userinfo: userinfo.value,
-          isSelectSubmit: isSelectSubmit.value
+          isSelectSubmit: isSelectSubmit.value,
+          orderId: selectedItem.value.orderId
         }
       });
       showDrawer.value = false;
@@ -176,5 +185,5 @@ const _sfc_main = {
     };
   }
 };
-const MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__scopeId", "data-v-eca06f3c"], ["__file", "D:/mcct/seatchon-uniapp/pages/detail/detail.vue"]]);
+const MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__scopeId", "data-v-eca06f3c"], ["__file", "D:/code/seatchon-uniapp/pages/detail/detail.vue"]]);
 wx.createPage(MiniProgramPage);

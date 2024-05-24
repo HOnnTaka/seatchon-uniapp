@@ -74,5 +74,5 @@ function _sfc_render(_ctx, _cache, $props, $setup, $data, $options) {
     g: `${$props.top}px`
   });
 }
-const Component = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["render", _sfc_render], ["__file", "D:/mcct/seatchon-uniapp/uni_modules/uni-group/components/uni-group/uni-group.vue"]]);
+const Component = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["render", _sfc_render], ["__file", "D:/code/seatchon-uniapp/uni_modules/uni-group/components/uni-group/uni-group.vue"]]);
 wx.createComponent(Component);

@@ -12,6 +12,7 @@ view.data-v-1cf27b2a, button.data-v-1cf27b2a {
   background: #fff;
 }
 .item-title.data-v-1cf27b2a {
+  color: #666;
   font-size: 24px;
   font-weight: bold;
 }
@@ -29,8 +30,10 @@ view.data-v-1cf27b2a, button.data-v-1cf27b2a {
 .item-footer.data-v-1cf27b2a {
   align-self: center;
   margin-left: auto;
+  color: #666;
 }
 .edgeInsetBottom.data-v-1cf27b2a {
   width: 100%;
   height: var(--window-bottom);
+  padding: 10px;
 }

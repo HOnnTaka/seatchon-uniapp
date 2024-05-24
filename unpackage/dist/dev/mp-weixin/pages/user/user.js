@@ -1,18 +1,26 @@
 "use strict";
 const common_vendor = require("../../common/vendor.js");
 if (!Array) {
+  const _easycom_uni_section2 = common_vendor.resolveComponent("uni-section");
   const _easycom_uni_list_item2 = common_vendor.resolveComponent("uni-list-item");
   const _easycom_uni_list2 = common_vendor.resolveComponent("uni-list");
+  const _easycom_uni_card2 = common_vendor.resolveComponent("uni-card");
+  const _easycom_uni_load_more2 = common_vendor.resolveComponent("uni-load-more");
+  const _easycom_unicloud_db2 = common_vendor.resolveComponent("unicloud-db");
   const _easycom_uni_popup_dialog2 = common_vendor.resolveComponent("uni-popup-dialog");
   const _easycom_uni_popup2 = common_vendor.resolveComponent("uni-popup");
-  (_easycom_uni_list_item2 + _easycom_uni_list2 + _easycom_uni_popup_dialog2 + _easycom_uni_popup2)();
+  (_easycom_uni_section2 + _easycom_uni_list_item2 + _easycom_uni_list2 + _easycom_uni_card2 + _easycom_uni_load_more2 + _easycom_unicloud_db2 + _easycom_uni_popup_dialog2 + _easycom_uni_popup2)();
 }
+const _easycom_uni_section = () => "../../uni_modules/uni-section/components/uni-section/uni-section.js";
 const _easycom_uni_list_item = () => "../../uni_modules/uni-list/components/uni-list-item/uni-list-item.js";
 const _easycom_uni_list = () => "../../uni_modules/uni-list/components/uni-list/uni-list.js";
+const _easycom_uni_card = () => "../../uni_modules/uni-card/components/uni-card/uni-card.js";
+const _easycom_uni_load_more = () => "../../uni_modules/uni-load-more/components/uni-load-more/uni-load-more.js";
+const _easycom_unicloud_db = () => "../../node-modules/@dcloudio/uni-components/lib/unicloud-db/unicloud-db.js";
 const _easycom_uni_popup_dialog = () => "../../uni_modules/uni-popup/components/uni-popup-dialog/uni-popup-dialog.js";
 const _easycom_uni_popup = () => "../../uni_modules/uni-popup/components/uni-popup/uni-popup.js";
 if (!Math) {
-  (_easycom_uni_list_item + _easycom_uni_list + _easycom_uni_popup_dialog + _easycom_uni_popup)();
+  (_easycom_uni_section + _easycom_uni_list_item + _easycom_uni_list + _easycom_uni_card + _easycom_uni_load_more + _easycom_unicloud_db + _easycom_uni_popup_dialog + _easycom_uni_popup)();
 }
 const _sfc_main = {
   __name: "user",
@@ -22,6 +30,21 @@ const _sfc_main = {
       value: "",
       title: "",
       placeholder: ""
+    });
+    const formatTimeRange = (timeRange) => {
+      return timeRange.join(" 至 ");
+    };
+    common_vendor.onShow(() => {
+      getCurrentPages()[0].$vm.$refs.udb.loadData({ clear: true });
+    });
+    common_vendor.onPullDownRefresh(async () => {
+      await getCurrentPages()[0].$vm.$refs.udb.loadData({ clear: true }, () => {
+        common_vendor.index.stopPullDownRefresh();
+      });
+      common_vendor.index.showToast({
+        title: "刷新成功",
+        icon: "success"
+      });
     });
     const onChooseAvatar = async (e) => {
       const tmpUrl = e.detail.avatarUrl;
@@ -58,13 +81,19 @@ const _sfc_main = {
         icon: "none"
       });
     };
-    const edit = (type) => {
+    const ifRenderDialog = common_vendor.ref(false);
+    const inputDialog = common_vendor.ref(null);
+    const edit = async (type, value) => {
       popupData.value = {
         type,
         title: "编辑" + type,
-        placeholder: "请输入" + type
+        placeholder: "请输入" + type,
+        value
       };
-      getCurrentPages()[0].$vm.$refs.inputDialog.open();
+      ifRenderDialog.value = true;
+      setTimeout(() => {
+        getCurrentPages()[0].$vm.$refs.inputDialog.open();
+      });
     };
     const types = {
       昵称: "nickName",
@@ -97,13 +126,14 @@ const _sfc_main = {
           title: "修改成功",
           icon: "success"
         });
+        ifRenderDialog.value = true;
         getCurrentPages()[0].$vm.$refs.inputDialog.close();
-      } else {
-        common_vendor.index.showToast({
-          title: "修改失败",
-          icon: "none"
-        });
+        return;
       }
+      common_vendor.index.showToast({
+        title: "修改失败",
+        icon: "none"
+      });
     };
     const count = common_vendor.ref(0);
     const onLongPress = async () => {
@@ -123,59 +153,133 @@ const _sfc_main = {
       }
     };
     return (_ctx, _cache) => {
-      return {
-        a: userinfo.value.avatarUrl,
-        b: common_vendor.p({
+      return common_vendor.e({
+        a: common_vendor.p({
+          title: "我的信息",
+          type: "line"
+        }),
+        b: userinfo.value.avatarUrl,
+        c: common_vendor.p({
+          border: false,
           clickable: true,
           showArrow: true,
           title: "头像"
         }),
-        c: common_vendor.o(onLongPress),
-        d: common_vendor.o(onChooseAvatar),
-        e: common_vendor.t(userinfo.value.nickName),
-        f: common_vendor.o(($event) => edit("昵称")),
-        g: common_vendor.p({
+        d: common_vendor.o(onLongPress),
+        e: common_vendor.o(onChooseAvatar),
+        f: common_vendor.t(userinfo.value.nickName),
+        g: common_vendor.o(($event) => edit("昵称", userinfo.value.nickName)),
+        h: common_vendor.p({
           clickable: true,
           showArrow: true,
           title: "昵称"
         }),
-        h: common_vendor.t(userinfo.value.stuInfo.name || "未设置"),
-        i: common_vendor.o(($event) => edit("姓名")),
-        j: common_vendor.p({
+        i: common_vendor.t(userinfo.value.stuInfo.name || "未设置"),
+        j: common_vendor.o(($event) => edit("姓名", userinfo.value.stuInfo.name)),
+        k: common_vendor.p({
           clickable: true,
           showArrow: true,
           title: "姓名"
         }),
-        k: common_vendor.t(userinfo.value.stuInfo.id || "未设置"),
-        l: common_vendor.o(($event) => edit("学号")),
-        m: common_vendor.p({
+        l: common_vendor.t(userinfo.value.stuInfo.id || "未设置"),
+        m: common_vendor.o(($event) => edit("学号", userinfo.value.stuInfo.id)),
+        n: common_vendor.p({
           clickable: true,
           showArrow: true,
           title: "学号"
         }),
-        n: common_vendor.t(userinfo.value.stuInfo.class || "未设置"),
-        o: common_vendor.o(($event) => edit("班级")),
-        p: common_vendor.p({
+        o: common_vendor.t(userinfo.value.stuInfo.class || "未设置"),
+        p: common_vendor.o(($event) => edit("班级", userinfo.value.stuInfo.class)),
+        q: common_vendor.p({
           clickable: true,
           showArrow: true,
           title: "班级"
         }),
-        q: common_vendor.sr("inputClose", "249eac86-7,249eac86-6"),
-        r: common_vendor.o(dialogInputConfirm),
-        s: common_vendor.o(($event) => popupData.value.value = $event),
-        t: common_vendor.p({
+        r: common_vendor.p({
+          padding: "0"
+        }),
+        s: common_vendor.p({
+          title: "我的预定",
+          type: "line"
+        }),
+        t: userinfo.value
+      }, userinfo.value ? {
+        v: common_vendor.w(({
+          data,
+          loading,
+          hasMore,
+          error,
+          options
+        }, s0, i0) => {
+          return common_vendor.e({
+            a: error
+          }, error ? {
+            b: common_vendor.t(error.message)
+          } : {}, {
+            c: common_vendor.f(data, (item, index, i1) => {
+              return {
+                a: common_vendor.t(item.title),
+                b: common_vendor.t(item.note),
+                c: common_vendor.t(formatTimeRange(item.selectableTimeRange)),
+                d: common_vendor.t(formatTimeRange(item.effectiveTimeRange)),
+                e: common_vendor.t(item.x),
+                f: common_vendor.t(item.y),
+                g: item.chartId,
+                h: "2d0e1023-12-" + i0 + "-" + i1 + "," + ("2d0e1023-11-" + i0),
+                i: common_vendor.p({
+                  clickable: true,
+                  link: true,
+                  to: "/pages/detail/detail?chartId=" + item.chartId,
+                  title: item.title,
+                  note: item.note
+                })
+              };
+            }),
+            d: "2d0e1023-11-" + i0 + ",2d0e1023-10",
+            e: "2d0e1023-13-" + i0 + ",2d0e1023-10",
+            f: common_vendor.p({
+              status: loading ? "loading" : hasMore ? "default" : "no-more"
+            }),
+            g: i0,
+            h: s0
+          });
+        }, {
+          name: "d",
+          path: "v",
+          vueId: "2d0e1023-10,2d0e1023-8"
+        }),
+        w: common_vendor.sr("udb", "2d0e1023-10,2d0e1023-8"),
+        x: common_vendor.p({
+          options: _ctx.options,
+          collection: "order",
+          where: `openid=='${userinfo.value._openid}'`,
+          orderby: "orderTime desc"
+        })
+      } : {}, {
+        y: common_vendor.p({
+          padding: "0"
+        }),
+        z: ifRenderDialog.value
+      }, ifRenderDialog.value ? {
+        A: common_vendor.sr("inputClose", "2d0e1023-15,2d0e1023-14"),
+        B: common_vendor.o(dialogInputConfirm),
+        C: common_vendor.o(($event) => ifRenderDialog.value = false),
+        D: common_vendor.o(($event) => popupData.value.value = $event),
+        E: common_vendor.p({
           mode: "input",
           title: popupData.value.title,
           placeholder: popupData.value.placeholder,
           modelValue: popupData.value.value
         }),
-        v: common_vendor.sr("inputDialog", "249eac86-6"),
-        w: common_vendor.p({
+        F: common_vendor.sr(inputDialog, "2d0e1023-14", {
+          "k": "inputDialog"
+        }),
+        G: common_vendor.p({
           type: "dialog"
         })
-      };
+      } : {});
     };
   }
 };
-const MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__file", "D:/mcct/seatchon-uniapp/pages/user/user.vue"]]);
+const MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__file", "D:/code/seatchon-uniapp/pages/user/user.vue"]]);
 wx.createPage(MiniProgramPage);

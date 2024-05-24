@@ -4,15 +4,17 @@ if (!Array) {
   const _easycom_uni_search_bar2 = common_vendor.resolveComponent("uni-search-bar");
   const _easycom_uni_list_item2 = common_vendor.resolveComponent("uni-list-item");
   const _easycom_uni_list2 = common_vendor.resolveComponent("uni-list");
+  const _easycom_uni_load_more2 = common_vendor.resolveComponent("uni-load-more");
   const _easycom_uni_fab2 = common_vendor.resolveComponent("uni-fab");
-  (_easycom_uni_search_bar2 + _easycom_uni_list_item2 + _easycom_uni_list2 + _easycom_uni_fab2)();
+  (_easycom_uni_search_bar2 + _easycom_uni_list_item2 + _easycom_uni_list2 + _easycom_uni_load_more2 + _easycom_uni_fab2)();
 }
 const _easycom_uni_search_bar = () => "../../uni_modules/uni-search-bar/components/uni-search-bar/uni-search-bar.js";
 const _easycom_uni_list_item = () => "../../uni_modules/uni-list/components/uni-list-item/uni-list-item.js";
 const _easycom_uni_list = () => "../../uni_modules/uni-list/components/uni-list/uni-list.js";
+const _easycom_uni_load_more = () => "../../uni_modules/uni-load-more/components/uni-load-more/uni-load-more.js";
 const _easycom_uni_fab = () => "../../uni_modules/uni-fab/components/uni-fab/uni-fab.js";
 if (!Math) {
-  (_easycom_uni_search_bar + _easycom_uni_list_item + _easycom_uni_list + _easycom_uni_fab)();
+  (_easycom_uni_search_bar + _easycom_uni_list_item + _easycom_uni_list + _easycom_uni_load_more + _easycom_uni_fab)();
 }
 const _sfc_main = {
   __name: "index",
@@ -25,6 +27,10 @@ const _sfc_main = {
         title: "加载中",
         mask: true
       });
+      await login();
+      common_vendor.index.hideLoading();
+    });
+    const login = async () => {
       try {
         const { code } = await common_vendor.index.login();
         const { result } = await common_vendor.Ws.callFunction({ name: "login", data: { code } });
@@ -38,10 +44,17 @@ const _sfc_main = {
         });
         console.log(err);
       }
-      common_vendor.index.hideLoading();
-    });
+    };
     common_vendor.onShow(async () => {
       getCharts(false);
+    });
+    common_vendor.onPullDownRefresh(async () => {
+      await login();
+      await getCharts(false);
+      common_vendor.index.showToast({
+        title: "刷新成功",
+        icon: "success"
+      });
     });
     const getCharts = async (showToast = true) => {
       if (showToast) {
@@ -101,11 +114,14 @@ const _sfc_main = {
             })
           };
         }),
-        e: userinfo.value.type == 1
+        e: common_vendor.p({
+          status: "noMore"
+        }),
+        f: userinfo.value.type == 1
       }, userinfo.value.type == 1 ? {
-        f: common_vendor.sr("fab", "1cf27b2a-3"),
-        g: common_vendor.o(fabClick),
-        h: common_vendor.p({
+        g: common_vendor.sr("fab", "1cf27b2a-4"),
+        h: common_vendor.o(fabClick),
+        i: common_vendor.p({
           pattern: {
             buttonColor: "#07c160"
           },
@@ -116,5 +132,5 @@ const _sfc_main = {
     };
   }
 };
-const MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__scopeId", "data-v-1cf27b2a"], ["__file", "D:/mcct/seatchon-uniapp/pages/index/index.vue"]]);
+const MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__scopeId", "data-v-1cf27b2a"], ["__file", "D:/code/seatchon-uniapp/pages/index/index.vue"]]);
 wx.createPage(MiniProgramPage);

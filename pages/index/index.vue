@@ -32,7 +32,7 @@
         </template>
       </uni-list-item>
     </uni-list>
-
+    <uni-load-more status="noMore"></uni-load-more>
     <uni-fab
       v-if="userinfo.type == 1"
       ref="fab"
@@ -48,7 +48,7 @@
 
 <script setup>
 import { ref } from "vue";
-import { onLoad, onShow } from "@dcloudio/uni-app";
+import { onLoad, onShow, onPullDownRefresh } from "@dcloudio/uni-app";
 
 const searchValue = ref("");
 const charts = ref([]);
@@ -59,6 +59,10 @@ onLoad(async () => {
     title: "加载中",
     mask: true,
   });
+  await login();
+  uni.hideLoading();
+});
+const login = async () => {
   try {
     const { code } = await uni.login();
     const { result } = await uniCloud.callFunction({ name: "login", data: { code } });
@@ -72,11 +76,18 @@ onLoad(async () => {
     });
     console.log(err);
   }
-  uni.hideLoading();
-});
-
+};
 onShow(async () => {
   getCharts(false);
+});
+
+onPullDownRefresh(async () => {
+  await login();
+  await getCharts(false);
+  uni.showToast({
+    title: "刷新成功",
+    icon: "success",
+  });
 });
 
 const getCharts = async (showToast = true) => {
@@ -133,6 +144,7 @@ const fabClick = () => {
   background: #fff;
 }
 .item-title {
+  color: #666;
   font-size: 24px;
   font-weight: bold;
 }
@@ -150,9 +162,11 @@ const fabClick = () => {
 .item-footer {
   align-self: center;
   margin-left: auto;
+  color: #666;
 }
 .edgeInsetBottom {
   width: 100%;
   height: var(--window-bottom);
+  padding: 10px;
 }
 </style>

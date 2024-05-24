@@ -8,9 +8,6 @@
 		"delete": true
 	},
 	"properties": {
-		"_id": {
-			"description": "ID，系统自动生成"
-		},
 		"title": {
 			"bsonType": "string",
 			"description": "标题",
@@ -29,13 +26,16 @@
 			"description": "列数"
 		},
 		"effectiveTimeRange": {
-			"description": "有效时间范围"
+			"description": "有效时间范围",
+			"bsonType": "array"
 		},
 		"selectableTimeRange": {
-			"description": "可选时间范围"
+			"description": "可选时间范围",
+			"bsonType": "array"
 		},
 		"stuInfoVisible": {
-			"description": "学生信息可见性"
+			"description": "学生信息可见性",
+			"bsonType": "bool"
 		},
 		"seats": {
 			"description": "座位信息"

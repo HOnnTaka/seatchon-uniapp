@@ -9,10 +9,5 @@
 // 详细JQL语法，请参考：https://uniapp.dcloud.net.cn/uniCloud/jql.html
 
 // 下面示例查询uni-id-users表的所有数据
-db.collection('seat-chart').aggregate().project({
-	_id: 1,
-	title: 1,
-	note: 1,
-	creator: 1,
-	creatorId: 1,
-}).end()
+
+db.collection("order").doc('66500b11edf2361f13685692').remove()

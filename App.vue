@@ -1,12 +1,9 @@
 <script>
 export default {
-  onLaunch: async () => {
-
-  },
+  onLaunch: async () => {},
   onShow() {},
   onHide() {},
   globalData: {},
-  onError(err) {},
 };
 </script>
 
@@ -17,7 +14,7 @@ export default {
 @import "@/static/customicons.css";
 // 设置整个项目的背景色
 page {
-  // background-image: linear-gradient(90deg, #47c5ff20, #ff8fde20);
+  background-image: linear-gradient(90deg, #47c5ff10, #ff8fde10);
 }
 
 /* #endif */

@@ -3,21 +3,20 @@
     "pages/index/index",
     "pages/detail/detail",
     "pages/user/user",
-    "pages/createSeatChart/createSeatChart",
-    "pages/user/updateUserInfo"
+    "pages/createSeatChart/createSeatChart"
   ],
   "window": {
     "navigationBarTextStyle": "black",
     "navigationBarTitleText": "uni-app",
     "navigationBarBackgroundColor": "#F8F8F8",
-    "backgroundColor": "#F8F8F8"
+    "backgroundColor": "#F8F8F8",
+    "enablePullDownRefresh": true
   },
   "tabBar": {
     "color": "#7A7E83",
     "selectedColor": "#07c160",
-    "borderStyle": "black",
-    "blurEffect": "extralight",
-    "backgroundColor": "rgba(248, 248, 248, 0.5)",
+    "borderStyle": "white",
+    "backgroundColor": "#f8f8f8",
     "list": [
       {
         "pagePath": "pages/index/index",
