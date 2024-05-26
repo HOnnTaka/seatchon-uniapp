@@ -168,8 +168,6 @@ const submit = async ref => {
         ...data,
         stuInfoVisible: data.stuInfoVisible == 0 ? true : false,
         createTime: new Date().toJSON(),
-        creator: userinfo.nickName,
-        creatorId: userinfo._id,
         administrators: [userinfo._id],
         seats: seats.value.map((item, index) => ({
           x: item.x,

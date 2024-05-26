@@ -1,6 +1,9 @@
 <template>
   <view class="container">
-    <card-list title="我的预定">
+    <uni-card class="order-card" padding="0">
+      <template v-slot:title>
+        <uni-section title="我的预定" type="line"></uni-section>
+      </template>
       <unicloud-db
         ref="udb"
         :options="options"
@@ -38,8 +41,8 @@
         </uni-list>
         <uni-load-more :status="loading ? 'loading' : hasMore ? 'default' : 'no-more'"></uni-load-more>
       </unicloud-db>
-    </card-list>
-    <uni-card class="order-card" padding="0"> </uni-card>
+    </uni-card>
+
     <view class="edgeInsetBottom"></view>
   </view>
 </template>
@@ -47,8 +50,6 @@
 <script setup>
 import { ref } from "vue";
 import { onLoad, onShow, onPullDownRefresh } from "@dcloudio/uni-app";
-import ListItem from "@/component/ListItem/ListItem";
-import CardList from "@/component/CardList/CardList";
 const userinfo = ref(uni.getStorageSync("userinfo"));
 
 const formatTimeRange = timeRange => {

@@ -1,14 +1,41 @@
 <template>
   <view class="contaioner">
-    <card-list title="课室列表">
-      <list-item title="课室名称:" :content="chartDetail?.title" />
-      <list-item title="备注:" :content="chartDetail?.note" />
-      <list-item title="管理员:" :content="adminName"></list-item>
-      <list-item title="选座时间:" :content="chartDetail?.selectableTimeRange.join(' 至 ')" />
-      <list-item title="生效时间:" :content="chartDetail?.effectiveTimeRange.join(' 至 ')" />
-    </card-list>
-
-    <card-list class="order-card" title="座位表">
+    <uni-card class="order-card" padding="0">
+      <template v-slot:title>
+        <uni-section title="课室信息" type="line"></uni-section>
+      </template>
+      <uni-list>
+        <uni-list-item title="课室">
+          <template v-slot:footer>
+            <text>{{ chartDetail?.title }}</text>
+          </template>
+        </uni-list-item>
+        <uni-list-item title="备注">
+          <template v-slot:footer>
+            <text>{{ chartDetail?.note }}</text>
+          </template>
+        </uni-list-item>
+        <uni-list-item title="管理员">
+          <template v-slot:footer>
+            <text>{{ adminName }}</text>
+          </template>
+        </uni-list-item>
+        <uni-list-item title="选座时间">
+          <template v-slot:footer>
+            <text>{{ chartDetail?.selectableTimeRange.join(" 至 ") }}</text>
+          </template>
+        </uni-list-item>
+        <uni-list-item title="生效时间">
+          <template v-slot:footer>
+            <text>{{ chartDetail?.effectiveTimeRange.join(" 至 ") }}</text>
+          </template>
+        </uni-list-item>
+      </uni-list>
+    </uni-card>
+    <uni-card class="order-card" padding="0">
+      <template v-slot:title>
+        <uni-section title="座位表" type="line"></uni-section>
+      </template>
       <view class="seatTable" :style="`--col:${chartDetail?.col};--row:${chartDetail?.row};`">
         <view
           v-for="(item, index) in chartDetail?.seats"
@@ -18,7 +45,7 @@
           :style="
             item?.stuInfo?.id != userinfo._id
               ? `background-image:url(${item.stuInfo?.avatar});`
-              : `background:#2979ff;`
+              : 'background:#333;'
           "
           @click="() => (selectedItem = item)"
         >
@@ -28,26 +55,46 @@
       <button class="refresh-btn" @click="onrefreshBtnClick" type="default" size="mini" :loading="loading">
         刷新
       </button>
-    </card-list>
+    </uni-card>
 
-    <card-list class="order-card" title="座位信息" v-if="selectedItem">
+    <uni-card class="order-card" padding="0" v-if="selectedItem">
+      <template v-slot:title>
+        <uni-section title="座位信息" type="line"></uni-section>
+      </template>
       <view class="detail">
-        <list-item title="座位:">第{{ selectedItem?.x }}列 第{{ selectedItem?.y }}行</list-item>
+        <uni-list-item title="座位">
+          <template v-slot:footer>
+            <text>第{{ selectedItem?.x }}列 第{{ selectedItem?.y }}行</text>
+          </template>
+        </uni-list-item>
         <view v-if="selectedItem?.stuInfo && (chartDetail.stuInfoVisible || userinfo.type == 1)">
-          <list-item title="姓名：">{{ selectedItem?.stuInfo?.name }}</list-item>
-          <list-item title="学号：">{{ selectedItem?.stuInfo?.id }}</list-item>
-          <list-item title="班级：">{{ selectedItem?.stuInfo?.class }}</list-item>
+          <uni-list-item title="姓名">
+            <template v-slot:footer>
+              <text>{{ selectedItem?.stuInfo?.name }}</text>
+            </template>
+          </uni-list-item>
+          <uni-list-item title="学号">
+            <template v-slot:footer>
+              <text>{{ selectedItem?.stuInfo?.id }}</text>
+            </template>
+          </uni-list-item>
+          <uni-list-item title="班级">
+            <template v-slot:footer>
+              <text>{{ selectedItem?.stuInfo?.class }}</text>
+            </template>
+          </uni-list-item>
         </view>
-        <list-item title="座位状态：">{{ selectedItem?.status == 1 ? "空闲" : "已被选择" }}</list-item>
-        <list-item title="选择时间： " v-if="selectedItem?.selectTime"
-          ><uni-dateformat
-            :date="new Date(selectedItem?.selectTime) - 30000"
-            format="M月d日 h时m分"
-            :threshold="[0, 3600000]"
-          ></uni-dateformat
-        ></list-item>
+        <uni-list-item v-if="selectedItem?.selectTime" title="选择时间">
+          <template v-slot:footer>
+            <uni-dateformat
+              :date="new Date(selectedItem?.selectTime) - 30000"
+              format="M月d日 h时m分"
+              :threshold="[0, 3600000]"
+            ></uni-dateformat>
+          </template>
+        </uni-list-item>
       </view>
-    </card-list>
+    </uni-card>
 
     <view class="btns">
       <button
@@ -72,24 +119,46 @@
     <view @click="() => (showDrawer = false)" class="drawer" :class="{ hide: !showDrawer }">
       <view @click.stop.prevent class="drawer-content">
         <view class="title">{{ isSelectSubmit ? "将使用以下信息选座：" : "将撤销以下选座：" }}</view>
-        <card-list title="课室信息" class="roomInfo">
-          <list-item title="课室：">{{ chartDetail?.title }}</list-item>
-          <list-item title="座位：">第{{ selectedItem?.x }}列 第{{ selectedItem?.y }}行</list-item>
-          <list-item title="生效时间：">{{ chartDetail?.effectiveTimeRange.join(" 至 ") }}</list-item>
-        </card-list>
-
-        <card-list title="个人信息">
-          <list-item title="姓名：" :link="userinfo.type == 1" @click="editUserInfo('name')">{{
-            userinfo.name
-          }}</list-item>
-          <list-item title="学号：" :link="userinfo.type == 1" @click="editUserInfo('id')">{{
-            userinfo._id
-          }}</list-item>
-          <list-item title="班级：" :link="userinfo.type == 1" @click="editUserInfo('class')">{{
-            userinfo.class
-          }}</list-item>
-        </card-list>
-
+        <uni-card class="roomInfo">
+          <template v-slot:title>
+            <uni-section title="课室信息" type="line"></uni-section>
+          </template>
+          <uni-list-item title="课室">
+            <template v-slot:footer>
+              <text>{{ chartDetail?.title }}</text>
+            </template>
+          </uni-list-item>
+          <uni-list-item title="座位">
+            <template v-slot:footer>
+              <text>第{{ selectedItem?.x }}列 第{{ selectedItem?.y }}行</text>
+            </template>
+          </uni-list-item>
+          <uni-list-item title="生效时间">
+            <template v-slot:footer>
+              <text>{{ chartDetail?.effectiveTimeRange.join(" 至 ") }}</text>
+            </template>
+          </uni-list-item>
+        </uni-card>
+        <uni-card padding="0">
+          <template v-slot:title>
+            <uni-section title="学生信息" type="line"></uni-section>
+          </template>
+          <uni-list-item title="学号" :link="userinfo.type == 1">
+            <template v-slot:footer>
+              <text>{{ userinfo._id }}</text>
+            </template>
+          </uni-list-item>
+          <uni-list-item title="姓名" :link="userinfo.type == 1">
+            <template v-slot:footer>
+              <text>{{ userinfo.name }}</text>
+            </template>
+          </uni-list-item>
+          <uni-list-item title="班级" :link="userinfo.type == 1">
+            <template v-slot:footer>
+              <text>{{ userinfo.class }}</text>
+            </template>
+          </uni-list-item>
+        </uni-card>
         <button @click="onSubmitBtnClick" :type="isSelectSubmit ? 'primary' : 'warn'" :loading="loading">
           确认
         </button>
@@ -101,8 +170,6 @@
 <script setup>
 import { ref } from "vue";
 import { onLoad, onShow, onReady, onPullDownRefresh } from "@dcloudio/uni-app";
-import ListItem from "@/component/ListItem/ListItem";
-import CardList from "@/component/CardList/CardList";
 
 const selectedItem = ref(null);
 const chartId = ref(null);
@@ -139,13 +206,12 @@ const getChartDetail = async id => {
   const { result } = await db.collection("seat-chart").doc(id).get();
   // console.log(result);
   chartDetail.value = result.data[0];
-  await getAdminName();
   uni.setNavigationBarTitle({
     title: chartDetail.value.title,
   });
+  await getAdminName();
   loading.value = false;
 };
-
 const adminName = ref("");
 const getAdminName = async () => {
   if (!chartDetail.value?.administrator) return "";
@@ -324,9 +390,9 @@ const revocation = async () => {};
   border-radius: 10px 10px 0 0;
 }
 .title {
-  font-size: 18px;
-  margin-bottom: 5px;
-  margin-left: 10px;
+  font-size: 20px;
+  margin: 10px;
+  text-align: center;
 }
 .roomInfo,
 .userinfo {

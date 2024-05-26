@@ -1,28 +1,49 @@
 <template>
   <view class="container">
-    <card-list title="我的信息" v-if="userinfo">
-      <button
-        @longpress="onLongPress"
-        @chooseavatar="onChooseAvatar"
-        open-type="chooseAvatar"
-        hover-class="hover"
-        class="edit-avatar"
-      >
-        <uni-list-item clickable showArrow>
-          <template v-slot:header>
-            <text class="title">头像</text>
-          </template>
+    <uni-card v-if="userinfo" padding="0">
+      <template v-slot:title>
+        <uni-section title="我的信息" type="line"></uni-section>
+      </template>
+      <uni-list class="userinfo">
+        <button
+          @longpress="onLongPress"
+          @chooseavatar="onChooseAvatar"
+          open-type="chooseAvatar"
+          hover-class="hover"
+          class="edit-avatar"
+        >
+          <uni-list-item :border="false" clickable showArrow>
+            <template v-slot:header>
+              <text class="title">头像</text>
+            </template>
+            <template v-slot:footer>
+              <image :src="userinfo.avatarUrl" />
+            </template>
+          </uni-list-item>
+        </button>
+        <uni-list-item clickable @click="edit('昵称', userinfo.nickName)" showArrow title="昵称">
           <template v-slot:footer>
-            <image :src="userinfo.avatarUrl" />
+            <view class="title">{{ userinfo.nickName }}</view>
           </template>
         </uni-list-item>
-      </button>
-      <list-item title="昵称" link @click="edit('昵称', userinfo.nickName)" :content="userinfo.nickName" />
-      <list-item title="姓名" link @click="edit('姓名', userinfo.name)" :content="userinfo.name" />
-      <list-item title="学号" link @click="edit('学号', userinfo._id)" :content="userinfo._id" />
-      <list-item title="班级" link @click="edit('班级', userinfo.class)" :content="userinfo.class" />
-    </card-list>
-    <card-list v-if="!userinfo">
+        <uni-list-item title="姓名">
+          <template v-slot:footer>
+            <text>{{ userinfo.name || "未设置" }}</text>
+          </template>
+        </uni-list-item>
+        <uni-list-item title="学号">
+          <template v-slot:footer>
+            <text>{{ userinfo._id || "未设置" }}</text>
+          </template>
+        </uni-list-item>
+        <uni-list-item title="班级">
+          <template v-slot:footer>
+            <text>{{ userinfo.class || "未设置" }}</text>
+          </template>
+        </uni-list-item>
+      </uni-list>
+    </uni-card>
+    <uni-card v-if="!userinfo" padding="0">
       <template v-slot:title>
         <uni-section title="登录" type="line"></uni-section>
       </template>
@@ -35,8 +56,8 @@
         </uni-forms-item>
       </uni-forms>
       <button class="uni-mb-5" type="primary" @click="submit('form')">登录</button>
-    </card-list>
-    <card-list v-if="!userinfo">
+    </uni-card>
+    <uni-card v-if="!userinfo" padding="0">
       <template v-slot:title>
         <uni-section title="管理员登录" type="line"></uni-section>
       </template>
@@ -46,9 +67,9 @@
         </uni-forms-item>
       </uni-forms>
       <button class="uni-mb-5" type="primary" @click="submit('adminform')">管理员登录</button>
-    </card-list>
+    </uni-card>
 
-    <card-list v-if="userinfo">
+    <uni-card v-if="userinfo" padding="0">
       <template v-slot:title>
         <uni-section title="修改密码" type="line"></uni-section>
       </template>
@@ -64,7 +85,7 @@
         </uni-forms-item>
       </uni-forms>
       <button class="uni-mb-5" type="primary" @click="submit('form1')">确认</button>
-    </card-list>
+    </uni-card>
 
     <uni-popup v-if="ifRenderDialog" ref="inputDialog" type="dialog">
       <uni-popup-dialog
@@ -87,8 +108,6 @@
 <script setup>
 import { ref } from "vue";
 import { onLoad, onShow, onReady, onPullDownRefresh } from "@dcloudio/uni-app";
-import ListItem from "@/component/ListItem/ListItem";
-import CardList from "@/component/CardList/CardList";
 const userinfo = ref(uni.getStorageSync("userinfo"));
 const formData = ref({
   id: "",
