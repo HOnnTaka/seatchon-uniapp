@@ -1,0 +1,21 @@
+{
+	"name": "bcrypt-tran",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"dependencies": {
+		"bcrypt": "^3.0.4-napi"
+	},
+	"cloudfunction-config": {
+		"memorySize": 512,
+		"timeout": 5,
+		"path": "",
+		"runtime": "Nodejs12"
+	}
+}

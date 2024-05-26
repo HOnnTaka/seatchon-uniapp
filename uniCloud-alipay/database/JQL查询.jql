@@ -9,5 +9,7 @@
 // 详细JQL语法，请参考：https://uniapp.dcloud.net.cn/uniCloud/jql.html
 
 // 下面示例查询uni-id-users表的所有数据
-
-db.collection("order").doc('66500b11edf2361f13685692').remove()
+const admins = ["216124125"]
+db.collection("user").where({
+	_id: db.command.in(admins)
+}).field("name").get();

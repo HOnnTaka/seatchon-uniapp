@@ -159,7 +159,7 @@ const _sfc_main = {
       }
       return parent;
     },
-    chagne(e) {
+    change(e) {
       const values = e.detail.value;
       let detail = {
         value: [],
@@ -393,7 +393,7 @@ function _sfc_render(_ctx, _cache, $props, $setup, $data, $options) {
     i: $props.mode === "list" && $props.icon === "left" ? 1 : "",
     j: common_vendor.n("is--" + $props.mode),
     k: $props.mode === "list" || $props.wrap ? 1 : "",
-    l: common_vendor.o((...args) => $options.chagne && $options.chagne(...args))
+    l: common_vendor.o((...args) => $options.change && $options.change(...args))
   } : {
     m: common_vendor.f($data.dataList, (item, index, i0) => {
       return common_vendor.e({
@@ -422,10 +422,10 @@ function _sfc_render(_ctx, _cache, $props, $setup, $data, $options) {
     q: common_vendor.n("is--" + $props.mode),
     r: $props.mode === "list" ? 1 : "",
     s: $props.wrap ? 1 : "",
-    t: common_vendor.o((...args) => $options.chagne && $options.chagne(...args))
+    t: common_vendor.o((...args) => $options.change && $options.change(...args))
   }), {
     v: $data.isTop + "px"
   });
 }
-const Component = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["render", _sfc_render], ["__file", "D:/code/seatchon-uniapp/uni_modules/uni-data-checkbox/components/uni-data-checkbox/uni-data-checkbox.vue"]]);
+const Component = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["render", _sfc_render], ["__file", "D:/mcct/seatchon-uniapp/uni_modules/uni-data-checkbox/components/uni-data-checkbox/uni-data-checkbox.vue"]]);
 wx.createComponent(Component);

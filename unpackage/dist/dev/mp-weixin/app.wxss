@@ -16,9 +16,11 @@
 .zhuanfa:before {
   content: "\e610";
 }
-view, button {
-  transition: all 0.3s ease-in-out;
-  box-sizing: border-box;
+button[type=primary] {
+  background: #2979ff !important;
+}
+.uni-tabbar {
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
 }
 /*每个页面公共css */
 /* 水平间距 */
@@ -2356,11 +2358,12 @@ view, button {
   background-color: #f4f4f5;
   border-color: #e9e9eb;
 }
-page {
+page,
+html,
+body {
   background-image: linear-gradient(90deg, #47c5ff10, #ff8fde10);
 }
-.example-info {
-  font-size: 14px;
-  color: #333;
-  padding: 10px;
+.uni-card {
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1) !important;
+  border: none !important;
 }page{--status-bar-height:25px;--top-window-height:0px;--window-top:0px;--window-bottom:0px;--window-left:0px;--window-right:0px;--window-magin:0px}[data-c-h="true"]{display: none !important;}

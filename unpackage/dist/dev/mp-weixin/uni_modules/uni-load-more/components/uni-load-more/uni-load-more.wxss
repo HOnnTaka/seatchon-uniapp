@@ -1,8 +1,10 @@
 /* 水平间距 */
 /* 水平间距 */
-view, button {
-  transition: all 0.3s ease-in-out;
-  box-sizing: border-box;
+button[type=primary] {
+  background: #2979ff !important;
+}
+.uni-tabbar {
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
 }
 .uni-load-more {
   display: flex;

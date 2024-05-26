@@ -1,29 +1,45 @@
 /* 水平间距 */
 /* 水平间距 */
-view.data-v-1cf27b2a, button.data-v-1cf27b2a {
-  transition: all 0.3s ease-in-out;
-  box-sizing: border-box;
+button[type=primary].data-v-1cf27b2a {
+  background: #2979ff !important;
+}
+.uni-tabbar.data-v-1cf27b2a {
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
 }
 .containeer.data-v-1cf27b2a {
   font-size: 14px;
-  line-height: 24px;
 }
 .search-bar.data-v-1cf27b2a {
-  background: #fff;
+  background: #f8f8f8;
+}
+.chart-list.data-v-1cf27b2a {
+  padding: 0 !important;
+  height: calc(100vh - var(--window-bottom) - var(--window-top) - 56px - 30px);
 }
 .item-title.data-v-1cf27b2a {
-  color: #666;
+  color: #333;
   font-size: 24px;
-  font-weight: bold;
+}
+.item-header.data-v-1cf27b2a {
+  background: #2979ff;
+  width: 5px;
+  margin-right: 10px;
+  margin-top: 5px;
+  border-radius: 5px;
+  height: 25px;
+  display: flex;
 }
 .item-note.data-v-1cf27b2a {
-  color: #999;
+  color: #666;
   font-size: 12px;
   margin-left: 5px;
 }
+.item-content.data-v-1cf27b2a {
+  margin-bottom: 5px;
+}
 .item-time.data-v-1cf27b2a {
   font-size: 12px;
-  color: #999;
+  color: #666;
   display: flex;
   flex-direction: column;
 }
@@ -32,8 +48,23 @@ view.data-v-1cf27b2a, button.data-v-1cf27b2a {
   margin-left: auto;
   color: #666;
 }
-.edgeInsetBottom.data-v-1cf27b2a {
+.item-footer > view.data-v-1cf27b2a {
+  font-size: 12px;
+}
+.shadow view.data-v-1cf27b2a {
   width: 100%;
+  position: fixed;
+  z-index: 9999;
+  pointer-events: none;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+.shadow .top.data-v-1cf27b2a {
+  height: var(--window-top);
+  top: 0;
+  left: 0;
+}
+.shadow .bottom.data-v-1cf27b2a {
   height: var(--window-bottom);
-  padding: 10px;
+  bottom: 0;
+  left: 0;
 }

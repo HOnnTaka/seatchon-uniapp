@@ -1,8 +1,10 @@
 /* 水平间距 */
 /* 水平间距 */
-view, button {
-  transition: all 0.3s ease-in-out;
-  box-sizing: border-box;
+button[type=primary] {
+  background: #2979ff !important;
+}
+.uni-tabbar {
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
 }
 .uni-easyinput {
   width: 100%;
@@ -31,6 +33,17 @@ view, button {
   line-height: 1;
   font-size: 14px;
   height: 35px;
+  /*ifdef H5*/
+  /*endif*/
+}
+.uni-easyinput__content-input ::-ms-reveal {
+  display: none;
+}
+.uni-easyinput__content-input ::-ms-clear {
+  display: none;
+}
+.uni-easyinput__content-input ::-o-clear {
+  display: none;
 }
 .uni-easyinput__placeholder-class {
   color: #999;

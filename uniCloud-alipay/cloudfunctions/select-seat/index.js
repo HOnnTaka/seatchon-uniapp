@@ -23,6 +23,7 @@ exports.main = async (event, context) => {
 				.update({
 					[`seats.${seatIndex - 1}.status`]: 1,
 					[`seats.${seatIndex - 1}.selectTime`]: null,
+					[`seats.${seatIndex - 1}.orderId`]: null,
 					[`seats.${seatIndex - 1}.stuInfo`]: null
 				});
 			if (res.updated == 1) {
@@ -50,7 +51,7 @@ exports.main = async (event, context) => {
 		.end();
 	const chart = data[0];
 	const seatInfo = data[0].seats[seatIndex - 1];
-	const alreadySelected = Array.from(data[0].seats).find(v => v.stuInfo?.openid == userinfo._openid);
+	const alreadySelected = Array.from(data[0].seats).find(v => v.stuInfo?.id == userinfo._id);
 	if (alreadySelected)
 		return {
 			message: "您已选过座位",
@@ -60,11 +61,10 @@ exports.main = async (event, context) => {
 			message: "座位已被占用",
 		};
 
-	// 更新座位状态为已占用，并添加用户信息到座位信息中
 	const selectTime = new Date()
 	const orderResult = await db.collection("order").add({
 		chartId: chartId,
-		openid: userinfo._openid,
+		userId: userinfo._id,
 		x: seatInfo.x,
 		y: seatInfo.y,
 		selectableTimeRange: data[0].selectableTimeRange,
@@ -83,10 +83,9 @@ exports.main = async (event, context) => {
 				[`seats.${seatIndex - 1}.selectTime`]: selectTime,
 				[`seats.${seatIndex - 1}.orderId`]: orderResult.id,
 				[`seats.${seatIndex - 1}.stuInfo`]: _.set({
-					openid: userinfo._openid,
-					name: userinfo.stuInfo.name,
-					id: userinfo.stuInfo.id,
-					class: userinfo.stuInfo.class,
+					name: userinfo.name,
+					id: userinfo._id,
+					class: userinfo.class,
 					avatar: userinfo.avatarUrl,
 				}),
 			});

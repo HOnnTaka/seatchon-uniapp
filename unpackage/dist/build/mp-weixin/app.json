@@ -4,32 +4,36 @@
     "pages/detail/detail",
     "pages/user/user",
     "pages/createSeatChart/createSeatChart",
-    "pages/user/updateUserInfo"
+    "pages/order/order"
   ],
   "window": {
     "navigationBarTextStyle": "black",
     "navigationBarTitleText": "uni-app",
-    "navigationBarBackgroundColor": "#F8F8F8",
-    "backgroundColor": "#F8F8F8"
+    "navigationBarBackgroundColor": "#ffffff",
+    "backgroundColor": "#fff",
+    "backgroundColorBottom": "#fff",
+    "backgroundColorTop": "#fff"
   },
   "tabBar": {
-    "color": "#7A7E83",
-    "selectedColor": "#07c160",
-    "borderStyle": "black",
-    "blurEffect": "extralight",
-    "backgroundColor": "rgba(248, 248, 248, 0.5)",
+    "color": "#333",
+    "selectedColor": "#2979ff",
+    "borderStyle": "white",
+    "backgroundColor": "#fff",
     "list": [
+      {
+        "pagePath": "pages/order/order",
+        "selectedIconPath": "static/order-on.png",
+        "iconPath": "static/order.png"
+      },
       {
         "pagePath": "pages/index/index",
         "iconPath": "static/home.png",
-        "selectedIconPath": "static/home-selected.png",
-        "text": "主页"
+        "selectedIconPath": "static/home-on.png"
       },
       {
         "pagePath": "pages/user/user",
-        "iconPath": "static/myseat.png",
-        "selectedIconPath": "static/myseat-selected.png",
-        "text": "我的"
+        "iconPath": "static/user.png",
+        "selectedIconPath": "static/user-on.png"
       }
     ]
   },

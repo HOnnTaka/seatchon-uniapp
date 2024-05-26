@@ -21,7 +21,6 @@
 		"row": {
 			"description": "行数"
 		},
-
 		"col": {
 			"description": "列数"
 		},
@@ -45,6 +44,9 @@
 		},
 		"creatorId": {
 			"description": "创建者ID"
+		},
+		"administrators":{
+			"description": "管理员"
 		},
 		"createTime": {
 			"description": "创建时间"

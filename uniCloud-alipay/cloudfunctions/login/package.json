@@ -1,7 +1,13 @@
 {
   "name": "login",
-  "dependencies": {},
-  "extensions": {
-    "uni-cloud-jql": {}
+  "dependencies": {
+    "bcryptjs": "^2.4.3"
+  },
+  "extensions": {},
+  "cloudfunction-config": {
+    "memorySize": 512,
+    "timeout": 5,
+    "path": "",
+    "runtime": "Nodejs12"
   }
 }

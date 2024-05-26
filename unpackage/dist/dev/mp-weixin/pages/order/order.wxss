@@ -1,0 +1,61 @@
+
+.container.data-v-93207a4f {
+  height: 100%;
+}
+.userinfo.data-v-93207a4f {
+  font-size: 20px;
+}
+.uni-list-item__container.data-v-93207a4f {
+  align-items: center;
+}
+.uni-list-item__content.data-v-93207a4f {
+  flex-direction: row !important;
+}
+.edit-avatar.data-v-93207a4f {
+  margin: 0;
+  padding: 0;
+  border: none !important;
+}
+.edit-avatar.data-v-93207a4f::after {
+  border: none !important;
+}
+.hover .uni-list-item.data-v-93207a4f {
+  background: #f1f1f1 !important;
+}
+.edit-avatar image.data-v-93207a4f {
+  width: 80px;
+  height: 80px;
+  border-radius: 5px;
+}
+.stuInfo.data-v-93207a4f {
+  font-size: 18px;
+}
+.stuInfo view.data-v-93207a4f {
+  cursor: pointer;
+  margin-bottom: 5px;
+}
+.stuInfo view.data-v-93207a4f:last-child {
+  margin-bottom: 0;
+}
+.item-title.data-v-93207a4f {
+  font-size: 24px;
+  color: #333;
+}
+.item-note.data-v-93207a4f {
+  color: #666;
+  font-size: 12px;
+  margin-left: 5px;
+}
+.item-time.data-v-93207a4f {
+  font-size: 13px;
+  color: #666;
+  display: flex;
+  flex-direction: column;
+}
+.item-footer.data-v-93207a4f {
+  align-self: center;
+  margin-left: auto;
+}
+.edgeInsetBottom.data-v-93207a4f {
+  height: var(--window-bottom);
+}

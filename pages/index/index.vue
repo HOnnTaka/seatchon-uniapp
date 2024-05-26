@@ -1,48 +1,71 @@
 <template>
   <view class="container">
     <view class="search-bar">
-      <uni-search-bar @confirm="search" v-model="searchValue" placeholder="请输入搜索内容"></uni-search-bar>
+      <uni-search-bar
+        bgColor="#fff"
+        @confirm="search"
+        v-model="searchValue"
+        placeholder="请输入搜索内容"
+      ></uni-search-bar>
     </view>
-    <uni-list>
-      <uni-list-item
-        v-for="(item, index) in charts"
-        :key="item.chartId"
-        clickable
-        link
-        :to="'/pages/detail/detail?chartId=' + item._id"
-        :title="item.title"
-        :note="item.note"
-      >
-        <template v-slot:body>
-          <view class="item-body">
-            <view class="item-content">
-              <text class="item-title">{{ item.title }}</text>
-              <text class="item-note">{{ item.note }}</text>
-            </view>
-            <view class="item-time">
-              <text>选座时间：{{ formatTimeRange(item.selectableTimeRange) }}</text>
-              <text>有效时间：{{ formatTimeRange(item.effectiveTimeRange) }}</text>
-            </view>
-          </view>
-        </template>
-        <template v-slot:footer>
-          <view class="item-footer">
-            {{ availabale(item) }}
-          </view>
-        </template>
-      </uni-list-item>
-    </uni-list>
-    <uni-load-more status="noMore"></uni-load-more>
     <uni-fab
       v-if="userinfo.type == 1"
       ref="fab"
-      :pattern="{ buttonColor: '#07c160' }"
+      :pattern="{ buttonColor: '#2979ff' }"
       horizontal="right"
       vertical="bottom"
       @fabClick="fabClick"
     />
+    <template v-slot:title>
+      <uni-section title="全部课室" type="line"></uni-section>
+    </template>
+    <unicloud-db
+      ref="udb"
+      :options="options"
+      v-slot:default="{ data, loading, hasMore, error, options }"
+      collection="seat-chart"
+      orderby="createdTime desc"
+    >
+      <view v-if="error">{{ error.message }}</view>
+      <uni-list>
+        <uni-list-item
+          v-for="(item, index) in data"
+          :key="item._id"
+          clickable
+          link
+          @click="onItemClick(item)"
+          :title="item.title"
+          :note="item.note"
+        >
+          <template v-slot:header>
+            <view class="item-header"></view>
+          </template>
+          <template v-slot:body>
+            <view class="item-body">
+              <view class="item-content">
+                <text class="item-title">{{ item.title }}</text>
+                <text class="item-note">{{ item.note }}</text>
+              </view>
+              <view class="item-time">
+                <text>选座：{{ formatTimeRange(item.selectableTimeRange) }}</text>
+                <text>生效：{{ formatTimeRange(item.effectiveTimeRange) }}</text>
+              </view>
+            </view>
+          </template>
+          <template v-slot:footer>
+            <view class="item-footer">
+              {{ available(item) }}
+            </view>
+          </template>
+        </uni-list-item>
+      </uni-list>
+      <uni-load-more :status="loading ? 'loading' : hasMore ? 'default' : 'no-more'"></uni-load-more>
+    </unicloud-db>
 
-    <view class="edgeInsetBottom"></view>
+    <view class="shadow">
+      <view class="top"></view>
+      <view class="bottom"></view>
+    </view>
   </view>
 </template>
 
@@ -54,79 +77,65 @@ const searchValue = ref("");
 const charts = ref([]);
 const userinfo = ref({});
 
-onLoad(async () => {
-  uni.showLoading({
-    title: "加载中",
-    mask: true,
-  });
-  await login();
-  uni.hideLoading();
-});
-const login = async () => {
-  try {
-    const { code } = await uni.login();
-    const { result } = await uniCloud.callFunction({ name: "login", data: { code } });
-    userinfo.value = result;
-    uni.setStorageSync("userinfo", result);
-    console.log(userinfo.value);
-  } catch (err) {
-    uni.showToast({
-      title: err.message,
-      icon: "none",
-    });
-    console.log(err);
-  }
-};
+onLoad(async () => {});
 onShow(async () => {
-  getCharts(false);
+  userinfo.value = uni.getStorageSync("userinfo");
+  getCurrentPages()[0].$vm.$refs.udb?.loadData({ clear: true });
 });
 
 onPullDownRefresh(async () => {
-  await login();
-  await getCharts(false);
+  await getCurrentPages()[0].$vm.$refs.udb?.loadData({ clear: true });
+  uni.stopPullDownRefresh();
   uni.showToast({
     title: "刷新成功",
     icon: "success",
   });
 });
 
-const getCharts = async (showToast = true) => {
-  if (showToast) {
-    uni.showLoading({
-      title: "加载中",
-    });
-  }
-  const db = uniCloud.database();
-  const res = await db
-    .collection("seat-chart")
-    .aggregate()
-    .project({
-      _id: 1,
-      title: 1,
-      note: 1,
-      creator: 1,
-      creatorId: 1,
-      selectableTimeRange: 1,
-      effectiveTimeRange: 1,
-    })
-    .end();
-  // console.log(res);
-  charts.value = res.result.data;
-  uni.hideLoading();
-};
 const formatTimeRange = timeRange => {
   return timeRange.join(" 至 ");
 };
-const availabale = e => {
-  const { selectableTime, effectiveTime } = e;
-  const now = new Date();
-  const selectableTimeDate = new Date(selectableTime);
-  const effectiveTimeDate = new Date(effectiveTime);
-  return "选座中";
+const available = item => {
+  const now = new Date().getTime();
+  const { selectableTimeRange, effectiveTimeRange } = item;
+  const selectTimeRange = [
+    new Date(selectableTimeRange[0]).getTime(),
+    new Date(selectableTimeRange[1]).getTime(),
+  ];
+  const effectTimeRange = [
+    new Date(effectiveTimeRange[0]).getTime(),
+    new Date(effectiveTimeRange[1]).getTime(),
+  ];
+  if (now > effectTimeRange[0] && now < effectTimeRange[1]) return "生效中";
+  if (now > selectTimeRange[0] && now < selectTimeRange[1]) return "选座中";
+  if (now < selectTimeRange[0]) return "未开始";
+  if (now > effectTimeRange[1]) return "已结束";
 };
 
 const search = async () => {};
-const onItemClick = e => {};
+const onItemClick = async item => {
+  if (!userinfo.value) {
+    const confirm = await uni.showModal({
+      title: "提示",
+      content: "还未登录，是否前往登录？",
+      showCancel: true,
+      confirmText: "前往登录",
+    });
+
+    if (confirm.confirm) {
+      uni.switchTab({
+        url: "/pages/user/user",
+      });
+    }
+    return;
+  }
+  uni.showLoading({
+    title: "加载中",
+  });
+  uni.navigateTo({
+    url: `/pages/detail/detail?chartId=${item._id}`,
+  });
+};
 
 const fabClick = () => {
   uni.navigateTo({
@@ -138,35 +147,69 @@ const fabClick = () => {
 <style scoped lang="scss">
 .containeer {
   font-size: 14px;
-  line-height: 24px;
 }
+
 .search-bar {
-  background: #fff;
+  background: #f8f8f8;
+}
+
+.chart-list {
+  padding: 0 !important;
+  height: calc(100vh - var(--window-bottom) - var(--window-top) - 56px - 30px);
 }
 .item-title {
-  color: #666;
+  color: #333;
   font-size: 24px;
-  font-weight: bold;
+  // font-weight: bold;
+}
+.item-header {
+  background: #2979ff;
+  width: 5px;
+  margin-right: 10px;
+  margin-top: 5px;
+  border-radius: 5px;
+  height: 25px;
+  display: flex;
 }
 .item-note {
-  color: #999;
+  color: #666;
   font-size: 12px;
   margin-left: 5px;
 }
+.item-content {
+  margin-bottom: 5px;
+}
 .item-time {
   font-size: 12px;
-  color: #999;
+  color: #666;
   display: flex;
   flex-direction: column;
 }
+
 .item-footer {
   align-self: center;
   margin-left: auto;
   color: #666;
 }
-.edgeInsetBottom {
+.item-footer > view {
+  font-size: 12px;
+}
+
+.shadow view {
   width: 100%;
+  position: fixed;
+  z-index: 9999;
+  pointer-events: none;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+.shadow .top {
+  height: var(--window-top);
+  top: 0;
+  left: 0;
+}
+.shadow .bottom {
   height: var(--window-bottom);
-  padding: 10px;
+  bottom: 0;
+  left: 0;
 }
 </style>

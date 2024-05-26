@@ -7,7 +7,10 @@
       :rules="rules"
       ref="valiForm"
     >
-      <uni-group class="detail-group" title="课室信息" mode="card">
+      <uni-card padding="0">
+        <template v-slot:title>
+          <uni-section title="课室信息" type="line"></uni-section>
+        </template>
         <uni-forms-item label="标题（课室）" required name="title">
           <uni-easyinput trim="both" v-model="baseFormData.title" placeholder="请输入标题" />
         </uni-forms-item>
@@ -43,9 +46,12 @@
         <uni-forms-item label="是否允许查看其它学生信息" required name="stuInfoVisible">
           <uni-data-checkbox v-model="baseFormData.stuInfoVisible" :localdata="stuInfoVisible" />
         </uni-forms-item>
-      </uni-group>
+      </uni-card>
 
-      <uni-group class="seat-group" title="座位表" mode="card">
+      <uni-card padding="0">
+        <template v-slot:title>
+          <uni-section title="座位表" type="line"></uni-section>
+        </template>
         <view class="seatTable" :style="`--col:${baseFormData.col};--row:${baseFormData.row};`">
           <view
             v-for="(item, index) in seats"
@@ -61,7 +67,7 @@
           座位不可选：
           <view class="seat hide"></view>
         </view>
-      </uni-group>
+      </uni-card>
       <button class="btn" type="primary" @click="() => submit('valiForm')">提交</button>
     </uni-forms>
   </view>
@@ -72,7 +78,6 @@ import { ref, watch, computed, reactive } from "vue";
 import { onLoad } from "@dcloudio/uni-app";
 
 onLoad(async () => {});
-f;
 const today = new Date().toJSON().substring(0, 10);
 const baseFormData = reactive({
   title: "",
@@ -153,6 +158,9 @@ const submit = async ref => {
       showCancel: true,
     });
     if (modal.confirm) {
+      uni.showLoading({
+        title: "创建中",
+      });
       loading.value = true;
       const userinfo = uni.getStorageSync("userinfo");
       const db = uniCloud.database();
@@ -161,7 +169,8 @@ const submit = async ref => {
         stuInfoVisible: data.stuInfoVisible == 0 ? true : false,
         createTime: new Date().toJSON(),
         creator: userinfo.nickName,
-        creatorId: userinfo._openid,
+        creatorId: userinfo._id,
+        administrators: [userinfo._id],
         seats: seats.value.map((item, index) => ({
           x: item.x,
           y: item.y,
@@ -173,13 +182,15 @@ const submit = async ref => {
       if (res.result.errCode == 0) {
         uni.showToast({
           title: "创建成功",
-          icon: "none",
+          icon: "success",
         });
 
         setTimeout(() => {
           uni.navigateBack();
         }, 1000);
       }
+      uni.hideLoading();
+      loading.value = false;
     }
   } catch (e) {
     console.log(e);
@@ -204,6 +215,7 @@ const submit = async ref => {
   display: flex;
   flex-wrap: wrap;
   background: #fff;
+  margin: 0 auto ;
 }
 .refresh-btn {
   display: block;
@@ -236,7 +248,7 @@ const submit = async ref => {
 }
 .tips {
   padding: 0 2.5px;
-  margin-top: 10px;
+  margin: 10px 0;
   display: flex;
   align-items: center;
 }

@@ -15,12 +15,7 @@
       "ignore": [],
       "disablePlugins": [],
       "outputPath": ""
-    },
-    "packNpmRelationList": [],
-    "compileWorklet": true,
-    "swc": true,
-    "condition": true,
-    "uglifyFileName": false
+    }
   },
   "compileType": "miniprogram",
   "libVersion": "3.4.4",

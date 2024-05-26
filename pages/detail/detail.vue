@@ -1,79 +1,94 @@
 <template>
   <view class="contaioner">
-    <uni-group class="chartDetaill" title="课室信息" mode="card">
-      <view>备注：{{ chartDetail?.note }}</view>
-      <view>选座时间：{{ chartDetail?.selectableTimeRange.join(" 至 ") }}</view>
-      <view>有效时间：{{ chartDetail?.effectiveTimeRange.join(" 至 ") }}</view>
-    </uni-group>
+    <card-list title="课室列表">
+      <list-item title="课室名称:" :content="chartDetail?.title" />
+      <list-item title="备注:" :content="chartDetail?.note" />
+      <list-item title="管理员:" :content="adminName"></list-item>
+      <list-item title="选座时间:" :content="chartDetail?.selectableTimeRange.join(' 至 ')" />
+      <list-item title="生效时间:" :content="chartDetail?.effectiveTimeRange.join(' 至 ')" />
+    </card-list>
 
-    <uni-group class="seat-group" title="座位表" mode="card">
+    <card-list class="order-card" title="座位表">
       <view class="seatTable" :style="`--col:${chartDetail?.col};--row:${chartDetail?.row};`">
         <view
           v-for="(item, index) in chartDetail?.seats"
           :key="index"
           class="seat"
           :class="{ hide: item.status == 2, selected: item.index == selectedItem?.index }"
-          :style="item.stuInfo ? `background-image:url(${item.stuInfo?.avatar});` : ''"
+          :style="
+            item?.stuInfo?.id != userinfo._id
+              ? `background-image:url(${item.stuInfo?.avatar});`
+              : `background:#2979ff;`
+          "
           @click="() => (selectedItem = item)"
         >
-          <text>{{ item.stuInfo ? (item?.stuInfo?.openid != userinfo._openid ? "" : "你") : "空" }}</text>
+          <text>{{ item.stuInfo ? (item?.stuInfo?.id != userinfo._id ? "" : "你") : "空" }}</text>
         </view>
       </view>
       <button class="refresh-btn" @click="onrefreshBtnClick" type="default" size="mini" :loading="loading">
         刷新
       </button>
-    </uni-group>
+    </card-list>
 
-    <uni-group class="detail-group" title="座位信息" mode="card" v-if="selectedItem">
+    <card-list class="order-card" title="座位信息" v-if="selectedItem">
       <view class="detail">
-        <view>座位：第{{ selectedItem?.x }}列 第{{ selectedItem?.y }}行</view>
+        <list-item title="座位:">第{{ selectedItem?.x }}列 第{{ selectedItem?.y }}行</list-item>
         <view v-if="selectedItem?.stuInfo && (chartDetail.stuInfoVisible || userinfo.type == 1)">
-          <view>姓名：{{ selectedItem?.stuInfo?.name }}</view>
-          <view>学号：{{ selectedItem?.stuInfo?.id }}</view>
-          <view>班级：{{ selectedItem?.stuInfo?.class }}</view>
+          <list-item title="姓名：">{{ selectedItem?.stuInfo?.name }}</list-item>
+          <list-item title="学号：">{{ selectedItem?.stuInfo?.id }}</list-item>
+          <list-item title="班级：">{{ selectedItem?.stuInfo?.class }}</list-item>
         </view>
-        <view v-if="selectedItem?.selectTime">
-          选择时间：
-          <uni-dateformat
+        <list-item title="座位状态：">{{ selectedItem?.status == 1 ? "空闲" : "已被选择" }}</list-item>
+        <list-item title="选择时间： " v-if="selectedItem?.selectTime"
+          ><uni-dateformat
             :date="new Date(selectedItem?.selectTime) - 30000"
             format="M月d日 h时m分"
             :threshold="[0, 3600000]"
-          ></uni-dateformat>
-        </view>
+          ></uni-dateformat
+        ></list-item>
       </view>
-    </uni-group>
+    </card-list>
 
-    <button
-      class="btn"
-      @click="onSelectBtnClick"
-      :disabled="
-        (selectedItem?.status == 3 && selectedItem?.stuInfo?.openid != userinfo._openid) || !selectedItem
-      "
-      :type="selectedItem?.stuInfo?.openid == userinfo._openid ? 'warn' : 'primary'"
-      :loading="loading"
-    >
-      {{
-        selectedItem?.stuInfo?.openid == userinfo._openid
-          ? "撤销选座"
-          : selectedItem?.status == 3
-          ? "已被选择"
-          : "选择座位"
-      }}
-    </button>
+    <view class="btns">
+      <button
+        v-if="avaliable()"
+        class="btn"
+        @click="onSelectBtnClick"
+        :disabled="(selectedItem?.status == 3 && selectedItem?.stuInfo?.id != userinfo._id) || !selectedItem"
+        :type="selectedItem?.stuInfo?.id == userinfo._id ? 'warn' : 'primary'"
+        :loading="loading"
+      >
+        {{
+          selectedItem?.stuInfo?.id == userinfo._id
+            ? "撤销选座"
+            : selectedItem?.status == 3
+            ? "已被选择"
+            : "选择座位"
+        }}
+      </button>
+      <button v-else class="btn" disabled>未开放</button>
+    </view>
 
     <view @click="() => (showDrawer = false)" class="drawer" :class="{ hide: !showDrawer }">
       <view @click.stop.prevent class="drawer-content">
         <view class="title">{{ isSelectSubmit ? "将使用以下信息选座：" : "将撤销以下选座：" }}</view>
-        <uni-group mode="card" class="roomInfo">
-          <view>课室：{{ chartDetail?.title }}</view>
-          <view>座位：第{{ selectedItem?.x }}列 第{{ selectedItem?.y }}行</view>
-          <view>有效时间：{{ chartDetail?.effectiveTimeRange.join(" 至 ") }}</view>
-        </uni-group>
-        <uni-group mode="card" class="userinfo">
-          <view>姓名：{{ userinfo.stuInfo.name }}</view>
-          <view>学号：{{ userinfo.stuInfo.id }}</view>
-          <view>班级：{{ userinfo.stuInfo.class }}</view>
-        </uni-group>
+        <card-list title="课室信息" class="roomInfo">
+          <list-item title="课室：">{{ chartDetail?.title }}</list-item>
+          <list-item title="座位：">第{{ selectedItem?.x }}列 第{{ selectedItem?.y }}行</list-item>
+          <list-item title="生效时间：">{{ chartDetail?.effectiveTimeRange.join(" 至 ") }}</list-item>
+        </card-list>
+
+        <card-list title="个人信息">
+          <list-item title="姓名：" :link="userinfo.type == 1" @click="editUserInfo('name')">{{
+            userinfo.name
+          }}</list-item>
+          <list-item title="学号：" :link="userinfo.type == 1" @click="editUserInfo('id')">{{
+            userinfo._id
+          }}</list-item>
+          <list-item title="班级：" :link="userinfo.type == 1" @click="editUserInfo('class')">{{
+            userinfo.class
+          }}</list-item>
+        </card-list>
 
         <button @click="onSubmitBtnClick" :type="isSelectSubmit ? 'primary' : 'warn'" :loading="loading">
           确认
@@ -85,7 +100,9 @@
 
 <script setup>
 import { ref } from "vue";
-import { onLoad, onPullDownRefresh } from "@dcloudio/uni-app";
+import { onLoad, onShow, onReady, onPullDownRefresh } from "@dcloudio/uni-app";
+import ListItem from "@/component/ListItem/ListItem";
+import CardList from "@/component/CardList/CardList";
 
 const selectedItem = ref(null);
 const chartId = ref(null);
@@ -95,12 +112,21 @@ const userinfo = ref(uni.getStorageSync("userinfo"));
 const showDrawer = ref(false);
 const isSelectSubmit = ref(true);
 
+const show = ref(false);
 onLoad(async option => {
   chartId.value = option.chartId;
   await getChartDetail(option.chartId);
+  show.value = true;
+  uni.hideLoading();
 });
+onShow(async () => {
+  userinfo.value = uni.getStorageSync("userinfo");
+});
+onReady(() => {});
+
 onPullDownRefresh(async () => {
   await getChartDetail(chartId.value);
+  uni.stopPullDownRefresh();
   uni.showToast({
     title: "刷新成功",
     icon: "success",
@@ -113,10 +139,33 @@ const getChartDetail = async id => {
   const { result } = await db.collection("seat-chart").doc(id).get();
   // console.log(result);
   chartDetail.value = result.data[0];
+  await getAdminName();
   uni.setNavigationBarTitle({
     title: chartDetail.value.title,
   });
   loading.value = false;
+};
+
+const adminName = ref("");
+const getAdminName = async () => {
+  if (!chartDetail.value?.administrator) return "";
+  const db = uniCloud.database();
+  const { result } = await db
+    .collection("user")
+    .where({
+      _id: db.command.in(chartDetail.value.administrator),
+    })
+    .field("name")
+    .get();
+  adminName.value = result.data.map(item => item.name).join("、");
+};
+const avaliable = () => {
+  if (!chartDetail.value) return false;
+  const selectableTimeRange = chartDetail.value?.selectableTimeRange;
+  const now = new Date().getTime();
+  const start = new Date(selectableTimeRange[0]).getTime();
+  const end = new Date(selectableTimeRange[1]).getTime();
+  return start <= now && now <= end;
 };
 const onrefreshBtnClick = async (showToast = true) => {
   await getChartDetail(chartId.value);
@@ -126,23 +175,23 @@ const onrefreshBtnClick = async (showToast = true) => {
       icon: "success",
     });
   }
-  selectedItem.value = chartDetail.value.seats[selectedItem.value.index - 1];
+  selectedItem.value = chartDetail.value.seats[selectedItem.value?.index - 1];
 };
 const onSelectBtnClick = async () => {
   const { stuInfo } = userinfo.value;
-  if (stuInfo.class == "" || stuInfo.id == "" || stuInfo.name == "") {
-    const { confirm } = await uni.showModal({
-      title: "提示",
-      content: "请先填写个人信息",
-      confirmText: "去填写",
-      mask: true,
-    });
-    if (!confirm) return;
-    return uni.switchTab({
-      url: "/pages/user/user",
-    });
-  }
-  isSelectSubmit.value = selectedItem.value.stuInfo?.openid != userinfo.value._openid;
+  // if (stuInfo.class == "" || stuInfo.id == "" || stuInfo.name == "") {
+  //   const { confirm } = await uni.showModal({
+  //     title: "提示",
+  //     content: "请先填写个人信息",
+  //     confirmText: "去填写",
+  //     mask: true,
+  //   });
+  //   if (!confirm) return;
+  //   return uni.switchTab({
+  //     url: "/pages/user/user",
+  //   });
+  // }
+  isSelectSubmit.value = selectedItem.value.stuInfo?.id != userinfo.value._id;
   showDrawer.value = true;
 };
 const onSubmitBtnClick = async () => {
@@ -200,6 +249,7 @@ const revocation = async () => {};
   display: flex;
   flex-wrap: wrap;
   background: #fff;
+  margin: 0 auto;
 }
 .refresh-btn {
   margin-left: auto;
@@ -232,14 +282,20 @@ const revocation = async () => {};
 .seat.selected {
   border: 2px solid #3292ff;
 }
-.btn {
+.btns {
   position: fixed;
-  bottom: 20px;
-  left: 10px;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: #fff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  display: flex;
+}
+.btn {
+  margin: 0;
   z-index: 100;
-  gap: 10px;
-  width: calc(100% - 20px);
-  backdrop-filter: blur(10px);
+  flex: 1;
+  border-radius: 0;
 }
 
 .drawer {
@@ -263,15 +319,18 @@ const revocation = async () => {};
   background: #fff;
   position: absolute;
   bottom: 0;
-  width: 100%;
-  padding: 20px;
+  padding: 10px;
+  width: calc(100% - 20px);
   border-radius: 10px 10px 0 0;
 }
 .title {
   font-size: 18px;
-  font-weight: bold;
   margin-bottom: 5px;
   margin-left: 10px;
+}
+.roomInfo,
+.userinfo {
+  color: #666;
 }
 .drawer button {
   margin: 0 10px;

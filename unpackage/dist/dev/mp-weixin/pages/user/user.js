@@ -5,84 +5,185 @@ if (!Array) {
   const _easycom_uni_list_item2 = common_vendor.resolveComponent("uni-list-item");
   const _easycom_uni_list2 = common_vendor.resolveComponent("uni-list");
   const _easycom_uni_card2 = common_vendor.resolveComponent("uni-card");
-  const _easycom_uni_load_more2 = common_vendor.resolveComponent("uni-load-more");
-  const _easycom_unicloud_db2 = common_vendor.resolveComponent("unicloud-db");
+  const _easycom_uni_easyinput2 = common_vendor.resolveComponent("uni-easyinput");
+  const _easycom_uni_forms_item2 = common_vendor.resolveComponent("uni-forms-item");
+  const _easycom_uni_forms2 = common_vendor.resolveComponent("uni-forms");
   const _easycom_uni_popup_dialog2 = common_vendor.resolveComponent("uni-popup-dialog");
   const _easycom_uni_popup2 = common_vendor.resolveComponent("uni-popup");
-  (_easycom_uni_section2 + _easycom_uni_list_item2 + _easycom_uni_list2 + _easycom_uni_card2 + _easycom_uni_load_more2 + _easycom_unicloud_db2 + _easycom_uni_popup_dialog2 + _easycom_uni_popup2)();
+  (_easycom_uni_section2 + _easycom_uni_list_item2 + _easycom_uni_list2 + _easycom_uni_card2 + _easycom_uni_easyinput2 + _easycom_uni_forms_item2 + _easycom_uni_forms2 + _easycom_uni_popup_dialog2 + _easycom_uni_popup2)();
 }
 const _easycom_uni_section = () => "../../uni_modules/uni-section/components/uni-section/uni-section.js";
 const _easycom_uni_list_item = () => "../../uni_modules/uni-list/components/uni-list-item/uni-list-item.js";
 const _easycom_uni_list = () => "../../uni_modules/uni-list/components/uni-list/uni-list.js";
 const _easycom_uni_card = () => "../../uni_modules/uni-card/components/uni-card/uni-card.js";
-const _easycom_uni_load_more = () => "../../uni_modules/uni-load-more/components/uni-load-more/uni-load-more.js";
-const _easycom_unicloud_db = () => "../../node-modules/@dcloudio/uni-components/lib/unicloud-db/unicloud-db.js";
+const _easycom_uni_easyinput = () => "../../uni_modules/uni-easyinput/components/uni-easyinput/uni-easyinput.js";
+const _easycom_uni_forms_item = () => "../../uni_modules/uni-forms/components/uni-forms-item/uni-forms-item.js";
+const _easycom_uni_forms = () => "../../uni_modules/uni-forms/components/uni-forms/uni-forms.js";
 const _easycom_uni_popup_dialog = () => "../../uni_modules/uni-popup/components/uni-popup-dialog/uni-popup-dialog.js";
 const _easycom_uni_popup = () => "../../uni_modules/uni-popup/components/uni-popup/uni-popup.js";
 if (!Math) {
-  (_easycom_uni_section + _easycom_uni_list_item + _easycom_uni_list + _easycom_uni_card + _easycom_uni_load_more + _easycom_unicloud_db + _easycom_uni_popup_dialog + _easycom_uni_popup)();
+  (_easycom_uni_section + _easycom_uni_list_item + _easycom_uni_list + _easycom_uni_card + _easycom_uni_easyinput + _easycom_uni_forms_item + _easycom_uni_forms + _easycom_uni_popup_dialog + _easycom_uni_popup)();
 }
 const _sfc_main = {
   __name: "user",
   setup(__props) {
     const userinfo = common_vendor.ref(common_vendor.index.getStorageSync("userinfo"));
+    const formData = common_vendor.ref({
+      id: "",
+      pwd: "",
+      adminpwd: "",
+      newpwd: "",
+      newpwd2: ""
+    });
+    const resetFormData = () => {
+      formData.value = {
+        id: "",
+        pwd: "",
+        adminpwd: "",
+        newpwd: "",
+        newpwd2: ""
+      };
+    };
+    common_vendor.onLoad(() => {
+    });
+    const rules = {
+      id: {
+        rules: [{ required: true, errorMessage: "请输入账号/学号" }]
+      },
+      pwd: {
+        rules: [{ required: true, errorMessage: "请输入密码" }]
+      },
+      adminpwd: {
+        rules: [{ required: true, errorMessage: "请输入管理密码" }]
+      },
+      newpwd: {
+        rules: [
+          { required: true, errorMessage: "请输入新密码" },
+          // 8-20位字母、数字
+          {
+            validateFunction: function(rule, value, data, callback) {
+              if (!/^[a-zA-Z0-9]{8,20}$/.test(value)) {
+                callback("密码必须为8-20位字母、数字");
+              }
+              return;
+            }
+          }
+        ]
+      },
+      newpwd2: {
+        rules: [
+          { required: true, errorMessage: "请确认新密码" },
+          {
+            validateFunction: function(rule, value, data, callback) {
+              if (value != formData.value.newpwd) {
+                callback("两次密码输入不一致");
+              }
+              return;
+            }
+          }
+        ]
+      }
+    };
+    common_vendor.onReady(async () => {
+      var _a, _b, _c;
+      (_a = getCurrentPages()[0].$vm.$refs.form) == null ? void 0 : _a.setRules(rules);
+      (_b = getCurrentPages()[0].$vm.$refs.form1) == null ? void 0 : _b.setRules(rules);
+      (_c = getCurrentPages()[0].$vm.$refs.adminform) == null ? void 0 : _c.setRules(rules);
+    });
+    const submit = async (ref) => {
+      common_vendor.index.showLoading({
+        title: "加载中",
+        mask: true
+      });
+      try {
+        let data = await getCurrentPages()[0].$vm.$refs[ref].validate();
+        if (ref == "adminform") {
+          try {
+            const { code } = await common_vendor.index.login();
+            const { result } = await common_vendor.Ws.callFunction({
+              name: "login",
+              data: { adminpwd: data.adminpwd, code }
+            });
+            console.log(result);
+            common_vendor.index.showToast({
+              title: result.message,
+              icon: result.code == 1 ? "error" : "success"
+            });
+            if (result.code == 0) {
+              common_vendor.index.setStorageSync("userinfo", result.userinfo);
+              common_vendor.index.reLaunch({
+                url: "/pages/user/user"
+              });
+            }
+          } catch (e) {
+            console.log(e);
+            common_vendor.index.showToast({
+              title: "请使用微信小程序打开",
+              icon: "none",
+              duration: 2e3
+            });
+          }
+          return;
+        }
+        if (userinfo.value)
+          data.id = userinfo.value._id;
+        try {
+          console.log(data, userinfo.value);
+          const { result } = await common_vendor.Ws.callFunction({ name: "login", data });
+          console.log(result);
+          common_vendor.index.showToast({
+            title: result.message,
+            icon: result.code == 1 ? "error" : "success"
+          });
+          if (result.code != 1) {
+            if (result.code != 3) {
+              common_vendor.index.setStorageSync("userinfo", result.userinfo);
+              userinfo.value = result.userinfo;
+              common_vendor.index.reLaunch({
+                url: "/pages/user/user"
+              });
+              if (result.code == 2) {
+                common_vendor.index.showToast({
+                  title: "请尽快修改默认密码",
+                  icon: "none",
+                  duration: 4e3
+                });
+              }
+            }
+            resetFormData();
+          }
+        } catch (e) {
+          console.log(e);
+          common_vendor.index.showToast({
+            title: e.message,
+            icon: "none",
+            duration: 2e3
+          });
+        }
+      } catch (e) {
+        console.log(e);
+        common_vendor.index.showToast({
+          title: "请检查输入内容",
+          icon: "none",
+          duration: 2e3
+        });
+        return;
+      }
+      common_vendor.index.hideLoading();
+    };
+    const logout = () => {
+      common_vendor.index.setStorageSync("userinfo", "");
+      userinfo.value = "";
+      common_vendor.index.showToast({
+        title: "退出登录成功",
+        icon: "success"
+      });
+    };
     const popupData = common_vendor.ref({
       value: "",
       title: "",
       placeholder: ""
     });
-    const formatTimeRange = (timeRange) => {
-      return timeRange.join(" 至 ");
-    };
-    common_vendor.onShow(() => {
-      getCurrentPages()[0].$vm.$refs.udb.loadData({ clear: true });
-    });
-    common_vendor.onPullDownRefresh(async () => {
-      await getCurrentPages()[0].$vm.$refs.udb.loadData({ clear: true }, () => {
-        common_vendor.index.stopPullDownRefresh();
-      });
-      common_vendor.index.showToast({
-        title: "刷新成功",
-        icon: "success"
-      });
-    });
-    const onChooseAvatar = async (e) => {
-      const tmpUrl = e.detail.avatarUrl;
-      common_vendor.index.showLoading({
-        title: "上传中",
-        mask: true
-      });
-      try {
-        const { fileID } = await common_vendor.Ws.uploadFile({
-          filePath: tmpUrl,
-          cloudPath: "avatar/" + userinfo.value._openid + ".png",
-          fileType: "image"
-        });
-        const { fileList } = await common_vendor.Ws.getTempFileURL({
-          fileList: [fileID]
-        });
-        const { result } = await common_vendor.Ws.database().collection("user").doc(userinfo.value._id).update({
-          avatarUrl: fileList[0].tempFileURL
-        });
-        if (result.updated > 0) {
-          userinfo.value.avatarUrl = fileList[0].tempFileURL;
-          common_vendor.index.setStorageSync("userinfo", userinfo.value);
-          common_vendor.index.showToast({
-            title: "上传成功",
-            icon: "success"
-          });
-          return;
-        }
-      } catch (e2) {
-        console.log(e2);
-      }
-      common_vendor.index.showToast({
-        title: "上传失败",
-        icon: "none"
-      });
-    };
-    const ifRenderDialog = common_vendor.ref(false);
-    const inputDialog = common_vendor.ref(null);
     const edit = async (type, value) => {
       popupData.value = {
         type,
@@ -96,10 +197,7 @@ const _sfc_main = {
       });
     };
     const types = {
-      昵称: "nickName",
-      姓名: "stuInfo.name",
-      学号: "stuInfo.id",
-      班级: "stuInfo.class"
+      昵称: "nickName"
     };
     const dialogInputConfirm = async (input) => {
       const text = input.trim();
@@ -146,140 +244,223 @@ const _sfc_main = {
         });
         console.log(result);
         if (result.errCode == 0) {
+          userinfo.value.type = userinfo.value.type == 0 ? 1 : 0;
+          common_vendor.index.setStorageSync("userinfo", userinfo.value);
           common_vendor.index.reLaunch({
             url: "/pages/index/index"
           });
         }
       }
     };
+    const onChooseAvatar = async (e) => {
+      const tmpUrl = e.detail.avatarUrl;
+      common_vendor.index.showLoading({
+        title: "上传中",
+        mask: true
+      });
+      try {
+        const { fileID } = await common_vendor.Ws.uploadFile({
+          filePath: tmpUrl,
+          cloudPath: "avatar/" + userinfo.value._id + ".png",
+          fileType: "image"
+        });
+        const { fileList } = await common_vendor.Ws.getTempFileURL({
+          fileList: [fileID]
+        });
+        const { result } = await common_vendor.Ws.database().collection("user").doc(userinfo.value._id).update({
+          avatarUrl: fileList[0].tempFileURL
+        });
+        if (result.updated > 0) {
+          userinfo.value.avatarUrl = fileList[0].tempFileURL;
+          common_vendor.index.setStorageSync("userinfo", userinfo.value);
+          common_vendor.index.showToast({
+            title: "上传成功",
+            icon: "success"
+          });
+          return;
+        }
+      } catch (e2) {
+        console.log(e2);
+      }
+      common_vendor.index.showToast({
+        title: "上传失败",
+        icon: "none"
+      });
+    };
+    const ifRenderDialog = common_vendor.ref(false);
+    const inputDialog = common_vendor.ref(null);
     return (_ctx, _cache) => {
       return common_vendor.e({
-        a: common_vendor.p({
+        a: userinfo.value
+      }, userinfo.value ? {
+        b: common_vendor.p({
           title: "我的信息",
           type: "line"
         }),
-        b: userinfo.value.avatarUrl,
-        c: common_vendor.p({
+        c: userinfo.value.avatarUrl,
+        d: common_vendor.p({
           border: false,
           clickable: true,
-          showArrow: true,
-          title: "头像"
+          showArrow: true
         }),
-        d: common_vendor.o(onLongPress),
-        e: common_vendor.o(onChooseAvatar),
-        f: common_vendor.t(userinfo.value.nickName),
-        g: common_vendor.o(($event) => edit("昵称", userinfo.value.nickName)),
-        h: common_vendor.p({
+        e: common_vendor.o(onLongPress),
+        f: common_vendor.o(onChooseAvatar),
+        g: common_vendor.t(userinfo.value.nickName),
+        h: common_vendor.o(($event) => edit("昵称", userinfo.value.nickName)),
+        i: common_vendor.p({
           clickable: true,
           showArrow: true,
           title: "昵称"
         }),
-        i: common_vendor.t(userinfo.value.stuInfo.name || "未设置"),
-        j: common_vendor.o(($event) => edit("姓名", userinfo.value.stuInfo.name)),
+        j: common_vendor.t(userinfo.value.name || "未设置"),
         k: common_vendor.p({
-          clickable: true,
-          showArrow: true,
           title: "姓名"
         }),
-        l: common_vendor.t(userinfo.value.stuInfo.id || "未设置"),
-        m: common_vendor.o(($event) => edit("学号", userinfo.value.stuInfo.id)),
-        n: common_vendor.p({
-          clickable: true,
-          showArrow: true,
+        l: common_vendor.t(userinfo.value._id || "未设置"),
+        m: common_vendor.p({
           title: "学号"
         }),
-        o: common_vendor.t(userinfo.value.stuInfo.class || "未设置"),
-        p: common_vendor.o(($event) => edit("班级", userinfo.value.stuInfo.class)),
-        q: common_vendor.p({
-          clickable: true,
-          showArrow: true,
+        n: common_vendor.t(userinfo.value.class || "未设置"),
+        o: common_vendor.p({
           title: "班级"
         }),
-        r: common_vendor.p({
+        p: common_vendor.p({
           padding: "0"
-        }),
-        s: common_vendor.p({
-          title: "我的预定",
-          type: "line"
-        }),
-        t: userinfo.value
-      }, userinfo.value ? {
-        v: common_vendor.w(({
-          data,
-          loading,
-          hasMore,
-          error,
-          options
-        }, s0, i0) => {
-          return common_vendor.e({
-            a: error
-          }, error ? {
-            b: common_vendor.t(error.message)
-          } : {}, {
-            c: common_vendor.f(data, (item, index, i1) => {
-              return {
-                a: common_vendor.t(item.title),
-                b: common_vendor.t(item.note),
-                c: common_vendor.t(formatTimeRange(item.selectableTimeRange)),
-                d: common_vendor.t(formatTimeRange(item.effectiveTimeRange)),
-                e: common_vendor.t(item.x),
-                f: common_vendor.t(item.y),
-                g: item.chartId,
-                h: "2d0e1023-12-" + i0 + "-" + i1 + "," + ("2d0e1023-11-" + i0),
-                i: common_vendor.p({
-                  clickable: true,
-                  link: true,
-                  to: "/pages/detail/detail?chartId=" + item.chartId,
-                  title: item.title,
-                  note: item.note
-                })
-              };
-            }),
-            d: "2d0e1023-11-" + i0 + ",2d0e1023-10",
-            e: "2d0e1023-13-" + i0 + ",2d0e1023-10",
-            f: common_vendor.p({
-              status: loading ? "loading" : hasMore ? "default" : "no-more"
-            }),
-            g: i0,
-            h: s0
-          });
-        }, {
-          name: "d",
-          path: "v",
-          vueId: "2d0e1023-10,2d0e1023-8"
-        }),
-        w: common_vendor.sr("udb", "2d0e1023-10,2d0e1023-8"),
-        x: common_vendor.p({
-          options: _ctx.options,
-          collection: "order",
-          where: `openid=='${userinfo.value._openid}'`,
-          orderby: "orderTime desc"
         })
       } : {}, {
-        y: common_vendor.p({
-          padding: "0"
+        q: !userinfo.value
+      }, !userinfo.value ? {
+        r: common_vendor.p({
+          title: "登录",
+          type: "line"
         }),
-        z: ifRenderDialog.value
-      }, ifRenderDialog.value ? {
-        A: common_vendor.sr("inputClose", "2d0e1023-15,2d0e1023-14"),
-        B: common_vendor.o(dialogInputConfirm),
-        C: common_vendor.o(($event) => ifRenderDialog.value = false),
-        D: common_vendor.o(($event) => popupData.value.value = $event),
+        s: common_vendor.o(($event) => formData.value.id = $event),
+        t: common_vendor.p({
+          placeholder: "请输入账号/学号",
+          modelValue: formData.value.id
+        }),
+        v: common_vendor.p({
+          label: "账号",
+          required: true,
+          name: "id"
+        }),
+        w: common_vendor.o(($event) => formData.value.pwd = $event),
+        x: common_vendor.p({
+          type: "password",
+          placeholder: "请输入密码",
+          modelValue: formData.value.pwd
+        }),
+        y: common_vendor.p({
+          label: "密码",
+          required: true,
+          name: "pwd"
+        }),
+        z: common_vendor.sr("form", "0f7520f0-10,0f7520f0-8"),
+        A: common_vendor.p({
+          modelValue: formData.value
+        }),
+        B: common_vendor.o(($event) => submit("form")),
+        C: common_vendor.p({
+          padding: "0"
+        })
+      } : {}, {
+        D: !userinfo.value
+      }, !userinfo.value ? {
         E: common_vendor.p({
+          title: "管理员登录",
+          type: "line"
+        }),
+        F: common_vendor.o(($event) => formData.value.adminpwd = $event),
+        G: common_vendor.p({
+          placeholder: "请输入管理密码",
+          modelValue: formData.value.adminpwd
+        }),
+        H: common_vendor.p({
+          name: "adminpwd"
+        }),
+        I: common_vendor.sr("adminform", "0f7520f0-17,0f7520f0-15"),
+        J: common_vendor.p({
+          modelValue: formData.value
+        }),
+        K: common_vendor.o(($event) => submit("adminform")),
+        L: common_vendor.p({
+          padding: "0"
+        })
+      } : {}, {
+        M: userinfo.value
+      }, userinfo.value ? {
+        N: common_vendor.p({
+          title: "修改密码",
+          type: "line"
+        }),
+        O: common_vendor.o(($event) => formData.value.pwd = $event),
+        P: common_vendor.p({
+          type: "password",
+          placeholder: "请输入密码",
+          modelValue: formData.value.pwd
+        }),
+        Q: common_vendor.p({
+          label: "旧密码",
+          required: true,
+          name: "pwd"
+        }),
+        R: common_vendor.o(($event) => formData.value.newpwd = $event),
+        S: common_vendor.p({
+          type: "password",
+          placeholder: "请输入新密码",
+          modelValue: formData.value.newpwd
+        }),
+        T: common_vendor.p({
+          label: "新密码",
+          required: true,
+          name: "newpwd"
+        }),
+        U: common_vendor.o(($event) => formData.value.newpwd2 = $event),
+        V: common_vendor.p({
+          type: "password",
+          placeholder: "请确认新密码",
+          modelValue: formData.value.newpwd2
+        }),
+        W: common_vendor.p({
+          label: "确认密码",
+          required: true,
+          name: "newpwd2"
+        }),
+        X: common_vendor.sr("form1", "0f7520f0-22,0f7520f0-20"),
+        Y: common_vendor.p({
+          modelValue: formData.value,
+          ["label-width"]: "80px"
+        }),
+        Z: common_vendor.o(($event) => submit("form1")),
+        aa: common_vendor.p({
+          padding: "0"
+        })
+      } : {}, {
+        ab: ifRenderDialog.value
+      }, ifRenderDialog.value ? {
+        ac: common_vendor.sr("inputClose", "0f7520f0-30,0f7520f0-29"),
+        ad: common_vendor.o(dialogInputConfirm),
+        ae: common_vendor.o(($event) => ifRenderDialog.value = false),
+        af: common_vendor.o(($event) => popupData.value.value = $event),
+        ag: common_vendor.p({
           mode: "input",
           title: popupData.value.title,
           placeholder: popupData.value.placeholder,
           modelValue: popupData.value.value
         }),
-        F: common_vendor.sr(inputDialog, "2d0e1023-14", {
+        ah: common_vendor.sr(inputDialog, "0f7520f0-29", {
           "k": "inputDialog"
         }),
-        G: common_vendor.p({
+        ai: common_vendor.p({
           type: "dialog"
         })
+      } : {}, {
+        aj: userinfo.value
+      }, userinfo.value ? {
+        ak: common_vendor.o(logout)
       } : {});
     };
   }
 };
-const MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__file", "D:/code/seatchon-uniapp/pages/user/user.vue"]]);
+const MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__scopeId", "data-v-0f7520f0"], ["__file", "D:/mcct/seatchon-uniapp/pages/user/user.vue"]]);
 wx.createPage(MiniProgramPage);

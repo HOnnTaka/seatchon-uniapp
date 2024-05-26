@@ -7966,17 +7966,27 @@ const createSubpackageApp = initCreateSubpackageApp();
   wx.createPluginApp = global.createPluginApp = createPluginApp;
   wx.createSubpackageApp = global.createSubpackageApp = createSubpackageApp;
 }
+const globalStyle = {
+  navigationBarTextStyle: "black",
+  navigationBarTitleText: "uni-app",
+  navigationBarBackgroundColor: "#ffffff",
+  backgroundColor: "#fff",
+  backgroundColorBottom: "#fff",
+  backgroundColorTop: "#fff"
+};
 const pages = [
   {
     path: "pages/index/index",
     style: {
-      navigationBarTitleText: "主页"
+      navigationBarTitleText: "主页",
+      enablePullDownRefresh: true
     }
   },
   {
     path: "pages/detail/detail",
     style: {
-      navigationBarTitleText: "座位表详情"
+      navigationBarTitleText: "座位表详情",
+      enablePullDownRefresh: true
     }
   },
   {
@@ -7990,42 +8000,42 @@ const pages = [
     style: {
       navigationBarTitleText: "创建座位表"
     }
+  },
+  {
+    path: "pages/order/order",
+    style: {
+      navigationBarTitleText: "预定",
+      enablePullDownRefresh: true
+    }
   }
 ];
 const tabBar = {
-  color: "#7A7E83",
-  selectedColor: "#07c160",
+  color: "#333",
+  selectedColor: "#2979ff",
   borderStyle: "white",
-  backgroundColor: "#f8f8f8",
+  backgroundColor: "#fff",
   list: [
+    {
+      pagePath: "pages/order/order",
+      selectedIconPath: "static/order-on.png",
+      iconPath: "static/order.png"
+    },
     {
       pagePath: "pages/index/index",
       iconPath: "static/home.png",
-      selectedIconPath: "static/home-selected.png",
-      text: "主页"
+      selectedIconPath: "static/home-on.png"
     },
     {
       pagePath: "pages/user/user",
-      iconPath: "static/myseat.png",
-      selectedIconPath: "static/myseat-selected.png",
-      text: "我的"
+      iconPath: "static/user.png",
+      selectedIconPath: "static/user-on.png"
     }
   ]
 };
-const globalStyle = {
-  navigationBarTextStyle: "black",
-  navigationBarTitleText: "uni-app",
-  navigationBarBackgroundColor: "#F8F8F8",
-  backgroundColor: "#F8F8F8",
-  "app-plus": {
-    background: "#efeff4"
-  },
-  enablePullDownRefresh: true
-};
 const e = {
+  globalStyle,
   pages,
-  tabBar,
-  globalStyle
+  tabBar
 };
 var define_process_env_UNI_SECURE_NETWORK_CONFIG_default = [];
 function t(e2) {
@@ -8316,7 +8326,7 @@ class v {
 function I(e2) {
   return e2 && "string" == typeof e2 ? JSON.parse(e2) : e2;
 }
-const S = true, b = "mp-weixin", A = I(define_process_env_UNI_SECURE_NETWORK_CONFIG_default), P = b, T = I('{\n    "address": [\n        "127.0.0.1",\n        "10.31.156.212"\n    ],\n    "debugPort": 9001,\n    "initialLaunchType": "local",\n    "servePort": 7001,\n    "skipFiles": [\n        "<node_internals>/**",\n        "D:/Program Files/HBuilderX/plugins/unicloud/**/*.js"\n    ]\n}\n'), C = I('[{"provider":"alipay","spaceName":"honntaka-basic","spaceId":"env-00jxgsnk72gw","spaceAppId":"2021004146674791","accessKey":"FWo0uAmGyKHAuFIc","secretKey":"CWKWQFBFNyhseQ6H"}]') || [];
+const S = true, b = "mp-weixin", A = I(define_process_env_UNI_SECURE_NETWORK_CONFIG_default), P = b, T = I('{\n    "address": [\n        "127.0.0.1",\n        "192.168.0.109"\n    ],\n    "debugPort": 9001,\n    "initialLaunchType": "local",\n    "servePort": 7001,\n    "skipFiles": [\n        "<node_internals>/**",\n        "D:/Program Files/HBuilderX/plugins/unicloud/**/*.js"\n    ]\n}\n'), C = I('[{"provider":"alipay","spaceName":"honntaka-basic","spaceId":"env-00jxgsnk72gw","spaceAppId":"2021004146674791","accessKey":"FWo0uAmGyKHAuFIc","secretKey":"CWKWQFBFNyhseQ6H"}]') || [];
 let O = "";
 try {
   O = "__UNI__975BBAA";
@@ -10759,6 +10769,7 @@ const createHook = (lifecycle) => (hook, target = getCurrentInstance()) => {
 };
 const onShow = /* @__PURE__ */ createHook(ON_SHOW);
 const onLoad = /* @__PURE__ */ createHook(ON_LOAD);
+const onReady = /* @__PURE__ */ createHook(ON_READY);
 const onPullDownRefresh = /* @__PURE__ */ createHook(ON_PULL_DOWN_REFRESH);
 const en = {
   "uniCloud.component.add.success": "Success",
@@ -10812,6 +10823,7 @@ exports.o = o$1;
 exports.onLoad = onLoad;
 exports.onMounted = onMounted;
 exports.onPullDownRefresh = onPullDownRefresh;
+exports.onReady = onReady;
 exports.onShow = onShow;
 exports.p = p$1;
 exports.r = r$1;

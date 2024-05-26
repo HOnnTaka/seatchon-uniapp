@@ -13,14 +13,14 @@ export default {
 /* #ifndef APP-NVUE */
 @import "@/static/customicons.css";
 // 设置整个项目的背景色
-page {
+/* #endif */
+page,
+html,
+body {
   background-image: linear-gradient(90deg, #47c5ff10, #ff8fde10);
 }
-
-/* #endif */
-.example-info {
-  font-size: 14px;
-  color: #333;
-  padding: 10px;
+.uni-card {
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1) !important;
+  border: none !important;
 }
 </style>

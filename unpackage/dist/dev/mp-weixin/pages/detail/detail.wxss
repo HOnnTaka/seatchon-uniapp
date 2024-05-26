@@ -47,15 +47,20 @@
 .seat.selected.data-v-eca06f3c {
   border: 2px solid #3292ff;
 }
-.btn.data-v-eca06f3c {
+.btns.data-v-eca06f3c {
   position: fixed;
-  bottom: 20px;
-  left: 10px;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: #fff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  display: flex;
+}
+.btn.data-v-eca06f3c {
+  margin: 0;
   z-index: 100;
-  gap: 10px;
-  width: calc(100% - 20px);
-  -webkit-backdrop-filter: blur(10px);
-          backdrop-filter: blur(10px);
+  flex: 1;
+  border-radius: 0;
 }
 .drawer.data-v-eca06f3c {
   width: 100vw;
@@ -78,15 +83,18 @@
   background: #fff;
   position: absolute;
   bottom: 0;
-  width: 100%;
-  padding: 20px;
+  padding: 10px;
+  width: calc(100% - 20px);
   border-radius: 10px 10px 0 0;
 }
 .title.data-v-eca06f3c {
   font-size: 18px;
-  font-weight: bold;
   margin-bottom: 5px;
   margin-left: 10px;
+}
+.roomInfo.data-v-eca06f3c,
+.userinfo.data-v-eca06f3c {
+  color: #666;
 }
 .drawer button.data-v-eca06f3c {
   margin: 0 10px;
