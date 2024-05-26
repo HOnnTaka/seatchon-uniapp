@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "座位表详情",
+  "enablePullDownRefresh": true,
+  "usingComponents": {
+    "uni-dateformat": "../../uni_modules/uni-dateformat/components/uni-dateformat/uni-dateformat",
+    "card-list": "../../component/CardList/CardList"
+  }
+}

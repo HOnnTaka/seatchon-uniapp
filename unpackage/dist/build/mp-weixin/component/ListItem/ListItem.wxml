@@ -1,0 +1,1 @@
+<view><uni-list-item wx:if="{{b}}" u-s="{{['footer']}}" u-i="5d9b5076-0" bind:__l="__l" u-p="{{b}}"><view slot="footer"><block wx:if="{{$slots.d}}"><slot></slot></block><block wx:else><text>{{a}}</text></block></view></uni-list-item></view>
