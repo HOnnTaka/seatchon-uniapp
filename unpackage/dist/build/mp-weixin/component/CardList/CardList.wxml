@@ -1,1 +1,0 @@
-<view class="data-v-158d5fa0"><uni-card wx:if="{{b}}" u-s="{{['title','d']}}" class="card data-v-158d5fa0" u-i="158d5fa0-0" bind:__l="__l" u-p="{{b}}"><uni-section class="data-v-158d5fa0" u-i="158d5fa0-1,158d5fa0-0" bind:__l="__l" u-p="{{a}}" slot="title"></uni-section><slot></slot></uni-card></view>

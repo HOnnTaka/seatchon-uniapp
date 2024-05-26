@@ -28,17 +28,17 @@
         </uni-list-item>
         <uni-list-item title="姓名">
           <template v-slot:footer>
-            <text>{{ userinfo.name || "未设置" }}</text>
+            <text>{{ userinfo.name  }}</text>
           </template>
         </uni-list-item>
         <uni-list-item title="学号">
           <template v-slot:footer>
-            <text>{{ userinfo._id || "未设置" }}</text>
+            <text>{{ userinfo._id  }}</text>
           </template>
         </uni-list-item>
         <uni-list-item title="班级">
           <template v-slot:footer>
-            <text>{{ userinfo.class || "未设置" }}</text>
+            <text>{{ userinfo.class  }}</text>
           </template>
         </uni-list-item>
       </uni-list>
@@ -69,7 +69,7 @@
       <button class="uni-mb-5" type="primary" @click="submit('adminform')">管理员登录</button>
     </uni-card>
 
-    <uni-card v-if="userinfo" padding="0">
+    <uni-card v-if="userinfo " padding="0">
       <template v-slot:title>
         <uni-section title="修改密码" type="line"></uni-section>
       </template>
