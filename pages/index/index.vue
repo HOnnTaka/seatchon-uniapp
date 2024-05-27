@@ -62,10 +62,6 @@
       <uni-load-more :status="loading ? 'loading' : hasMore ? 'default' : 'no-more'"></uni-load-more>
     </unicloud-db>
 
-    <view class="shadow">
-      <view class="top"></view>
-      <view class="bottom"></view>
-    </view>
   </view>
 </template>
 
@@ -166,7 +162,7 @@ const fabClick = () => {
   background: #2979ff;
   width: 5px;
   margin-right: 10px;
-  margin-top: 5px;
+  margin-top: 4px;
   border-radius: 5px;
   height: 25px;
   display: flex;
@@ -193,23 +189,5 @@ const fabClick = () => {
 }
 .item-footer > view {
   font-size: 12px;
-}
-
-.shadow view {
-  width: 100%;
-  position: fixed;
-  z-index: 9999;
-  pointer-events: none;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-.shadow .top {
-  height: var(--window-top);
-  top: 0;
-  left: 0;
-}
-.shadow .bottom {
-  height: var(--window-bottom);
-  bottom: 0;
-  left: 0;
 }
 </style>

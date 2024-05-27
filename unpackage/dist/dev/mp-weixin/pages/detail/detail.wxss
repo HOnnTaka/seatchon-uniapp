@@ -15,12 +15,21 @@
   display: flex;
   flex-wrap: wrap;
   background: #fff;
+  margin: 0 auto;
 }
 .refresh-btn.data-v-eca06f3c {
   margin-left: auto;
   align-self: flex-end;
   float: right;
   margin: 10px 2.5px;
+}
+.admin-name.data-v-eca06f3c {
+  max-width: 80%;
+  line-break: anywhere;
+  white-space: normal;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 .seat.data-v-eca06f3c {
   box-sizing: border-box;
@@ -56,11 +65,29 @@
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
   display: flex;
 }
+.edit-chart-btns.data-v-eca06f3c {
+  display: flex;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  overflow: hidden;
+}
+.admin-tag.data-v-eca06f3c {
+  position: fixed;
+  z-index: 10000;
+  right: 0;
+  top: calc(var(--window-top) + 40px);
+  background: #3292ff;
+  color: #fff;
+  padding: 5px 10px;
+  border-radius: 20px 0 0 20px;
+  font-size: 12px;
+}
 .btn.data-v-eca06f3c {
   margin: 0;
-  z-index: 100;
+  z-index: 10;
   flex: 1;
   border-radius: 0;
+  border: none !important;
 }
 .drawer.data-v-eca06f3c {
   width: 100vw;
@@ -88,9 +115,9 @@
   border-radius: 10px 10px 0 0;
 }
 .title.data-v-eca06f3c {
-  font-size: 18px;
-  margin-bottom: 5px;
-  margin-left: 10px;
+  font-size: 20px;
+  margin: 10px;
+  text-align: center;
 }
 .roomInfo.data-v-eca06f3c,
 .userinfo.data-v-eca06f3c {

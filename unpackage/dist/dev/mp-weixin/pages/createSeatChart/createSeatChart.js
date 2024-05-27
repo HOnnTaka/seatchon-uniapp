@@ -25,9 +25,6 @@ if (!Math) {
 const _sfc_main = {
   __name: "createSeatChart",
   setup(__props) {
-    common_vendor.onLoad(async () => {
-    });
-    const today = (/* @__PURE__ */ new Date()).toJSON().substring(0, 10);
     const baseFormData = common_vendor.reactive({
       title: "",
       note: "",
@@ -37,6 +34,27 @@ const _sfc_main = {
       effectiveTimeRange: [],
       selectableTimeRange: []
     });
+    common_vendor.onLoad(async (options) => {
+      common_vendor.index.showLoading({
+        title: "加载中"
+      });
+      const { type, chartId } = options;
+      if (type == "edit") {
+        const db = common_vendor.Ws.database();
+        const { result } = await db.collection("seat-chart").doc(chartId).get();
+        const chart = result.data[0];
+        console.log(result.data[0], baseFormData);
+        baseFormData.title = chart.title;
+        baseFormData.note = chart.note;
+        baseFormData.col = chart.col;
+        baseFormData.row = chart.row;
+        baseFormData.stuInfoVisible = chart.stuInfoVisible ? 0 : 1;
+        baseFormData.effectiveTimeRange = chart.effectiveTimeRange;
+        baseFormData.selectableTimeRange = chart.selectableTimeRange;
+      }
+      common_vendor.index.hideLoading();
+    });
+    const today = (/* @__PURE__ */ new Date()).toJSON().substring(0, 10);
     const loading = common_vendor.ref(false);
     const seatStatus = common_vendor.ref([]);
     const seats = common_vendor.computed(() => {
@@ -112,8 +130,7 @@ const _sfc_main = {
             ...data,
             stuInfoVisible: data.stuInfoVisible == 0 ? true : false,
             createTime: (/* @__PURE__ */ new Date()).toJSON(),
-            creator: userinfo.nickName,
-            creatorId: userinfo._id,
+            administrators: [userinfo._id],
             seats: seats.value.map((item, index) => ({
               x: item.x,
               y: item.y,
@@ -242,7 +259,7 @@ const _sfc_main = {
           padding: "0"
         }),
         C: common_vendor.o(() => submit("valiForm")),
-        D: common_vendor.sr("valiForm", "05355019-0"),
+        D: common_vendor.sr("valiForm", "03a545ff-0"),
         E: common_vendor.p({
           ["label-width"]: "100%",
           modelValue: baseFormData,
@@ -253,5 +270,5 @@ const _sfc_main = {
     };
   }
 };
-const MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__file", "D:/mcct/seatchon-uniapp/pages/createSeatChart/createSeatChart.vue"]]);
+const MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__file", "D:/code/seatchon-uniapp/pages/createSeatChart/createSeatChart.vue"]]);
 wx.createPage(MiniProgramPage);

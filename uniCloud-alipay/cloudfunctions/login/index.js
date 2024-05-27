@@ -64,7 +64,7 @@ exports.main = async (event, context) => {
 					avatarUrl: data[0] ? data[0]?.avatarUrl : `https://api.multiavatar.com/${_id}.png`,
 					nickName: data[0] ? data[0]?.nickName : "微信管理员" + openid,
 					_openid: openid,
-					type: data[0]?.type,
+					type: data[0] ? data[0]?.type : 1,
 				},
 			};
 		} else {

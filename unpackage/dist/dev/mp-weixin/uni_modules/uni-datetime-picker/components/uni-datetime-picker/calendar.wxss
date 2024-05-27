@@ -3,8 +3,8 @@
 button[type=primary] {
   background: #2979ff !important;
 }
-.uni-tabbar {
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+.uni-tabbar, .uni-page-head {
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 .uni-calendar {
   display: flex;

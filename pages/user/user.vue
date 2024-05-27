@@ -21,24 +21,24 @@
             </template>
           </uni-list-item>
         </button>
-        <uni-list-item clickable @click="edit('昵称', userinfo.nickName)" showArrow title="昵称">
+        <uni-list-item clickable @click="edit('昵称',userinfo.nickName)" showArrow title="昵称">
           <template v-slot:footer>
             <view class="title">{{ userinfo.nickName }}</view>
           </template>
         </uni-list-item>
         <uni-list-item title="姓名">
           <template v-slot:footer>
-            <text>{{ userinfo.name  }}</text>
+            <text user-select selectable>{{ userinfo.name }}</text>
           </template>
         </uni-list-item>
-        <uni-list-item title="学号">
+        <uni-list-item :title="userinfo.type == 1 ? '学号/id' : '学号'">
           <template v-slot:footer>
-            <text>{{ userinfo._id  }}</text>
+            <text user-select selectable>{{ userinfo._id }}</text>
           </template>
         </uni-list-item>
         <uni-list-item title="班级">
           <template v-slot:footer>
-            <text>{{ userinfo.class  }}</text>
+            <text user-select selectable>{{ userinfo.class }}</text>
           </template>
         </uni-list-item>
       </uni-list>
@@ -69,22 +69,28 @@
       <button class="uni-mb-5" type="primary" @click="submit('adminform')">管理员登录</button>
     </uni-card>
 
-    <uni-card v-if="userinfo " padding="0">
-      <template v-slot:title>
-        <uni-section title="修改密码" type="line"></uni-section>
-      </template>
-      <uni-forms ref="form1" :modelValue="formData" label-width="80px">
-        <uni-forms-item label="旧密码" required name="pwd">
-          <uni-easyinput v-model="formData.pwd" type="password" placeholder="请输入密码" />
-        </uni-forms-item>
-        <uni-forms-item label="新密码" required name="newpwd">
-          <uni-easyinput v-model="formData.newpwd" type="password" placeholder="请输入新密码" />
-        </uni-forms-item>
-        <uni-forms-item label="确认密码" required name="newpwd2">
-          <uni-easyinput v-model="formData.newpwd2" type="password" placeholder="请确认新密码" />
-        </uni-forms-item>
-      </uni-forms>
-      <button class="uni-mb-5" type="primary" @click="submit('form1')">确认</button>
+    <uni-card v-if="userinfo" padding="0">
+      <uni-collapse>
+        <uni-collapse-item>
+          <template v-slot:title>
+            <uni-section title="修改密码" type="line"></uni-section>
+          </template>
+          <view>
+            <uni-forms ref="form1" :modelValue="formData" label-width="80px">
+              <uni-forms-item label="旧密码" required name="pwd">
+                <uni-easyinput v-model="formData.pwd" type="password" placeholder="请输入密码" />
+              </uni-forms-item>
+              <uni-forms-item label="新密码" required name="newpwd">
+                <uni-easyinput v-model="formData.newpwd" type="password" placeholder="请输入新密码" />
+              </uni-forms-item>
+              <uni-forms-item label="确认密码" required name="newpwd2">
+                <uni-easyinput v-model="formData.newpwd2" type="password" placeholder="请确认新密码" />
+              </uni-forms-item>
+            </uni-forms>
+            <button class="uni-mb-5" type="primary" @click="submit('form1')">确认</button>
+          </view>
+        </uni-collapse-item>
+      </uni-collapse>
     </uni-card>
 
     <uni-popup v-if="ifRenderDialog" ref="inputDialog" type="dialog">
@@ -99,8 +105,7 @@
       ></uni-popup-dialog>
     </uni-popup>
 
-    <button v-if="userinfo" class="uni-mx-8" type="warn" @click="logout">退出登录</button>
-
+    <button v-if="userinfo" class="uni-mx-5" type="warn" @click="logout">退出登录</button>
     <view class="edgeInsetBottom"></view>
   </view>
 </template>
@@ -164,7 +169,6 @@ const rules = {
     ],
   },
 };
-const data = [{ text: "管理员登录", value: "admin" }];
 onReady(async () => {
   getCurrentPages()[0].$vm.$refs.form?.setRules(rules);
   getCurrentPages()[0].$vm.$refs.form1?.setRules(rules);
@@ -196,7 +200,6 @@ const submit = async ref => {
           });
         }
       } catch (e) {
-        console.log(e);
         uni.showToast({
           title: "请使用微信小程序打开",
           icon: "none",
@@ -265,6 +268,7 @@ const popupData = ref({
   title: "",
   placeholder: "",
 });
+
 const edit = async (type, value) => {
   popupData.value = {
     type: type,

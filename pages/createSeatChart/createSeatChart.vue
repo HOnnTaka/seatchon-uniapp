@@ -77,8 +77,6 @@
 import { ref, watch, computed, reactive } from "vue";
 import { onLoad } from "@dcloudio/uni-app";
 
-onLoad(async () => {});
-const today = new Date().toJSON().substring(0, 10);
 const baseFormData = reactive({
   title: "",
   note: "",
@@ -88,6 +86,30 @@ const baseFormData = reactive({
   effectiveTimeRange: [],
   selectableTimeRange: [],
 });
+
+onLoad(async options => {
+  uni.showLoading({
+    title: "加载中",
+  });
+  const { type, chartId } = options;
+  if (type == "edit") {
+    const db = uniCloud.database();
+    const { result } = await db.collection("seat-chart").doc(chartId).get();
+    const chart = result.data[0];
+    console.log(result.data[0], baseFormData);
+
+    baseFormData.title = chart.title;
+    baseFormData.note = chart.note;
+    baseFormData.col = chart.col;
+    baseFormData.row = chart.row;
+    baseFormData.stuInfoVisible = chart.stuInfoVisible ? 0 : 1;
+    baseFormData.effectiveTimeRange = chart.effectiveTimeRange;
+    baseFormData.selectableTimeRange = chart.selectableTimeRange;
+  }
+  uni.hideLoading();
+});
+const today = new Date().toJSON().substring(0, 10);
+
 const loading = ref(false);
 const seatStatus = ref([]);
 const seats = computed(() => {
@@ -213,7 +235,7 @@ const submit = async ref => {
   display: flex;
   flex-wrap: wrap;
   background: #fff;
-  margin: 0 auto ;
+  margin: 0 auto;
 }
 .refresh-btn {
   display: block;

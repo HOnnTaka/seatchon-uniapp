@@ -8,9 +8,11 @@ if (!Array) {
   const _easycom_uni_easyinput2 = common_vendor.resolveComponent("uni-easyinput");
   const _easycom_uni_forms_item2 = common_vendor.resolveComponent("uni-forms-item");
   const _easycom_uni_forms2 = common_vendor.resolveComponent("uni-forms");
+  const _easycom_uni_collapse_item2 = common_vendor.resolveComponent("uni-collapse-item");
+  const _easycom_uni_collapse2 = common_vendor.resolveComponent("uni-collapse");
   const _easycom_uni_popup_dialog2 = common_vendor.resolveComponent("uni-popup-dialog");
   const _easycom_uni_popup2 = common_vendor.resolveComponent("uni-popup");
-  (_easycom_uni_section2 + _easycom_uni_list_item2 + _easycom_uni_list2 + _easycom_uni_card2 + _easycom_uni_easyinput2 + _easycom_uni_forms_item2 + _easycom_uni_forms2 + _easycom_uni_popup_dialog2 + _easycom_uni_popup2)();
+  (_easycom_uni_section2 + _easycom_uni_list_item2 + _easycom_uni_list2 + _easycom_uni_card2 + _easycom_uni_easyinput2 + _easycom_uni_forms_item2 + _easycom_uni_forms2 + _easycom_uni_collapse_item2 + _easycom_uni_collapse2 + _easycom_uni_popup_dialog2 + _easycom_uni_popup2)();
 }
 const _easycom_uni_section = () => "../../uni_modules/uni-section/components/uni-section/uni-section.js";
 const _easycom_uni_list_item = () => "../../uni_modules/uni-list/components/uni-list-item/uni-list-item.js";
@@ -19,10 +21,12 @@ const _easycom_uni_card = () => "../../uni_modules/uni-card/components/uni-card/
 const _easycom_uni_easyinput = () => "../../uni_modules/uni-easyinput/components/uni-easyinput/uni-easyinput.js";
 const _easycom_uni_forms_item = () => "../../uni_modules/uni-forms/components/uni-forms-item/uni-forms-item.js";
 const _easycom_uni_forms = () => "../../uni_modules/uni-forms/components/uni-forms/uni-forms.js";
+const _easycom_uni_collapse_item = () => "../../uni_modules/uni-collapse/components/uni-collapse-item/uni-collapse-item.js";
+const _easycom_uni_collapse = () => "../../uni_modules/uni-collapse/components/uni-collapse/uni-collapse.js";
 const _easycom_uni_popup_dialog = () => "../../uni_modules/uni-popup/components/uni-popup-dialog/uni-popup-dialog.js";
 const _easycom_uni_popup = () => "../../uni_modules/uni-popup/components/uni-popup/uni-popup.js";
 if (!Math) {
-  (_easycom_uni_section + _easycom_uni_list_item + _easycom_uni_list + _easycom_uni_card + _easycom_uni_easyinput + _easycom_uni_forms_item + _easycom_uni_forms + _easycom_uni_popup_dialog + _easycom_uni_popup)();
+  (_easycom_uni_section + _easycom_uni_list_item + _easycom_uni_list + _easycom_uni_card + _easycom_uni_easyinput + _easycom_uni_forms_item + _easycom_uni_forms + _easycom_uni_collapse_item + _easycom_uni_collapse + _easycom_uni_popup_dialog + _easycom_uni_popup)();
 }
 const _sfc_main = {
   __name: "user",
@@ -116,7 +120,6 @@ const _sfc_main = {
               });
             }
           } catch (e) {
-            console.log(e);
             common_vendor.index.showToast({
               title: "请使用微信小程序打开",
               icon: "none",
@@ -312,15 +315,15 @@ const _sfc_main = {
           showArrow: true,
           title: "昵称"
         }),
-        j: common_vendor.t(userinfo.value.name || "未设置"),
+        j: common_vendor.t(userinfo.value.name),
         k: common_vendor.p({
           title: "姓名"
         }),
-        l: common_vendor.t(userinfo.value._id || "未设置"),
+        l: common_vendor.t(userinfo.value._id),
         m: common_vendor.p({
-          title: "学号"
+          title: userinfo.value.type == 1 ? "学号/id" : "学号"
         }),
-        n: common_vendor.t(userinfo.value.class || "未设置"),
+        n: common_vendor.t(userinfo.value.class),
         o: common_vendor.p({
           title: "班级"
         }),
@@ -426,7 +429,7 @@ const _sfc_main = {
           required: true,
           name: "newpwd2"
         }),
-        X: common_vendor.sr("form1", "0f7520f0-22,0f7520f0-20"),
+        X: common_vendor.sr("form1", "0f7520f0-24,0f7520f0-22"),
         Y: common_vendor.p({
           modelValue: formData.value,
           ["label-width"]: "80px"
@@ -438,7 +441,7 @@ const _sfc_main = {
       } : {}, {
         ab: ifRenderDialog.value
       }, ifRenderDialog.value ? {
-        ac: common_vendor.sr("inputClose", "0f7520f0-30,0f7520f0-29"),
+        ac: common_vendor.sr("inputClose", "0f7520f0-32,0f7520f0-31"),
         ad: common_vendor.o(dialogInputConfirm),
         ae: common_vendor.o(($event) => ifRenderDialog.value = false),
         af: common_vendor.o(($event) => popupData.value.value = $event),
@@ -448,7 +451,7 @@ const _sfc_main = {
           placeholder: popupData.value.placeholder,
           modelValue: popupData.value.value
         }),
-        ah: common_vendor.sr(inputDialog, "0f7520f0-29", {
+        ah: common_vendor.sr(inputDialog, "0f7520f0-31", {
           "k": "inputDialog"
         }),
         ai: common_vendor.p({
@@ -462,5 +465,5 @@ const _sfc_main = {
     };
   }
 };
-const MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__scopeId", "data-v-0f7520f0"], ["__file", "D:/mcct/seatchon-uniapp/pages/user/user.vue"]]);
+const MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__scopeId", "data-v-0f7520f0"], ["__file", "D:/code/seatchon-uniapp/pages/user/user.vue"]]);
 wx.createPage(MiniProgramPage);

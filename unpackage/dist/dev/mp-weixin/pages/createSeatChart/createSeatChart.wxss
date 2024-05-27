@@ -11,6 +11,7 @@
   display: flex;
   flex-wrap: wrap;
   background: #fff;
+  margin: 0 auto;
 }
 .refresh-btn {
   display: block;
