@@ -4,6 +4,14 @@ export default {
   onShow() {},
   onHide() {},
   globalData: {},
+  onError(err) {
+    console.error(err);
+    uni.showToast({
+      title: '出错了',
+      icon: 'error',
+      mask: true
+    })
+  }
 };
 </script>
 

@@ -8,6 +8,9 @@
 		"delete": true
 	},
 	"properties": {
+		"_id": {
+			"description": "ID，系统自动生成"
+		},
 		"title": {
 			"bsonType": "string",
 			"description": "标题",
@@ -45,7 +48,7 @@
 		"creatorId": {
 			"description": "创建者ID"
 		},
-		"administrators":{
+		"administrators": {
 			"description": "管理员"
 		},
 		"createTime": {

@@ -9,7 +9,6 @@
 // 详细JQL语法，请参考：https://uniapp.dcloud.net.cn/uniCloud/jql.html
 
 // 下面示例查询uni-id-users表的所有数据
-const admins = ["216124125"]
-db.collection("user").where({
-	_id: db.command.in(admins)
-}).field("name").get();
+const order = db.collection('order').where('userId ==  "216124125"').field("chartId as chart,x,y,userId").getTemp()
+const chart = db.collection('seat-chart').field("_id,effectiveTimeRange,selectableTimeRange,title,note").getTemp()
+db.collection(order, chart).get()

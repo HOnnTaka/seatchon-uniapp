@@ -31,6 +31,7 @@ if (!Math) {
 const _sfc_main = {
   __name: "user",
   setup(__props) {
+    const page = getCurrentPages().find((item) => item.route === "pages/user/user");
     const userinfo = common_vendor.ref(common_vendor.index.getStorageSync("userinfo"));
     const formData = common_vendor.ref({
       id: "",
@@ -90,9 +91,9 @@ const _sfc_main = {
     };
     common_vendor.onReady(async () => {
       var _a, _b, _c;
-      (_a = getCurrentPages()[0].$vm.$refs.form) == null ? void 0 : _a.setRules(rules);
-      (_b = getCurrentPages()[0].$vm.$refs.form1) == null ? void 0 : _b.setRules(rules);
-      (_c = getCurrentPages()[0].$vm.$refs.adminform) == null ? void 0 : _c.setRules(rules);
+      (_a = page.$vm.$refs.form) == null ? void 0 : _a.setRules(rules);
+      (_b = page.$vm.$refs.form1) == null ? void 0 : _b.setRules(rules);
+      (_c = page.$vm.$refs.adminform) == null ? void 0 : _c.setRules(rules);
     });
     const submit = async (ref) => {
       common_vendor.index.showLoading({
@@ -100,7 +101,7 @@ const _sfc_main = {
         mask: true
       });
       try {
-        let data = await getCurrentPages()[0].$vm.$refs[ref].validate();
+        let data = await page.$vm.$refs[ref].validate();
         if (ref == "adminform") {
           try {
             const { code } = await common_vendor.index.login();
@@ -196,7 +197,7 @@ const _sfc_main = {
       };
       ifRenderDialog.value = true;
       setTimeout(() => {
-        getCurrentPages()[0].$vm.$refs.inputDialog.open();
+        page.$vm.$refs.inputDialog.open();
       });
     };
     const types = {
@@ -228,7 +229,7 @@ const _sfc_main = {
           icon: "success"
         });
         ifRenderDialog.value = true;
-        getCurrentPages()[0].$vm.$refs.inputDialog.close();
+        page.$vm.$refs.inputDialog.close();
         return;
       }
       common_vendor.index.showToast({

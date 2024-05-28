@@ -29,6 +29,11 @@ button[type=primary].data-v-1cf27b2a {
   height: 25px;
   display: flex;
 }
+.error.data-v-1cf27b2a {
+  padding: 10px;
+  text-align: center;
+  background: #ff7626;
+}
 .item-note.data-v-1cf27b2a {
   color: #666;
   font-size: 12px;

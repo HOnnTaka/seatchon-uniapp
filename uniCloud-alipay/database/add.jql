@@ -1,1 +1,5 @@
-db.collection("user").add({})
+const order = db.collection('order').where('userId ==  "216124125"').field("chartId,x,y,userId").getTemp()
+const chart = db.collection('seat-chart').where('userId ==  "216124125"').field(
+	"effectiveTimeRange,selectableTimeRange,title,note").getTemp()
+db.collection(order, book)
+	.get()

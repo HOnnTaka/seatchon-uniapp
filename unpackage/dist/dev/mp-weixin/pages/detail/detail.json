@@ -1,5 +1,5 @@
 {
-  "navigationBarTitleText": "座位表详情",
+  "navigationBarTitleText": "课室详情",
   "enablePullDownRefresh": true,
   "usingComponents": {
     "uni-section": "../../uni_modules/uni-section/components/uni-section/uni-section",

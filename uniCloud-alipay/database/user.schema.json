@@ -1,1 +1,40 @@
-{"bsonType":"object","required":[],"permission":{"read":true,"create":true,"update":true,"delete":true},"properties":{"_id":{"description":"ID，系统自动生成"},"avatarUrl":{"description":"头像"},"nickName":{"description":"昵称","trim":"both"},"_openid":{"description":"用户唯一标识符"},"type":{"description":"是否为管理员"},"pwd":{"description":"加密密码默认123456","permission":{"read":false}},"name":{"description":"姓名"},"class":{"description":"班级"}}}
+{
+	"bsonType": "object",
+	"required": [],
+	"permission": {
+		"read": true,
+		"create": true,
+		"update": true,
+		"delete": true
+	},
+	"properties": {
+		"_id": {
+			"description": "ID，系统自动生成"
+		},
+		"avatarUrl": {
+			"description": "头像"
+		},
+		"nickName": {
+			"description": "昵称",
+			"trim": "both"
+		},
+		"_openid": {
+			"description": "用户唯一标识符"
+		},
+		"type": {
+			"description": "是否为管理员"
+		},
+		"pwd": {
+			"description": "加密密码默认123456",
+			"permission": {
+				"read": false
+			}
+		},
+		"name": {
+			"description": "姓名"
+		},
+		"class": {
+			"description": "班级"
+		}
+	}
+}

@@ -7985,7 +7985,7 @@ const pages = [
   {
     path: "pages/detail/detail",
     style: {
-      navigationBarTitleText: "座位表详情",
+      navigationBarTitleText: "课室详情",
       enablePullDownRefresh: true
     }
   },
@@ -7998,7 +7998,7 @@ const pages = [
   {
     path: "pages/createSeatChart/createSeatChart",
     style: {
-      navigationBarTitleText: "创建座位表"
+      navigationBarTitleText: "创建课室"
     }
   },
   {

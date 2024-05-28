@@ -1,14 +1,18 @@
 <template>
-  <view class="container">
+  <view
+    class="container"
+    style="transition: all 1s ease; opacity: 0"
+    :style="show ? 'transition: all .5s ease; opacity: 1' : ''"
+  >
     <uni-card class="order-card" padding="0">
       <template v-slot:title>
-        <uni-section title="我的预定" type="line"></uni-section>
+        <uni-section title="我的选座" type="line"></uni-section>
       </template>
       <unicloud-db
-        ref="udb"
+        ref="orderDB"
         :options="options"
         v-slot:default="{ data, loading, hasMore, error, options }"
-        collection="order"
+        :collection="orderDBList"
         :where="`userId=='${userinfo._id}'`"
         orderby="orderTime desc"
       >
@@ -16,10 +20,54 @@
         <uni-list>
           <uni-list-item
             v-for="(item, index) in data"
-            :key="item.chartId"
+            :key="item.chartId[0]._id"
             clickable
             link
-            :to="'/pages/detail/detail?chartId=' + item.chartId"
+            :to="'/pages/detail/detail?chartId=' + item.chartId[0]._id"
+            :title="item.chartId[0].title"
+            :note="item.chartId[0].note"
+          >
+            <template v-slot:body>
+              <view class="item-body">
+                <view class="item-content">
+                  <text class="item-title">{{ item.chartId[0].title }}</text>
+                  <text class="item-note">{{ item.chartId[0].note }}</text>
+                </view>
+                <view class="item-time">
+                  <text>{{ formatTimeRange(item.chartId[0].effectiveTimeRange) }}</text>
+                </view>
+              </view>
+            </template>
+            <template v-slot:footer>
+              <view class="item-footer">第{{ item.x }}列 第{{ item.y }}行</view>
+            </template>
+          </uni-list-item>
+        </uni-list>
+        <uni-load-more :status="loading ? 'loading' : hasMore ? 'default' : 'no-more'"></uni-load-more>
+      </unicloud-db>
+    </uni-card>
+
+    <uni-card class="admin-card" padding="0">
+      <template v-slot:title>
+        <uni-section title="我的管理" type="line"></uni-section>
+      </template>
+      <unicloud-db
+        ref="adminDB"
+        :options="options"
+        v-slot:default="{ data, loading, hasMore, error, options }"
+        collection="seat-chart"
+        :field="`title,note,administrators`"
+        :where="`in('${userinfo._id}', administrators)`"
+        orderby="createTime desc"
+      >
+        <view v-if="error">{{ error.message }}</view>
+        <uni-list>
+          <uni-list-item
+            v-for="(item, index) in data"
+            :key="item._id"
+            clickable
+            link
+            :to="'/pages/detail/detail?chartId=' + item._id"
             :title="item.title"
             :note="item.note"
           >
@@ -29,13 +77,11 @@
                   <text class="item-title">{{ item.title }}</text>
                   <text class="item-note">{{ item.note }}</text>
                 </view>
-                <view class="item-time">
-                  <text>{{ formatTimeRange(item.effectiveTimeRange) }}</text>
-                </view>
+                <view class="item-time"> </view>
               </view>
             </template>
             <template v-slot:footer>
-              <view class="item-footer">第{{ item.x }}列 第{{ item.y }}行</view>
+              <view class="item-footer">{{ item.administrators.length }}人管理</view>
             </template>
           </uni-list-item>
         </uni-list>
@@ -49,36 +95,49 @@
 
 <script setup>
 import { ref } from "vue";
-import { onLoad, onShow, onPullDownRefresh } from "@dcloudio/uni-app";
+import { onLoad, onShow, onHide, onPullDownRefresh } from "@dcloudio/uni-app";
 const userinfo = ref(uni.getStorageSync("userinfo"));
+const show = ref(false);
 
+const page = getCurrentPages().find(page => page.route === "pages/order/order");
+const db = uniCloud.database();
+const orderDBList = ref([
+  db.collection("order").where('userId ==  "216124125"').field("chartId,x,y,userId").getTemp(),
+  db.collection("seat-chart").field("_id,effectiveTimeRange,selectableTimeRange,title,note").getTemp(),
+]);
 const formatTimeRange = timeRange => {
   return timeRange.join(" 至 ");
 };
 onShow(() => {
   userinfo.value = uni.getStorageSync("userinfo");
   console.log(getCurrentPages());
-  getCurrentPages()[0].$vm.$refs.udb?.loadData({ clear: true });
+  page.$vm.$refs.orderDB?.loadData({ clear: true });
+  page.$vm.$refs.adminDB?.loadData({ clear: true });
+  setTimeout(() => {
+    show.value = true;
+  }, 100);
 });
+
+onHide(async () => {
+  show.value = false;
+});
+
 onPullDownRefresh(async () => {
-  if (!userinfo.value) return uni.stopPullDownRefresh();
-  await getCurrentPages()[0].$vm.$refs.udb.loadData({ clear: true }, () => {
-    uni.stopPullDownRefresh();
-    uni.showToast({
-      title: "刷新成功",
-      icon: "success",
-    });
-  });
+  page.$vm.$refs.orderDB.loadData({ clear: true });
+  page.$vm.$refs.adminDB.loadData({ clear: true });
+  uni.stopPullDownRefresh();
 });
 // const onReachBottom = () => {
 //   //上拉加载更多
-//   getCurrentPages()[0].$vm.$refs.udb.loadMore();
+//   getCurrentPages()[0].$vm.$refs.orderDB.loadMore();
 // };
 </script>
 
 <style scoped>
 .container {
   height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 .userinfo {
   font-size: 20px;

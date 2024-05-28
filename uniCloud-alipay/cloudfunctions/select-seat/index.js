@@ -6,7 +6,8 @@ exports.main = async (event, context) => {
 		orderId,
 		seatIndex,
 		userinfo,
-		isSelectSubmit
+		isSelectSubmit,
+		edit
 	} = event;
 	const db = uniCloud.database();
 	const _ = db.command;
@@ -51,52 +52,112 @@ exports.main = async (event, context) => {
 		.end();
 	const chart = data[0];
 	const seatInfo = data[0].seats[seatIndex - 1];
-	const alreadySelected = Array.from(data[0].seats).find(v => v.stuInfo?.id == userinfo._id);
+
+	const alreadySelected = Array.from(data[0].seats).find(v => v.stuInfo?.id == (edit ? userinfo.id : userinfo
+		._id));
 	if (alreadySelected)
 		return {
-			message: "您已选过座位",
+			message: edit ? "此id已选座" : "您已选过座位",
 		};
-	if (seatInfo.status != 1)
+	if (!edit && seatInfo.status != 1)
 		return {
 			message: "座位已被占用",
 		};
 
 	const selectTime = new Date()
-	const orderResult = await db.collection("order").add({
-		chartId: chartId,
-		userId: userinfo._id,
-		x: seatInfo.x,
-		y: seatInfo.y,
-		selectableTimeRange: data[0].selectableTimeRange,
-		effectiveTimeRange: data[0].effectiveTimeRange,
-		title: data[0].title,
-		note: data[0].note,
-		orderTime: selectTime
-	})
-
-	if (orderResult) {
-		const res = await db
-			.collection("seat-chart")
-			.doc(chartId)
-			.update({
-				[`seats.${seatIndex - 1}.status`]: 3,
-				[`seats.${seatIndex - 1}.selectTime`]: selectTime,
-				[`seats.${seatIndex - 1}.orderId`]: orderResult.id,
-				[`seats.${seatIndex - 1}.stuInfo`]: _.set({
-					name: userinfo.name,
-					id: userinfo._id,
-					class: userinfo.class,
-					avatar: userinfo.avatarUrl,
-				}),
-			});
-		if (res.updated == 1) {
-			return {
-				message: "选座成功",
-				code: 200,
-			};
+	if (edit) {
+		const userRes = await db.collection("user").doc(userinfo.id).get()
+		if (userRes.data.length <= 0) return {
+			message: "用户不存在,检查学号",
+			code: 404
+		}
+		const user = userRes.data[0]
+		console.log(userRes)
+		if (orderId) {
+			const orderResult = await db.collection("order").doc(orderId).update({
+				orderTime: selectTime,
+				userId: userinfo.id,
+			})
+			if (orderResult) {
+				const res = await db
+					.collection("seat-chart")
+					.doc(chartId)
+					.update({
+						[`seats.${seatIndex - 1}.selectTime`]: selectTime,
+						[`seats.${seatIndex - 1}.stuInfo`]: _.set({
+							name: user.name,
+							id: user._id,
+							class: user.class,
+							avatar: user.avatarUrl,
+						}),
+					});
+				if (res.updated == 1) {
+					return {
+						message: "修改成功",
+						code: 200,
+					};
+				}
+			}
+		} else {
+			const orderResult = await db.collection("order").add({
+				chartId: chartId,
+				userId: user._id,
+				x: seatInfo.x,
+				y: seatInfo.y,
+				orderTime: selectTime
+			})
+			const res = await db
+				.collection("seat-chart")
+				.doc(chartId)
+				.update({
+					[`seats.${seatIndex - 1}.status`]: 3,
+					[`seats.${seatIndex - 1}.selectTime`]: selectTime,
+					[`seats.${seatIndex - 1}.orderId`]: orderResult.id,
+					[`seats.${seatIndex - 1}.stuInfo`]: _.set({
+						name: user.name,
+						id: user._id,
+						class: user.class,
+						avatar: user.avatarUrl,
+					}),
+				});
+			if (res.updated == 1) {
+				return {
+					message: "选座成功",
+					code: 200,
+				};
+			}
+		}
+	} else {
+		const orderResult = await db.collection("order").add({
+			chartId: chartId,
+			userId: userinfo._id,
+			x: seatInfo.x,
+			y: seatInfo.y,
+			orderTime: selectTime
+		})
+		if (orderResult) {
+			const res = await db
+				.collection("seat-chart")
+				.doc(chartId)
+				.update({
+					[`seats.${seatIndex - 1}.status`]: 3,
+					[`seats.${seatIndex - 1}.selectTime`]: selectTime,
+					[`seats.${seatIndex - 1}.orderId`]: orderResult.id,
+					[`seats.${seatIndex - 1}.stuInfo`]: _.set({
+						name: userinfo.name,
+						id: userinfo._id,
+						class: userinfo.class,
+						avatar: userinfo.avatarUrl,
+					}),
+				});
+			if (res.updated == 1) {
+				return {
+					message: "选座成功",
+					code: 200,
+				};
+			}
 		}
 	}
-	console.log(res);
 	return {
 		message: "选座失败",
 	};

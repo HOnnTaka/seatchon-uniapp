@@ -22,6 +22,12 @@ const _sfc_main = {
   __name: "order",
   setup(__props) {
     const userinfo = common_vendor.ref(common_vendor.index.getStorageSync("userinfo"));
+    const page = getCurrentPages().find((page2) => page2.route === "pages/order/order");
+    const db = common_vendor.Ws.database();
+    const dbList = common_vendor.ref([
+      db.collection("order").where('userId ==  "216124125"').field("chartId,x,y,userId").getTemp(),
+      db.collection("seat-chart").field("_id,effectiveTimeRange,selectableTimeRange,title,note").getTemp()
+    ]);
     const formatTimeRange = (timeRange) => {
       return timeRange.join(" 至 ");
     };
@@ -32,15 +38,8 @@ const _sfc_main = {
       (_a = getCurrentPages()[0].$vm.$refs.udb) == null ? void 0 : _a.loadData({ clear: true });
     });
     common_vendor.onPullDownRefresh(async () => {
-      if (!userinfo.value)
-        return common_vendor.index.stopPullDownRefresh();
-      await getCurrentPages()[0].$vm.$refs.udb.loadData({ clear: true }, () => {
-        common_vendor.index.stopPullDownRefresh();
-        common_vendor.index.showToast({
-          title: "刷新成功",
-          icon: "success"
-        });
-      });
+      await page.$vm.$refs.udb.loadData({ clear: true });
+      common_vendor.index.stopPullDownRefresh();
     });
     return (_ctx, _cache) => {
       return {
@@ -62,19 +61,19 @@ const _sfc_main = {
           } : {}, {
             c: common_vendor.f(data, (item, index, i1) => {
               return {
-                a: common_vendor.t(item.title),
-                b: common_vendor.t(item.note),
-                c: common_vendor.t(formatTimeRange(item.effectiveTimeRange)),
+                a: common_vendor.t(item.chartId[0].title),
+                b: common_vendor.t(item.chartId[0].note),
+                c: common_vendor.t(formatTimeRange(item.chartId[0].effectiveTimeRange)),
                 d: common_vendor.t(item.x),
                 e: common_vendor.t(item.y),
-                f: item.chartId,
+                f: item.chartId[0]._id,
                 g: "93207a4f-4-" + i0 + "-" + i1 + "," + ("93207a4f-3-" + i0),
                 h: common_vendor.p({
                   clickable: true,
                   link: true,
-                  to: "/pages/detail/detail?chartId=" + item.chartId,
-                  title: item.title,
-                  note: item.note
+                  to: "/pages/detail/detail?chartId=" + item.chartId[0]._id,
+                  title: item.chartId[0].title,
+                  note: item.chartId[0].note
                 })
               };
             }),
@@ -94,7 +93,7 @@ const _sfc_main = {
         c: common_vendor.sr("udb", "93207a4f-2,93207a4f-0"),
         d: common_vendor.p({
           options: _ctx.options,
-          collection: "order",
+          collection: dbList.value,
           where: `userId=='${userinfo.value._id}'`,
           orderby: "orderTime desc"
         }),

@@ -23,24 +23,22 @@ if (!Math) {
 const _sfc_main = {
   __name: "index",
   setup(__props) {
+    const page = getCurrentPages().find((item) => item.route === "pages/index/index");
     const searchValue = common_vendor.ref("");
     common_vendor.ref([]);
     const userinfo = common_vendor.ref({});
+    common_vendor.ref(false);
     common_vendor.onLoad(async () => {
     });
     common_vendor.onShow(async () => {
       var _a;
       userinfo.value = common_vendor.index.getStorageSync("userinfo");
-      (_a = getCurrentPages()[0].$vm.$refs.udb) == null ? void 0 : _a.loadData({ clear: true });
+      await ((_a = page.$vm.$refs.udb) == null ? void 0 : _a.loadData({ clear: true }));
     });
     common_vendor.onPullDownRefresh(async () => {
       var _a;
-      await ((_a = getCurrentPages()[0].$vm.$refs.udb) == null ? void 0 : _a.loadData({ clear: true }));
+      await ((_a = page.$vm.$refs.udb) == null ? void 0 : _a.loadData({ clear: true }));
       common_vendor.index.stopPullDownRefresh();
-      common_vendor.index.showToast({
-        title: "刷新成功",
-        icon: "success"
-      });
     });
     const formatTimeRange = (timeRange) => {
       return timeRange.join(" 至 ");

@@ -15,7 +15,15 @@ const _sfc_main = {
   },
   onHide() {
   },
-  globalData: {}
+  globalData: {},
+  onError(err) {
+    console.error(err);
+    common_vendor.index.showToast({
+      title: "出错了",
+      icon: "error",
+      mask: true
+    });
+  }
 };
 const App = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__file", "D:/code/seatchon-uniapp/App.vue"]]);
 function createApp() {

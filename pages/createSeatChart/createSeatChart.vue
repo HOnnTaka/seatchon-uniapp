@@ -1,5 +1,9 @@
 <template>
-  <view class="contaioner">
+  <view
+    class="contaioner"
+    style="transition: all 1s ease; opacity: 0"
+    :style="show ? 'transition: all .5s ease; opacity: 1' : ''"
+  >
     <uni-forms
       label-width="100%"
       :modelValue="baseFormData"
@@ -17,14 +21,7 @@
         <uni-forms-item label="备注" name="note">
           <uni-easyinput trim="true" v-model="baseFormData.note" placeholder="请输入备注" />
         </uni-forms-item>
-        <uni-forms-item label="行" required name="row">
-          <uni-number-box v-model="baseFormData.row" />
-          <!-- <uni-easyinput v-model="baseFormData.row" type="number" placeholder="请输入行数" /> -->
-        </uni-forms-item>
-        <uni-forms-item label="列" required name="col">
-          <uni-number-box v-model="baseFormData.col" />
-          <!-- <uni-easyinput v-model="baseFormData.col" type="number" placeholder="请输入列数" /> -->
-        </uni-forms-item>
+
         <uni-forms-item required label="开放选择时间" name="selectableTimeRange">
           <uni-datetime-picker
             :start="today"
@@ -34,7 +31,7 @@
             rangeSeparator="至"
           />
         </uni-forms-item>
-        <uni-forms-item required label="座位有效时间" name="effectiveTimeRange">
+        <uni-forms-item required label="座位生效时间" name="effectiveTimeRange">
           <uni-datetime-picker
             :start-placeholder="today"
             :start="today"
@@ -48,35 +45,51 @@
         </uni-forms-item>
       </uni-card>
 
-      <uni-card padding="0">
+      <uni-card class="chart-card" padding="0" style="padding-bottom: 10px">
         <template v-slot:title>
           <uni-section title="座位表" type="line"></uni-section>
         </template>
-        <view class="seatTable" :style="`--col:${baseFormData.col};--row:${baseFormData.row};`">
-          <view
-            v-for="(item, index) in seats"
-            :key="index"
-            class="seat"
-            :class="{ selected: seatStatus[index] == 1 }"
-            @click="() => (seatStatus[index] = seatStatus[index] == 1 ? 2 : 1)"
-          ></view>
-        </view>
-        <view class="tips">
-          座位可选：
-          <view class="seat selected"></view>
-          座位不可选：
-          <view class="seat hide"></view>
+        <uni-data-checkbox
+          v-if="chartType == 'edit'"
+          multiple
+          v-model="isResetChartCheck"
+          :localdata="isResetChartData"
+        ></uni-data-checkbox>
+        <view v-if="chartType != 'edit' || isResetChartCheck?.includes(0)">
+          <uni-forms-item label-position="left" label="行" required name="row">
+            <uni-number-box v-model="baseFormData.row" />
+            <!-- <uni-easyinput v-model="baseFormData.row" type="number" placeholder="请输入行数" /> -->
+          </uni-forms-item>
+          <uni-forms-item label="列" required name="col">
+            <uni-number-box v-model="baseFormData.col" />
+            <!-- <uni-easyinput v-model="baseFormData.col" type="number" placeholder="请输入列数" /> -->
+          </uni-forms-item>
+          <view class="seatTable" :style="`--col:${baseFormData.col};--row:${baseFormData.row};`">
+            <view
+              v-for="(item, index) in seats"
+              :key="index"
+              class="seat"
+              :class="{ selected: seatStatus[index] == 1 }"
+              @click="() => (seatStatus[index] = seatStatus[index] == 1 ? 2 : 1)"
+            ></view>
+          </view>
+          <view class="tips">
+            座位可选：
+            <view class="seat selected"></view>
+            座位不可选：
+            <view class="seat hide"></view>
+          </view>
         </view>
       </uni-card>
-      <button class="btn" type="primary" @click="() => submit('valiForm')">提交</button>
+      <button class="btn" :loading="loading" type="primary" @click="() => submit('valiForm')">提交</button>
     </uni-forms>
   </view>
 </template>
 
 <script setup>
 import { ref, watch, computed, reactive } from "vue";
-import { onLoad } from "@dcloudio/uni-app";
-
+import { onLoad, onReady } from "@dcloudio/uni-app";
+const show = ref(false);
 const baseFormData = reactive({
   title: "",
   note: "",
@@ -86,15 +99,33 @@ const baseFormData = reactive({
   effectiveTimeRange: [],
   selectableTimeRange: [],
 });
+onReady(() => {
+  setTimeout(() => {
+    show.value = true;
+  }, 100);
+})
 
+const chartType = ref("");
+const chartId = ref("");
+const page = getCurrentPages().find(item => item.route === "pages/createSeatChart/createSeatChart");
 onLoad(async options => {
+  console.log(page);
   uni.showLoading({
     title: "加载中",
   });
-  const { type, chartId } = options;
+  const { type, chartId: ctID } = options;
+  uni.setNavigationBarTitle({
+    title: type == "edit" ? "编辑课室" : "新建课室",
+  });
+  chartType.value = type;
+  chartId.value = ctID;
   if (type == "edit") {
     const db = uniCloud.database();
-    const { result } = await db.collection("seat-chart").doc(chartId).get();
+    const { result } = await db
+      .collection("seat-chart")
+      .doc(ctID)
+      .field("title,note,row,col,stuInfoVisible,effectiveTimeRange,selectableTimeRange")
+      .get();
     const chart = result.data[0];
     console.log(result.data[0], baseFormData);
 
@@ -167,51 +198,25 @@ const rules = {
     ],
   },
 };
-
+const isResetChartCheck = ref([]);
+const isResetChartData = [
+  {
+    text: "修改座位表",
+    value: 0,
+  },
+];
 const submit = async ref => {
-  const page = getCurrentPages()[1];
   const vm = page.$vm;
   try {
     const data = await vm.$refs[ref].validate();
     console.log(data);
-    const modal = await uni.showModal({
-      title: "提示",
-      content: "将创建新座位表" + baseFormData.title,
-      showCancel: true,
-    });
-    if (modal.confirm) {
-      uni.showLoading({
-        title: "创建中",
-      });
-      loading.value = true;
-      const userinfo = uni.getStorageSync("userinfo");
-      const db = uniCloud.database();
-      const res = await db.collection("seat-chart").add({
-        ...data,
-        stuInfoVisible: data.stuInfoVisible == 0 ? true : false,
-        createTime: new Date().toJSON(),
-        administrators: [userinfo._id],
-        seats: seats.value.map((item, index) => ({
-          x: item.x,
-          y: item.y,
-          status: seatStatus.value[index],
-          index: index + 1,
-        })),
-      });
-      console.log(res);
-      if (res.result.errCode == 0) {
-        uni.showToast({
-          title: "创建成功",
-          icon: "success",
-        });
-
-        setTimeout(() => {
-          uni.navigateBack();
-        }, 1000);
-      }
-      uni.hideLoading();
-      loading.value = false;
+    loading.value = true;
+    if (chartType.value == "edit") {
+      await editChart(data);
+    } else {
+      await createChart(data);
     }
+    loading.value = false;
   } catch (e) {
     console.log(e);
     uni.showToast({
@@ -220,14 +225,94 @@ const submit = async ref => {
     });
   }
 };
+const createChart = async data => {
+  const modal = await uni.showModal({
+    title: "提示",
+    content: "将创建新课室：" + baseFormData.title,
+    showCancel: true,
+  });
+  if (modal.confirm) {
+    uni.showLoading({
+      title: "创建中",
+    });
+    const userinfo = uni.getStorageSync("userinfo");
+    const db = uniCloud.database();
+    const res = await db.collection("seat-chart").add({
+      ...data,
+      stuInfoVisible: data.stuInfoVisible == 0 ? true : false,
+      createTime: new Date().toJSON(),
+      administrators: [userinfo._id],
+      seats: seatFormat(),
+    });
+    console.log(res);
+    if (res.result.errCode == 0) {
+      uni.showToast({
+        title: "创建成功",
+        icon: "success",
+      });
+
+      setTimeout(() => {
+        uni.navigateBack();
+      }, 1000);
+    }
+    uni.hideLoading();
+  }
+};
+const editChart = async data => {
+  const modal = await uni.showModal({
+    title: "提示",
+    content: "将修改课室：" + baseFormData.title,
+    showCancel: true,
+  });
+  if (!modal.confirm) return;
+  if (isResetChartCheck.value.includes(0)) {
+    const resetModal = await uni.showModal({
+      title: "提示",
+      content: "修改座位表将删除原有座位",
+      showCancel: true,
+    });
+    if (!resetModal.confirm) return;
+  }
+  uni.showLoading({
+    title: "修改中",
+  });
+  const db = uniCloud.database();
+  let updateData = {
+    ...data,
+    stuInfoVisible: data.stuInfoVisible == 0 ? true : false,
+  };
+  if (isResetChartCheck.value.includes(0)) {
+    updateData.seats = seatFormat();
+  }
+  const updateRes = await db.collection("seat-chart").doc(chartId.value).update(updateData);
+  console.log(updateRes);
+  if (updateRes.result.errCode == 0) {
+    uni.showToast({
+      title: "修改成功",
+      icon: "success",
+    });
+
+    setTimeout(() => {
+      uni.navigateBack();
+    }, 1000);
+    return;
+  }
+  uni.hideLoading();
+};
+
+const seatFormat = () => {
+  return seats.value.map((item, index) => ({
+    x: item.x,
+    y: item.y,
+    status: seatStatus.value[index],
+    index: index + 1,
+  }));
+};
 </script>
 
 <style>
 .contaioner {
   padding-bottom: 50px;
-}
-.seat-group {
-  position: relative;
 }
 .seatTable {
   --size: calc((100vmin - 50px) / var(--col));
@@ -268,7 +353,7 @@ const submit = async ref => {
 }
 .tips {
   padding: 0 2.5px;
-  margin: 10px 0;
+  margin-top: 10px;
   display: flex;
   align-items: center;
 }

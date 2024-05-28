@@ -1,48 +1,77 @@
 <template>
-  <view class="contaioner">
-    <view class="admin-tag" v-if="chartDetail?.administrators.includes(userinfo._id)">管理员</view>
+  <view
+    class="contaioner"
+    style="transition: all 1s ease; opacity: 0"
+    :style="chartDetail != null ? 'transition: all .5s ease; opacity: 1' : ''"
+  >
+    <view class="admin-tag" v-if="isAdmin">管理员</view>
     <uni-card padding="0">
       <uni-collapse>
-        <uni-collapse-item open titleBorder="none">
+        <uni-collapse-item :open="chartDetail != null" titleBorder="none">
           <template v-slot:title>
             <uni-section title="课室信息" type="line"></uni-section>
           </template>
           <uni-list-item title="课室">
             <template v-slot:footer>
-              <text>{{ chartDetail?.title }}</text>
+              <text @click="copy(chartDetail?.title)">{{ chartDetail?.title }}</text>
             </template>
           </uni-list-item>
           <uni-list-item title="备注">
             <template v-slot:footer>
-              <text>{{ chartDetail?.note }}</text>
-            </template>
-          </uni-list-item>
-          <uni-list-item
-            title="管理员"
-            :link="chartDetail?.administrators.includes(userinfo._id)"
-            @click="onAdminClick"
-          >
-            <template v-slot:footer>
-              <text class="admin-name">{{ adminName }}</text>
+              <text @click="copy(chartDetail?.note)">{{ chartDetail?.note }}</text>
             </template>
           </uni-list-item>
           <uni-list-item title="选座时间">
             <template v-slot:footer>
-              <text>{{ chartDetail?.selectableTimeRange.join(" 至 ") }}</text>
+              <text user-select @click="copy(chartDetail?.selectableTimeRange.join(' 至 '))">{{
+                chartDetail?.selectableTimeRange.join(" 至 ")
+              }}</text>
             </template>
           </uni-list-item>
           <uni-list-item title="生效时间">
             <template v-slot:footer>
-              <text>{{ chartDetail?.effectiveTimeRange.join(" 至 ") }}</text>
+              <text @click="copy(chartDetail?.effectiveTimeRange.join(' 至 '))">{{
+                chartDetail?.effectiveTimeRange.join(" 至 ")
+              }}</text>
             </template>
           </uni-list-item>
-          <view class="edit-chart-btns">
+          <view class="edit-chart-btns" v-if="isAdmin">
             <button class="btn" @click="onChartEditBtnClick" type="primary" :loading="loading">
               编辑课室
             </button>
-            <button class="btn" @click="onChartDeleteBtnClick" type="warn" :loading="loading">
+            <button
+              v-if="isCreater"
+              class="btn"
+              @click="onChartDeleteBtnClick"
+              type="warn"
+              :loading="loading"
+            >
               删除课室
             </button>
+          </view>
+        </uni-collapse-item>
+      </uni-collapse>
+    </uni-card>
+    <uni-card padding="0">
+      <uni-collapse>
+        <uni-collapse-item :open="chartDetail != null" titleBorder="none">
+          <template v-slot:title>
+            <uni-section title="课室管理员" type="line"></uni-section>
+          </template>
+          <uni-list-item
+            class="admin-item"
+            ellipsis="1"
+            :title="adminName[index]"
+            v-for="(admin, index) in chartDetail?.administrators"
+            :key="index"
+          >
+            <template v-slot:footer>
+              <text @click="copy(admin)" user-select>{{ admin }}</text>
+            </template>
+          </uni-list-item>
+          <view class="edit-chart-btns" v-if="isCreater">
+            <button class="btn" @click="onAddAdminClick" type="primary" :loading="loading">添加管理员</button>
+            <button class="btn" @click="onDeleteAdminClick" type="warn" :loading="loading">删除管理员</button>
           </view>
         </uni-collapse-item>
       </uni-collapse>
@@ -111,7 +140,7 @@
         </uni-list-item>
       </view>
     </uni-card>
-    <view class="btns" v-if="chartDetail?.administrators.includes(userinfo._id)">
+    <view class="btns" v-if="isAdmin">
       <button
         class="btn"
         :disabled="!selectedItem"
@@ -123,7 +152,7 @@
       </button>
       <button
         class="btn"
-        :disabled="!selectedItem"
+        :disabled="selectedItem?.status != 3"
         @click="onSeatDeleteBtnClick"
         type="warn"
         :loading="loading"
@@ -149,12 +178,12 @@
         }}
       </button>
 
-      <button v-if="!avaliable()" class="btn" disabled>未开放</button>
+      <button v-if="!avaliable()" class="btn" disabled>未开放或选座时间已过</button>
     </view>
 
     <view @click="() => (showDrawer = false)" class="drawer" :class="{ hide: !showDrawer }">
       <view @click.stop.prevent class="drawer-content">
-        <view class="title">{{ isSelectSubmit ? "将使用以下信息选座：" : "将撤销以下选座：" }}</view>
+        <view class="title">{{ tip }}</view>
         <uni-card class="roomInfo">
           <template v-slot:title>
             <uni-section title="课室信息" type="line"></uni-section>
@@ -179,19 +208,27 @@
           <template v-slot:title>
             <uni-section title="学生信息" type="line"></uni-section>
           </template>
-          <uni-list-item title="学号" :link="userinfo.type == 1">
+          <uni-list-item title="学号" @click="edit('学号', updateData.id)" :link="isAdmin && isSelectSubmit">
             <template v-slot:footer>
-              <text>{{ userinfo._id }}</text>
+              <text>{{ isAdmin ? updateData.id : userinfo._id }}</text>
             </template>
           </uni-list-item>
-          <uni-list-item title="姓名" :link="userinfo.type == 1">
+          <uni-list-item
+            title="姓名"
+            @click="edit('姓名', updateData.name)"
+            :link="isAdmin && isSelectSubmit"
+          >
             <template v-slot:footer>
-              <text>{{ userinfo.name }}</text>
+              <text>{{ isAdmin ? updateData.name : userinfo.name }}</text>
             </template>
           </uni-list-item>
-          <uni-list-item title="班级" :link="userinfo.type == 1">
+          <uni-list-item
+            title="班级"
+            @click="edit('班级', updateData.class)"
+            :link="isAdmin && isSelectSubmit"
+          >
             <template v-slot:footer>
-              <text>{{ userinfo.class }}</text>
+              <text>{{ isAdmin ? updateData.class : userinfo.class }}</text>
             </template>
           </uni-list-item>
         </uni-card>
@@ -215,9 +252,9 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { onLoad, onShow, onReady, onPullDownRefresh } from "@dcloudio/uni-app";
-
+const page = getCurrentPages().find(item => item.route === "pages/detail/detail");
 const selectedItem = ref(null);
 const chartId = ref(null);
 const chartDetail = ref();
@@ -226,6 +263,7 @@ const userinfo = ref(uni.getStorageSync("userinfo"));
 const showDrawer = ref(false);
 const isSelectSubmit = ref(true);
 const show = ref(false);
+const tip = ref("将使用以下信息选座：");
 onLoad(async option => {
   chartId.value = option.chartId;
   await getChartDetail(option.chartId);
@@ -234,16 +272,19 @@ onLoad(async option => {
 });
 onShow(async () => {
   userinfo.value = uni.getStorageSync("userinfo");
+  await getChartDetail(chartId.value);
 });
 onReady(() => {});
 
 onPullDownRefresh(async () => {
   await getChartDetail(chartId.value);
   uni.stopPullDownRefresh();
-  uni.showToast({
-    title: "刷新成功",
-    icon: "success",
-  });
+});
+const isAdmin = computed(() => {
+  return chartDetail.value?.administrators.includes(userinfo.value._id);
+});
+const isCreater = computed(() => {
+  return chartDetail.value?.administrators[0] == userinfo.value._id;
 });
 
 const getChartDetail = async id => {
@@ -259,7 +300,7 @@ const getChartDetail = async id => {
   await getAdminName();
   loading.value = false;
 };
-const adminName = ref("");
+const adminName = ref([]);
 const getAdminName = async () => {
   if (!chartDetail.value?.administrators) return "";
   const db = uniCloud.database();
@@ -271,7 +312,13 @@ const getAdminName = async () => {
     .field("nickName")
     .get();
   // console.log(result.data, chartDetail.value.administrators);
-  adminName.value = result.data.map(item => item.nickName).join("、");
+  const arr = chartDetail.value?.administrators.map(item => {
+    const user = result.data.find(user => user._id == item);
+    if (user) {
+      return user.nickName;
+    }
+  });
+  adminName.value = arr;
 };
 const avaliable = () => {
   if (!chartDetail.value) return false;
@@ -293,6 +340,7 @@ const onrefreshBtnClick = async (showToast = true) => {
 };
 const onSelectBtnClick = async () => {
   isSelectSubmit.value = selectedItem.value.stuInfo?.id != userinfo.value._id;
+  tip.value = isSelectSubmit.value ? "将使用以下信息选座：" : "将撤销以下选座：";
   showDrawer.value = true;
 };
 const onSubmitBtnClick = async () => {
@@ -300,20 +348,22 @@ const onSubmitBtnClick = async () => {
     title: "加载中",
     mask: true,
   });
+  loading.value = true;
   const { result } = await uniCloud.callFunction({
     name: "select-seat",
     data: {
       chartId: chartId.value,
       seatIndex: selectedItem.value.index,
-      userinfo: userinfo.value,
+      userinfo: isAdmin.value ? updateData.value : userinfo.value,
       isSelectSubmit: isSelectSubmit.value,
       orderId: selectedItem.value.orderId,
+      edit: isAdmin.value,
     },
   });
   showDrawer.value = false;
   if (result.code == 200) {
     uni.showToast({
-      title: "选座成功",
+      title: isAdmin.value ? "修改成功" : "选座成功",
       icon: "success",
     });
   } else if (result.code == 201) {
@@ -335,7 +385,7 @@ const popupData = ref({
   placeholder: "",
 });
 const ifRenderDialog = ref(false);
-const onAdminClick = async () => {
+const onAddAdminClick = async () => {
   popupData.value = {
     type: "addAdmin",
     title: "添加管理员(仅当前课室)",
@@ -344,7 +394,19 @@ const onAdminClick = async () => {
   };
   ifRenderDialog.value = true;
   setTimeout(() => {
-    getCurrentPages()[1].$vm.$refs.inputDialog.open();
+    page.$vm.$refs.inputDialog.open();
+  });
+};
+const onDeleteAdminClick = async () => {
+  popupData.value = {
+    type: "deleteAdmin",
+    title: "删除管理员(仅当前课室)",
+    placeholder: "请输入管理员学号/id",
+    value: "",
+  };
+  ifRenderDialog.value = true;
+  setTimeout(() => {
+    page.$vm.$refs.inputDialog.open();
   });
 };
 
@@ -357,15 +419,16 @@ const edit = async (type, value) => {
   };
   ifRenderDialog.value = true;
   setTimeout(() => {
-    getCurrentPages()[0].$vm.$refs.inputDialog.open();
+    page.$vm.$refs.inputDialog.open();
   });
 };
 const types = {
-  姓名: "nickName",
+  姓名: "name",
   班级: "class",
   学号: "id",
 };
 const dialogInputConfirm = async input => {
+  console.log(popupData.value);
   const text = input.trim();
   if (text.length === 0) {
     uni.showToast({
@@ -375,19 +438,52 @@ const dialogInputConfirm = async input => {
     return;
   }
   const { type } = popupData.value;
-  if (type == "addAdmin") addAdmin(text);
+  if (type == "addAdmin") return addAdmin(text);
+  if (type == "deleteAdmin") return deleteAdmin(text);
+  if (type == "学号") {
+    loading.value = true;
+    uni.showLoading({
+      title: "加载中",
+      mask: true,
+    });
+    const db = uniCloud.database();
+    const { result } = await db.collection("user").doc(text).field("_id,name,class").get();
+    console.log(result);
+    uni.hideLoading();
+    loading.value = false;
+    if (result.data.length == 0) {
+      uni.showToast({
+        title: "用户不存在",
+        icon: "none",
+      });
+      return;
+    }
+    updateData.value[types[type]] = result.data[0]._id;
+    updateData.value.name = result.data[0].name || "";
+    updateData.value.class = result.data[0].class || "";
+  } else {
+    const comfirm = await uni.showModal({
+      title: "提示",
+      content: "单独修改姓名或班级不会同步到相应用户",
+      confirmText: "继续",
+    });
+    if (!comfirm.confirm) return;
+    updateData.value[types[type]] = text;
+  }
 };
 const addAdmin = async id => {
   uni.showLoading({
     title: "加载中",
     mask: true,
   });
+  loading.value = true;
   const { administrators } = chartDetail.value;
   if (administrators.includes(id)) {
     uni.showToast({
       title: "该用户已是管理员",
       icon: "none",
     });
+    loading.value = false;
     return;
   }
   const db = uniCloud.database();
@@ -405,16 +501,98 @@ const addAdmin = async id => {
     administrators: administrators,
   });
   await getAdminName();
+  loading.value = false;
   uni.showToast({
     title: "添加成功",
     icon: "success",
   });
   ifRenderDialog.value = false;
 };
-
+const deleteAdmin = async id => {
+  uni.showLoading({
+    title: "加载中",
+    mask: true,
+  });
+  loading.value = true;
+  const { administrators } = chartDetail.value;
+  if (!administrators.includes(id)) {
+    uni.showToast({
+      title: "该用户不是管理员",
+      icon: "none",
+    });
+    loading.value = false;
+    return;
+  }
+  const index = administrators.indexOf(id);
+  administrators.splice(index, 1);
+  const db = uniCloud.database();
+  await db.collection("seat-chart").doc(chartId.value).update({
+    administrators: administrators,
+  });
+  await getAdminName();
+  chartDetail.value.administrators = administrators;
+  uni.showToast({
+    title: "删除成功",
+    icon: "success",
+  });
+  loading.value = false;
+  ifRenderDialog.value = false;
+};
 const onChartEditBtnClick = () => {
   uni.navigateTo({
     url: "/pages/createSeatChart/createSeatChart?type=edit&chartId=" + chartId.value,
+  });
+};
+const onChartDeleteBtnClick = async () => {
+  const deleteConfirm = await uni.showModal({
+    title: "提示",
+    content: "确定删除该课室吗？",
+  });
+
+  if (!deleteConfirm.confirm) return;
+  uni.showLoading({
+    title: "加载中",
+    mask: true,
+  });
+  const db = uniCloud.database();
+
+  const { result: delRes } = await db.collection("seat-chart").doc(chartId.value).remove();
+  console.log(delRes);
+  uni.showToast({
+    title: "删除成功",
+    icon: "success",
+  });
+  setTimeout(() => {
+    uni.navigateBack();
+  }, 1000);
+};
+
+const updateData = ref({});
+const onSeatEditBtnClick = async () => {
+  isSelectSubmit.value = true;
+  tip.value = "将修改以下选座：";
+  updateData.value = {
+    id: selectedItem.value.stuInfo?.id || userinfo.value._id,
+    name: selectedItem.value.stuInfo?.name || userinfo.value.name,
+    class: selectedItem.value.stuInfo?.class || userinfo.value.class,
+  };
+  showDrawer.value = true;
+};
+const onSeatDeleteBtnClick = async () => {
+  isSelectSubmit.value = false;
+  tip.value = "将撤销以下选座：";
+  showDrawer.value = true;
+};
+
+const copy = text => {
+  uni.setClipboardData({
+    data: text,
+    success: function () {
+      uni.showToast({
+        title: "复制成功",
+        icon: "none",
+      });
+    },
   });
 };
 </script>
@@ -477,6 +655,18 @@ const onChartEditBtnClick = () => {
 .seat.selected {
   border: 2px solid #3292ff;
 }
+.admin-item:first-child::before {
+  content: "主";
+  color: #3292ff;
+  border: 1px solid #3292ff;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 12px;
+}
 .btns {
   position: fixed;
   bottom: 0;
@@ -516,7 +706,7 @@ const onChartEditBtnClick = () => {
   height: 100vh;
   position: fixed;
   background: #00000020;
-  z-index: 200;
+  z-index: 50;
   inset: 0;
   transition: all 0.3s ease-in-out;
 }

@@ -1,5 +1,9 @@
 <template>
-  <view class="container">
+  <view
+    class="container"
+    style="transition: all 1s ease; opacity: 0"
+    :style="show ? 'transition: all .5s ease; opacity: 1' : ''"
+  >
     <uni-card v-if="userinfo" padding="0">
       <template v-slot:title>
         <uni-section title="我的信息" type="line"></uni-section>
@@ -21,7 +25,7 @@
             </template>
           </uni-list-item>
         </button>
-        <uni-list-item clickable @click="edit('昵称',userinfo.nickName)" showArrow title="昵称">
+        <uni-list-item clickable @click="edit('昵称', userinfo.nickName)" showArrow title="昵称">
           <template v-slot:footer>
             <view class="title">{{ userinfo.nickName }}</view>
           </template>
@@ -75,7 +79,7 @@
           <template v-slot:title>
             <uni-section title="修改密码" type="line"></uni-section>
           </template>
-          <view>
+          <view style="padding-bottom: 10px">
             <uni-forms ref="form1" :modelValue="formData" label-width="80px">
               <uni-forms-item label="旧密码" required name="pwd">
                 <uni-easyinput v-model="formData.pwd" type="password" placeholder="请输入密码" />
@@ -87,7 +91,42 @@
                 <uni-easyinput v-model="formData.newpwd2" type="password" placeholder="请确认新密码" />
               </uni-forms-item>
             </uni-forms>
-            <button class="uni-mb-5" type="primary" @click="submit('form1')">确认</button>
+            <button type="primary" @click="submit('form1')">确认</button>
+          </view>
+        </uni-collapse-item>
+      </uni-collapse>
+    </uni-card>
+
+    <uni-card v-if="userinfo" padding="0">
+      <uni-collapse>
+        <uni-collapse-item>
+          <template v-slot:title>
+            <uni-section title="添加学生（管理员）" type="line"></uni-section>
+          </template>
+          <view style="padding-bottom: 10px">
+            <uni-forms ref="addStudentForm" :modelValue="addStudentformData" label-width="80px">
+              <uni-forms-item label="学号/id" name="pwd">
+                <uni-easyinput v-model="addStudentformData.id" placeholder="输入学号/id（留空自动生成id）" />
+              </uni-forms-item>
+              <uni-forms-item label="姓名" required name="newpwd">
+                <uni-easyinput v-model="addStudentformData.name" placeholder="请输入姓名" />
+              </uni-forms-item>
+              <view style="margin-bottom: 5px; text-align: center; color: #ccc">默认密码为123456</view>
+            </uni-forms>
+            <button type="primary" @click="addStudentFormSubmit">确认</button>
+          </view>
+        </uni-collapse-item>
+      </uni-collapse>
+    </uni-card>
+
+    <uni-card v-if="userinfo" padding="0">
+      <uni-collapse>
+        <uni-collapse-item>
+          <template v-slot:title>
+            <uni-section title="批量添加学生（管理员）" type="line"></uni-section>
+          </template>
+          <view style="padding-bottom: 10px">
+            <button type="primary" @click="submit('form1')">确认</button>
           </view>
         </uni-collapse-item>
       </uni-collapse>
@@ -112,8 +151,20 @@
 
 <script setup>
 import { ref } from "vue";
-import { onLoad, onShow, onReady, onPullDownRefresh } from "@dcloudio/uni-app";
+import { onLoad, onShow, onReady, onHide, onPullDownRefresh } from "@dcloudio/uni-app";
+const page = getCurrentPages().find(item => item.route === "pages/user/user");
 const userinfo = ref(uni.getStorageSync("userinfo"));
+const show = ref(false);
+onShow(async () => {
+  setTimeout(() => {
+    show.value = true;
+  }, 100);
+});
+
+onHide(async () => {
+  show.value = false;
+});
+
 const formData = ref({
   id: "",
   pwd: "",
@@ -121,6 +172,11 @@ const formData = ref({
   newpwd: "",
   newpwd2: "",
 });
+const addStudentformData = ref({
+  id: "",
+  name: "",
+});
+
 const resetFormData = () => {
   formData.value = {
     id: "",
@@ -169,10 +225,16 @@ const rules = {
     ],
   },
 };
+const addStudentFormRules = {
+  name: {
+    rules: [{ required: true, errorMessage: "请输入姓名" }],
+  },
+};
 onReady(async () => {
-  getCurrentPages()[0].$vm.$refs.form?.setRules(rules);
-  getCurrentPages()[0].$vm.$refs.form1?.setRules(rules);
-  getCurrentPages()[0].$vm.$refs.adminform?.setRules(rules);
+  page.$vm.$refs.form?.setRules(rules);
+  page.$vm.$refs.form1?.setRules(rules);
+  page.$vm.$refs.adminform?.setRules(rules);
+  page.$vm.$refs.addStudentForm?.setRules(addStudentFormRules);
 });
 const submit = async ref => {
   uni.showLoading({
@@ -180,7 +242,7 @@ const submit = async ref => {
     mask: true,
   });
   try {
-    let data = await getCurrentPages()[0].$vm.$refs[ref].validate();
+    let data = await page.$vm.$refs[ref].validate();
     if (ref == "adminform") {
       try {
         const { code } = await uni.login();
@@ -278,7 +340,7 @@ const edit = async (type, value) => {
   };
   ifRenderDialog.value = true;
   setTimeout(() => {
-    getCurrentPages()[0].$vm.$refs.inputDialog.open();
+    page.$vm.$refs.inputDialog.open();
   });
 };
 const types = {
@@ -314,7 +376,7 @@ const dialogInputConfirm = async input => {
       icon: "success",
     });
     ifRenderDialog.value = true;
-    getCurrentPages()[0].$vm.$refs.inputDialog.close();
+    page.$vm.$refs.inputDialog.close();
     return;
   }
   uni.showToast({

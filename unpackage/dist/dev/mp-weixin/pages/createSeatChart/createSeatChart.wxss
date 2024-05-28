@@ -2,9 +2,6 @@
 .contaioner {
   padding-bottom: 50px;
 }
-.seat-group {
-  position: relative;
-}
 .seatTable {
   --size: calc((100vmin - 50px) / var(--col));
   width: calc(var(--size) * var(--col));
@@ -44,7 +41,7 @@
 }
 .tips {
   padding: 0 2.5px;
-  margin: 10px 0;
+  margin-top: 10px;
   display: flex;
   align-items: center;
 }

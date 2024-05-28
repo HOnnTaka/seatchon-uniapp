@@ -17,7 +17,7 @@
 		{
 			"path": "pages/detail/detail",
 			"style": {
-				"navigationBarTitleText": "座位表详情",
+				"navigationBarTitleText": "课室详情",
 				"enablePullDownRefresh": true
 			}
 		},
@@ -30,7 +30,7 @@
 		{
 			"path": "pages/createSeatChart/createSeatChart",
 			"style": {
-				"navigationBarTitleText": "创建座位表"
+				"navigationBarTitleText": "创建课室"
 			}
 		},
 		{
@@ -44,7 +44,7 @@
 	"tabBar": {
 		"color": "#333",
 		"selectedColor": "#2979ff",
-		"borderStyle": "white",
+		"borderStyle": "black",
 		"backgroundColor": "#fff",
 		"list": [{
 				"pagePath": "pages/order/order",

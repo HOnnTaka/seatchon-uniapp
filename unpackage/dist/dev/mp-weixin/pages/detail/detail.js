@@ -25,6 +25,7 @@ if (!Math) {
 const _sfc_main = {
   __name: "detail",
   setup(__props) {
+    const page = getCurrentPages().find((item) => item.route === "pages/detail/detail");
     const selectedItem = common_vendor.ref(null);
     const chartId = common_vendor.ref(null);
     const chartDetail = common_vendor.ref();
@@ -33,6 +34,7 @@ const _sfc_main = {
     const showDrawer = common_vendor.ref(false);
     const isSelectSubmit = common_vendor.ref(true);
     const show = common_vendor.ref(false);
+    const tip = common_vendor.ref("将使用以下信息选座：");
     common_vendor.onLoad(async (option) => {
       chartId.value = option.chartId;
       await getChartDetail(option.chartId);
@@ -41,16 +43,17 @@ const _sfc_main = {
     });
     common_vendor.onShow(async () => {
       userinfo.value = common_vendor.index.getStorageSync("userinfo");
+      await getChartDetail(chartId.value);
     });
     common_vendor.onReady(() => {
     });
     common_vendor.onPullDownRefresh(async () => {
       await getChartDetail(chartId.value);
       common_vendor.index.stopPullDownRefresh();
-      common_vendor.index.showToast({
-        title: "刷新成功",
-        icon: "success"
-      });
+    });
+    const isAdmin = common_vendor.computed(() => {
+      var _a;
+      return (_a = chartDetail.value) == null ? void 0 : _a.administrators.includes(userinfo.value._id);
     });
     const getChartDetail = async (id) => {
       loading.value = true;
@@ -63,7 +66,7 @@ const _sfc_main = {
       await getAdminName();
       loading.value = false;
     };
-    const adminName = common_vendor.ref("");
+    const adminName = common_vendor.ref([]);
     const getAdminName = async () => {
       var _a;
       if (!((_a = chartDetail.value) == null ? void 0 : _a.administrators))
@@ -72,7 +75,7 @@ const _sfc_main = {
       const { result } = await db.collection("user").where({
         _id: db.command.in(chartDetail.value.administrators)
       }).field("nickName").get();
-      adminName.value = result.data.map((item) => item.nickName).join("、");
+      adminName.value = result.data.map((item) => item.nickName);
     };
     const avaliable = () => {
       var _a;
@@ -98,6 +101,7 @@ const _sfc_main = {
     const onSelectBtnClick = async () => {
       var _a;
       isSelectSubmit.value = ((_a = selectedItem.value.stuInfo) == null ? void 0 : _a.id) != userinfo.value._id;
+      tip.value = isSelectSubmit.value ? "将使用以下信息选座：" : "将撤销以下选座：";
       showDrawer.value = true;
     };
     const onSubmitBtnClick = async () => {
@@ -105,20 +109,22 @@ const _sfc_main = {
         title: "加载中",
         mask: true
       });
+      loading.value = true;
       const { result } = await common_vendor.Ws.callFunction({
         name: "select-seat",
         data: {
           chartId: chartId.value,
           seatIndex: selectedItem.value.index,
-          userinfo: userinfo.value,
+          userinfo: isAdmin.value ? updateData.value : userinfo.value,
           isSelectSubmit: isSelectSubmit.value,
-          orderId: selectedItem.value.orderId
+          orderId: selectedItem.value.orderId,
+          edit: isAdmin.value
         }
       });
       showDrawer.value = false;
       if (result.code == 200) {
         common_vendor.index.showToast({
-          title: "选座成功",
+          title: isAdmin.value ? "修改成功" : "选座成功",
           icon: "success"
         });
       } else if (result.code == 201) {
@@ -140,7 +146,7 @@ const _sfc_main = {
       placeholder: ""
     });
     const ifRenderDialog = common_vendor.ref(false);
-    const onAdminClick = async () => {
+    const onAddAdminClick = async () => {
       popupData.value = {
         type: "addAdmin",
         title: "添加管理员(仅当前课室)",
@@ -149,10 +155,40 @@ const _sfc_main = {
       };
       ifRenderDialog.value = true;
       setTimeout(() => {
-        getCurrentPages()[1].$vm.$refs.inputDialog.open();
+        page.$vm.$refs.inputDialog.open();
       });
     };
+    const onDeleteAdminClick = async () => {
+      popupData.value = {
+        type: "deleteAdmin",
+        title: "删除管理员(仅当前课室)",
+        placeholder: "请输入管理员学号/id",
+        value: ""
+      };
+      ifRenderDialog.value = true;
+      setTimeout(() => {
+        page.$vm.$refs.inputDialog.open();
+      });
+    };
+    const edit = async (type, value) => {
+      popupData.value = {
+        type,
+        title: "编辑" + type,
+        placeholder: "请输入" + type,
+        value
+      };
+      ifRenderDialog.value = true;
+      setTimeout(() => {
+        page.$vm.$refs.inputDialog.open();
+      });
+    };
+    const types = {
+      姓名: "name",
+      班级: "class",
+      学号: "id"
+    };
     const dialogInputConfirm = async (input) => {
+      console.log(popupData.value);
       const text = input.trim();
       if (text.length === 0) {
         common_vendor.index.showToast({
@@ -163,19 +199,54 @@ const _sfc_main = {
       }
       const { type } = popupData.value;
       if (type == "addAdmin")
-        addAdmin(text);
+        return addAdmin(text);
+      if (type == "deleteAdmin")
+        return deleteAdmin(text);
+      if (type == "学号") {
+        loading.value = true;
+        common_vendor.index.showLoading({
+          title: "加载中",
+          mask: true
+        });
+        const db = common_vendor.Ws.database();
+        const { result } = await db.collection("user").doc(text).field("_id,name,class").get();
+        console.log(result);
+        common_vendor.index.hideLoading();
+        loading.value = false;
+        if (result.data.length == 0) {
+          common_vendor.index.showToast({
+            title: "用户不存在",
+            icon: "none"
+          });
+          return;
+        }
+        updateData.value[types[type]] = result.data[0]._id;
+        updateData.value.name = result.data[0].name || "";
+        updateData.value.class = result.data[0].class || "";
+      } else {
+        const comfirm = await common_vendor.index.showModal({
+          title: "提示",
+          content: "单独修改姓名或班级不会同步到相应用户",
+          confirmText: "继续"
+        });
+        if (!comfirm.confirm)
+          return;
+        updateData.value[types[type]] = text;
+      }
     };
     const addAdmin = async (id) => {
       common_vendor.index.showLoading({
         title: "加载中",
         mask: true
       });
+      loading.value = true;
       const { administrators } = chartDetail.value;
       if (administrators.includes(id)) {
         common_vendor.index.showToast({
           title: "该用户已是管理员",
           icon: "none"
         });
+        loading.value = false;
         return;
       }
       const db = common_vendor.Ws.database();
@@ -193,10 +264,41 @@ const _sfc_main = {
         administrators
       });
       await getAdminName();
+      loading.value = false;
       common_vendor.index.showToast({
         title: "添加成功",
         icon: "success"
       });
+      ifRenderDialog.value = false;
+    };
+    const deleteAdmin = async (id) => {
+      common_vendor.index.showLoading({
+        title: "加载中",
+        mask: true
+      });
+      loading.value = true;
+      const { administrators } = chartDetail.value;
+      if (!administrators.includes(id)) {
+        common_vendor.index.showToast({
+          title: "该用户不是管理员",
+          icon: "none"
+        });
+        loading.value = false;
+        return;
+      }
+      const index = administrators.indexOf(id);
+      administrators.splice(index, 1);
+      const db = common_vendor.Ws.database();
+      await db.collection("seat-chart").doc(chartId.value).update({
+        administrators
+      });
+      await getAdminName();
+      chartDetail.value.administrators = administrators;
+      common_vendor.index.showToast({
+        title: "删除成功",
+        icon: "success"
+      });
+      loading.value = false;
       ifRenderDialog.value = false;
     };
     const onChartEditBtnClick = () => {
@@ -204,53 +306,146 @@ const _sfc_main = {
         url: "/pages/createSeatChart/createSeatChart?type=edit&chartId=" + chartId.value
       });
     };
+    const onChartDeleteBtnClick = async () => {
+      const deleteConfirm = await common_vendor.index.showModal({
+        title: "提示",
+        content: "确定删除该课室吗？"
+      });
+      if (!deleteConfirm.confirm)
+        return;
+      common_vendor.index.showLoading({
+        title: "加载中",
+        mask: true
+      });
+      const db = common_vendor.Ws.database();
+      const { result: delRes } = await db.collection("seat-chart").doc(chartId.value).remove();
+      console.log(delRes);
+      common_vendor.index.showToast({
+        title: "删除成功",
+        icon: "success"
+      });
+      setTimeout(() => {
+        common_vendor.index.navigateBack();
+      }, 1e3);
+    };
+    const updateData = common_vendor.ref({});
+    const onSeatEditBtnClick = async () => {
+      var _a, _b, _c;
+      isSelectSubmit.value = true;
+      tip.value = "将修改以下选座：";
+      updateData.value = {
+        id: ((_a = selectedItem.value.stuInfo) == null ? void 0 : _a.id) || userinfo.value._id,
+        name: ((_b = selectedItem.value.stuInfo) == null ? void 0 : _b.name) || userinfo.value.name,
+        class: ((_c = selectedItem.value.stuInfo) == null ? void 0 : _c.class) || userinfo.value.class
+      };
+      showDrawer.value = true;
+    };
+    const onSeatDeleteBtnClick = async () => {
+      isSelectSubmit.value = false;
+      tip.value = "将撤销以下选座：";
+      showDrawer.value = true;
+    };
+    const copy = (text) => {
+      common_vendor.index.setClipboardData({
+        data: text,
+        success: function() {
+          common_vendor.index.showToast({
+            title: "复制成功",
+            icon: "none"
+          });
+        }
+      });
+    };
     return (_ctx, _cache) => {
-      var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _A, _B, _C, _D, _E, _F, _G, _H, _I, _J, _K;
+      var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _A, _B, _C, _D, _E, _F, _G, _H;
       return common_vendor.e({
-        a: (_a = chartDetail.value) == null ? void 0 : _a.administrators.includes(userinfo.value._id)
-      }, ((_b = chartDetail.value) == null ? void 0 : _b.administrators.includes(userinfo.value._id)) ? {} : {}, {
+        a: isAdmin.value
+      }, isAdmin.value ? {} : {}, {
         b: common_vendor.p({
           title: "课室信息",
           type: "line"
         }),
-        c: common_vendor.t((_c = chartDetail.value) == null ? void 0 : _c.title),
-        d: common_vendor.p({
+        c: common_vendor.t((_a = chartDetail.value) == null ? void 0 : _a.title),
+        d: common_vendor.o(($event) => {
+          var _a2;
+          return copy((_a2 = chartDetail.value) == null ? void 0 : _a2.title);
+        }),
+        e: common_vendor.p({
           title: "课室"
         }),
-        e: common_vendor.t((_d = chartDetail.value) == null ? void 0 : _d.note),
-        f: common_vendor.p({
+        f: common_vendor.t((_b = chartDetail.value) == null ? void 0 : _b.note),
+        g: common_vendor.o(($event) => {
+          var _a2;
+          return copy((_a2 = chartDetail.value) == null ? void 0 : _a2.note);
+        }),
+        h: common_vendor.p({
           title: "备注"
         }),
-        g: common_vendor.t(adminName.value),
-        h: common_vendor.o(onAdminClick),
-        i: common_vendor.p({
-          title: "管理员",
-          link: (_e = chartDetail.value) == null ? void 0 : _e.administrators.includes(userinfo.value._id)
+        i: common_vendor.t((_c = chartDetail.value) == null ? void 0 : _c.selectableTimeRange.join(" 至 ")),
+        j: common_vendor.o(($event) => {
+          var _a2;
+          return copy((_a2 = chartDetail.value) == null ? void 0 : _a2.selectableTimeRange.join(" 至 "));
         }),
-        j: common_vendor.t((_f = chartDetail.value) == null ? void 0 : _f.selectableTimeRange.join(" 至 ")),
         k: common_vendor.p({
           title: "选座时间"
         }),
-        l: common_vendor.t((_g = chartDetail.value) == null ? void 0 : _g.effectiveTimeRange.join(" 至 ")),
-        m: common_vendor.p({
+        l: common_vendor.t((_d = chartDetail.value) == null ? void 0 : _d.effectiveTimeRange.join(" 至 ")),
+        m: common_vendor.o(($event) => {
+          var _a2;
+          return copy((_a2 = chartDetail.value) == null ? void 0 : _a2.effectiveTimeRange.join(" 至 "));
+        }),
+        n: common_vendor.p({
           title: "生效时间"
         }),
-        n: common_vendor.o(onChartEditBtnClick),
-        o: loading.value,
-        p: common_vendor.o((...args) => _ctx.onChartDeleteBtnClick && _ctx.onChartDeleteBtnClick(...args)),
+        o: isAdmin.value
+      }, isAdmin.value ? {
+        p: common_vendor.o(onChartEditBtnClick),
         q: loading.value,
-        r: common_vendor.p({
-          open: true,
+        r: common_vendor.o(onChartDeleteBtnClick),
+        s: loading.value
+      } : {}, {
+        t: common_vendor.p({
+          open: chartDetail.value != null,
           titleBorder: "none"
         }),
-        s: common_vendor.p({
+        v: common_vendor.p({
           padding: "0"
         }),
-        t: common_vendor.p({
+        w: common_vendor.p({
+          title: "课室管理员",
+          type: "line"
+        }),
+        x: common_vendor.f((_e = chartDetail.value) == null ? void 0 : _e.administrators, (admin, index, i0) => {
+          return {
+            a: common_vendor.t(admin),
+            b: common_vendor.o(($event) => copy(admin), index),
+            c: index,
+            d: "eca06f3c-12-" + i0 + ",eca06f3c-10",
+            e: common_vendor.p({
+              ellipsis: "1",
+              title: adminName.value[index]
+            })
+          };
+        }),
+        y: isAdmin.value
+      }, isAdmin.value ? {
+        z: common_vendor.o(onAddAdminClick),
+        A: loading.value,
+        B: common_vendor.o(onDeleteAdminClick),
+        C: loading.value
+      } : {}, {
+        D: common_vendor.p({
+          open: chartDetail.value != null,
+          titleBorder: "none"
+        }),
+        E: common_vendor.p({
+          padding: "0"
+        }),
+        F: common_vendor.p({
           title: "座位表",
           type: "line"
         }),
-        v: common_vendor.f((_h = chartDetail.value) == null ? void 0 : _h.seats, (item, index, i0) => {
+        G: common_vendor.f((_f = chartDetail.value) == null ? void 0 : _f.seats, (item, index, i0) => {
           var _a2, _b2, _c2, _d2;
           return {
             a: common_vendor.t(item.stuInfo ? ((_a2 = item == null ? void 0 : item.stuInfo) == null ? void 0 : _a2.id) != userinfo.value._id ? "" : "你" : "空"),
@@ -261,136 +456,141 @@ const _sfc_main = {
             f: common_vendor.o(() => selectedItem.value = item, index)
           };
         }),
-        w: common_vendor.s(`--col:${(_i = chartDetail.value) == null ? void 0 : _i.col};--row:${(_j = chartDetail.value) == null ? void 0 : _j.row};`),
-        x: common_vendor.o(onrefreshBtnClick),
-        y: loading.value,
-        z: common_vendor.p({
+        H: common_vendor.s(`--col:${(_g = chartDetail.value) == null ? void 0 : _g.col};--row:${(_h = chartDetail.value) == null ? void 0 : _h.row};`),
+        I: common_vendor.o(onrefreshBtnClick),
+        J: loading.value,
+        K: common_vendor.p({
           padding: "0"
         }),
-        A: selectedItem.value
+        L: selectedItem.value
       }, selectedItem.value ? common_vendor.e({
-        B: common_vendor.p({
+        M: common_vendor.p({
           title: "座位信息",
           type: "line"
         }),
-        C: common_vendor.t((_k = selectedItem.value) == null ? void 0 : _k.x),
-        D: common_vendor.t((_l = selectedItem.value) == null ? void 0 : _l.y),
-        E: common_vendor.p({
+        N: common_vendor.t((_i = selectedItem.value) == null ? void 0 : _i.x),
+        O: common_vendor.t((_j = selectedItem.value) == null ? void 0 : _j.y),
+        P: common_vendor.p({
           title: "座位"
         }),
-        F: ((_m = selectedItem.value) == null ? void 0 : _m.stuInfo) && (chartDetail.value.stuInfoVisible || userinfo.value.type == 1)
-      }, ((_n = selectedItem.value) == null ? void 0 : _n.stuInfo) && (chartDetail.value.stuInfoVisible || userinfo.value.type == 1) ? {
-        G: common_vendor.t((_p = (_o = selectedItem.value) == null ? void 0 : _o.stuInfo) == null ? void 0 : _p.name),
-        H: common_vendor.p({
+        Q: ((_k = selectedItem.value) == null ? void 0 : _k.stuInfo) && (chartDetail.value.stuInfoVisible || userinfo.value.type == 1)
+      }, ((_l = selectedItem.value) == null ? void 0 : _l.stuInfo) && (chartDetail.value.stuInfoVisible || userinfo.value.type == 1) ? {
+        R: common_vendor.t((_n = (_m = selectedItem.value) == null ? void 0 : _m.stuInfo) == null ? void 0 : _n.name),
+        S: common_vendor.p({
           title: "姓名"
         }),
-        I: common_vendor.t((_r = (_q = selectedItem.value) == null ? void 0 : _q.stuInfo) == null ? void 0 : _r.id),
-        J: common_vendor.p({
+        T: common_vendor.t((_p = (_o = selectedItem.value) == null ? void 0 : _o.stuInfo) == null ? void 0 : _p.id),
+        U: common_vendor.p({
           title: "学号"
         }),
-        K: common_vendor.t((_t = (_s = selectedItem.value) == null ? void 0 : _s.stuInfo) == null ? void 0 : _t.class),
-        L: common_vendor.p({
+        V: common_vendor.t((_r = (_q = selectedItem.value) == null ? void 0 : _q.stuInfo) == null ? void 0 : _r.class),
+        W: common_vendor.p({
           title: "班级"
         })
       } : {}, {
-        M: (_u = selectedItem.value) == null ? void 0 : _u.selectTime
-      }, ((_v = selectedItem.value) == null ? void 0 : _v.selectTime) ? {
-        N: common_vendor.p({
-          date: new Date((_w = selectedItem.value) == null ? void 0 : _w.selectTime) - 3e4,
+        X: (_s = selectedItem.value) == null ? void 0 : _s.selectTime
+      }, ((_t = selectedItem.value) == null ? void 0 : _t.selectTime) ? {
+        Y: common_vendor.p({
+          date: new Date((_u = selectedItem.value) == null ? void 0 : _u.selectTime) - 3e4,
           format: "M月d日 h时m分",
           threshold: [0, 36e5]
         }),
-        O: common_vendor.p({
+        Z: common_vendor.p({
           title: "选择时间"
         })
       } : {}, {
-        P: common_vendor.p({
+        aa: common_vendor.p({
           padding: "0"
         })
       }) : {}, {
-        Q: (_x = chartDetail.value) == null ? void 0 : _x.administrators.includes(userinfo.value._id)
-      }, ((_y = chartDetail.value) == null ? void 0 : _y.administrators.includes(userinfo.value._id)) ? {
-        R: !selectedItem.value,
-        S: common_vendor.o((...args) => _ctx.onSeatEditBtnClick && _ctx.onSeatEditBtnClick(...args)),
-        T: loading.value,
-        U: !selectedItem.value,
-        V: common_vendor.o((...args) => _ctx.onSeatDeleteBtnClick && _ctx.onSeatDeleteBtnClick(...args)),
-        W: loading.value
+        ab: isAdmin.value
+      }, isAdmin.value ? {
+        ac: !selectedItem.value,
+        ad: common_vendor.o(onSeatEditBtnClick),
+        ae: loading.value,
+        af: ((_v = selectedItem.value) == null ? void 0 : _v.status) != 3,
+        ag: common_vendor.o(onSeatDeleteBtnClick),
+        ah: loading.value
       } : common_vendor.e({
-        X: avaliable()
+        ai: avaliable()
       }, avaliable() ? {
-        Y: common_vendor.t(((_A = (_z = selectedItem.value) == null ? void 0 : _z.stuInfo) == null ? void 0 : _A.id) == userinfo.value._id ? "撤销选座" : ((_B = selectedItem.value) == null ? void 0 : _B.status) == 3 ? "已被选择" : "选择座位"),
-        Z: common_vendor.o(onSelectBtnClick),
-        aa: ((_C = selectedItem.value) == null ? void 0 : _C.status) == 3 && ((_E = (_D = selectedItem.value) == null ? void 0 : _D.stuInfo) == null ? void 0 : _E.id) != userinfo.value._id || !selectedItem.value,
-        ab: ((_G = (_F = selectedItem.value) == null ? void 0 : _F.stuInfo) == null ? void 0 : _G.id) == userinfo.value._id ? "warn" : "primary",
-        ac: loading.value
+        aj: common_vendor.t(((_x = (_w = selectedItem.value) == null ? void 0 : _w.stuInfo) == null ? void 0 : _x.id) == userinfo.value._id ? "撤销选座" : ((_y = selectedItem.value) == null ? void 0 : _y.status) == 3 ? "已被选择" : "选择座位"),
+        ak: common_vendor.o(onSelectBtnClick),
+        al: ((_z = selectedItem.value) == null ? void 0 : _z.status) == 3 && ((_B = (_A = selectedItem.value) == null ? void 0 : _A.stuInfo) == null ? void 0 : _B.id) != userinfo.value._id || !selectedItem.value,
+        am: ((_D = (_C = selectedItem.value) == null ? void 0 : _C.stuInfo) == null ? void 0 : _D.id) == userinfo.value._id ? "warn" : "primary",
+        an: loading.value
       } : {}, {
-        ad: !avaliable()
+        ao: !avaliable()
       }, !avaliable() ? {} : {}), {
-        ae: common_vendor.t(isSelectSubmit.value ? "将使用以下信息选座：" : "将撤销以下选座："),
-        af: common_vendor.p({
+        ap: common_vendor.t(tip.value),
+        aq: common_vendor.p({
           title: "课室信息",
           type: "line"
         }),
-        ag: common_vendor.t((_H = chartDetail.value) == null ? void 0 : _H.title),
-        ah: common_vendor.p({
+        ar: common_vendor.t((_E = chartDetail.value) == null ? void 0 : _E.title),
+        as: common_vendor.p({
           title: "课室"
         }),
-        ai: common_vendor.t((_I = selectedItem.value) == null ? void 0 : _I.x),
-        aj: common_vendor.t((_J = selectedItem.value) == null ? void 0 : _J.y),
-        ak: common_vendor.p({
+        at: common_vendor.t((_F = selectedItem.value) == null ? void 0 : _F.x),
+        av: common_vendor.t((_G = selectedItem.value) == null ? void 0 : _G.y),
+        aw: common_vendor.p({
           title: "座位"
         }),
-        al: common_vendor.t((_K = chartDetail.value) == null ? void 0 : _K.effectiveTimeRange.join(" 至 ")),
-        am: common_vendor.p({
+        ax: common_vendor.t((_H = chartDetail.value) == null ? void 0 : _H.effectiveTimeRange.join(" 至 ")),
+        ay: common_vendor.p({
           title: "生效时间"
         }),
-        an: common_vendor.p({
+        az: common_vendor.p({
           title: "学生信息",
           type: "line"
         }),
-        ao: common_vendor.t(userinfo.value._id),
-        ap: common_vendor.p({
+        aA: common_vendor.t(isAdmin.value ? updateData.value.id : userinfo.value._id),
+        aB: common_vendor.o(($event) => edit("学号", updateData.value.id)),
+        aC: common_vendor.p({
           title: "学号",
-          link: userinfo.value.type == 1
+          link: isAdmin.value && isSelectSubmit.value
         }),
-        aq: common_vendor.t(userinfo.value.name),
-        ar: common_vendor.p({
+        aD: common_vendor.t(isAdmin.value ? updateData.value.name : userinfo.value.name),
+        aE: common_vendor.o(($event) => edit("姓名", updateData.value.name)),
+        aF: common_vendor.p({
           title: "姓名",
-          link: userinfo.value.type == 1
+          link: isAdmin.value && isSelectSubmit.value
         }),
-        as: common_vendor.t(userinfo.value.class),
-        at: common_vendor.p({
+        aG: common_vendor.t(isAdmin.value ? updateData.value.class : userinfo.value.class),
+        aH: common_vendor.o(($event) => edit("班级", updateData.value.class)),
+        aI: common_vendor.p({
           title: "班级",
-          link: userinfo.value.type == 1
+          link: isAdmin.value && isSelectSubmit.value
         }),
-        av: common_vendor.p({
+        aJ: common_vendor.p({
           padding: "0"
         }),
-        aw: common_vendor.o(onSubmitBtnClick),
-        ax: isSelectSubmit.value ? "primary" : "warn",
-        ay: loading.value,
-        az: common_vendor.o(() => {
+        aK: common_vendor.o(onSubmitBtnClick),
+        aL: isSelectSubmit.value ? "primary" : "warn",
+        aM: loading.value,
+        aN: common_vendor.o(() => {
         }),
-        aA: common_vendor.o(() => showDrawer.value = false),
-        aB: !showDrawer.value ? 1 : "",
-        aC: ifRenderDialog.value
+        aO: common_vendor.o(() => showDrawer.value = false),
+        aP: !showDrawer.value ? 1 : "",
+        aQ: ifRenderDialog.value
       }, ifRenderDialog.value ? {
-        aD: common_vendor.sr("inputClose", "eca06f3c-30,eca06f3c-29"),
-        aE: common_vendor.o(dialogInputConfirm),
-        aF: common_vendor.o(($event) => ifRenderDialog.value = false),
-        aG: common_vendor.o(($event) => popupData.value.value = $event),
-        aH: common_vendor.p({
+        aR: common_vendor.sr("inputClose", "eca06f3c-34,eca06f3c-33"),
+        aS: common_vendor.o(dialogInputConfirm),
+        aT: common_vendor.o(($event) => ifRenderDialog.value = false),
+        aU: common_vendor.o(($event) => popupData.value.value = $event),
+        aV: common_vendor.p({
           mode: "input",
           title: popupData.value.title,
           placeholder: popupData.value.placeholder,
           modelValue: popupData.value.value
         }),
-        aI: common_vendor.sr("inputDialog", "eca06f3c-29"),
-        aJ: common_vendor.p({
+        aW: common_vendor.sr("inputDialog", "eca06f3c-33"),
+        aX: common_vendor.p({
           type: "dialog"
         })
-      } : {});
+      } : {}, {
+        aY: common_vendor.s(chartDetail.value != null ? "transition: all .5s ease; opacity: 1" : "")
+      });
     };
   }
 };

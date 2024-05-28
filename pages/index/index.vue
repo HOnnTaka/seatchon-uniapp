@@ -1,5 +1,9 @@
 <template>
-  <view class="container">
+  <view
+    class="container"
+    style="transition: all 1s ease; opacity: 0"
+    :style="show ? 'transition: all .5s ease; opacity: 1' : ''"
+  >
     <view class="search-bar">
       <uni-search-bar
         bgColor="#fff"
@@ -26,7 +30,7 @@
       collection="seat-chart"
       orderby="createdTime desc"
     >
-      <view v-if="error">{{ error.message }}</view>
+      <view v-if="error" class="error">{{ error.message }},下拉刷新试试？</view>
       <uni-list>
         <uni-list-item
           v-for="(item, index) in data"
@@ -61,31 +65,32 @@
       </uni-list>
       <uni-load-more :status="loading ? 'loading' : hasMore ? 'default' : 'no-more'"></uni-load-more>
     </unicloud-db>
-
   </view>
 </template>
 
 <script setup>
 import { ref } from "vue";
-import { onLoad, onShow, onPullDownRefresh } from "@dcloudio/uni-app";
-
+import { onLoad, onShow, onReady, onHide, onPullDownRefresh } from "@dcloudio/uni-app";
+const page = getCurrentPages().find(item => item.route === "pages/index/index");
 const searchValue = ref("");
 const charts = ref([]);
 const userinfo = ref({});
-
+const show = ref(false);
 onLoad(async () => {});
 onShow(async () => {
   userinfo.value = uni.getStorageSync("userinfo");
-  getCurrentPages()[0].$vm.$refs.udb?.loadData({ clear: true });
+  page.$vm.$refs.udb?.loadData({ clear: true });
+  setTimeout(() => {
+    show.value = true;
+  }, 100);
 });
 
+onHide(async () => {
+  show.value = false;
+});
 onPullDownRefresh(async () => {
-  await getCurrentPages()[0].$vm.$refs.udb?.loadData({ clear: true });
+  await page.$vm.$refs.udb?.loadData({ clear: true });
   uni.stopPullDownRefresh();
-  uni.showToast({
-    title: "刷新成功",
-    icon: "success",
-  });
 });
 
 const formatTimeRange = timeRange => {
@@ -166,6 +171,11 @@ const fabClick = () => {
   border-radius: 5px;
   height: 25px;
   display: flex;
+}
+.error {
+  padding: 10px;
+  text-align: center;
+  background: #ff7626;
 }
 .item-note {
   color: #666;
