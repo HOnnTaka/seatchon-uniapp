@@ -5,47 +5,52 @@
     :style="show ? 'transition: all .5s ease; opacity: 1' : ''"
   >
     <uni-card v-if="userinfo" padding="0">
-      <template v-slot:title>
-        <uni-section title="我的信息" type="line"></uni-section>
-      </template>
-      <uni-list class="userinfo">
-        <button
-          @longpress="onLongPress"
-          @chooseavatar="onChooseAvatar"
-          open-type="chooseAvatar"
-          hover-class="hover"
-          class="edit-avatar"
-        >
-          <uni-list-item :border="false" clickable showArrow>
-            <template v-slot:header>
-              <text class="title">头像</text>
-            </template>
-            <template v-slot:footer>
-              <image :src="userinfo.avatarUrl" />
-            </template>
-          </uni-list-item>
-        </button>
-        <uni-list-item clickable @click="edit('昵称', userinfo.nickName)" showArrow title="昵称">
-          <template v-slot:footer>
-            <view class="title">{{ userinfo.nickName }}</view>
+      <uni-collapse>
+        <uni-collapse-item :open="show" titleBorder="none">
+          <template v-slot:title>
+            <uni-section title="我的信息" type="line"></uni-section>
           </template>
-        </uni-list-item>
-        <uni-list-item title="姓名">
-          <template v-slot:footer>
-            <text user-select selectable>{{ userinfo.name }}</text>
-          </template>
-        </uni-list-item>
-        <uni-list-item :title="userinfo.type == 1 ? '学号/id' : '学号'">
-          <template v-slot:footer>
-            <text user-select selectable>{{ userinfo._id }}</text>
-          </template>
-        </uni-list-item>
-        <uni-list-item title="班级">
-          <template v-slot:footer>
-            <text user-select selectable>{{ userinfo.class }}</text>
-          </template>
-        </uni-list-item>
-      </uni-list>
+          <uni-list class="userinfo">
+            <button
+              :loading="loading"
+              @longpress="onLongPress"
+              @chooseavatar="onChooseAvatar"
+              open-type="chooseAvatar"
+              hover-class="hover"
+              class="edit-avatar"
+            >
+              <uni-list-item :border="false" clickable showArrow>
+                <template v-slot:header>
+                  <text class="title">头像</text>
+                </template>
+                <template v-slot:footer>
+                  <image :src="userinfo.avatarUrl" />
+                </template>
+              </uni-list-item>
+            </button>
+            <uni-list-item clickable @click="edit('昵称', userinfo.nickName)" showArrow title="昵称">
+              <template v-slot:footer>
+                <view class="title">{{ userinfo.nickName }}</view>
+              </template>
+            </uni-list-item>
+            <uni-list-item @longpress="copy(userinfo.name)" title="姓名">
+              <template v-slot:footer>
+                <text user-select selectable>{{ userinfo.name }}</text>
+              </template>
+            </uni-list-item>
+            <uni-list-item @longpress="copy(userinfo._id)" :title="userinfo.type == 1 ? '学号/id' : '学号'">
+              <template v-slot:footer>
+                <text user-select selectable>{{ userinfo._id }}</text>
+              </template>
+            </uni-list-item>
+            <uni-list-item title="班级">
+              <template v-slot:footer>
+                <text user-select selectable>{{ userinfo.class }}</text>
+              </template>
+            </uni-list-item>
+          </uni-list>
+        </uni-collapse-item>
+      </uni-collapse>
     </uni-card>
     <uni-card v-if="!userinfo" padding="0">
       <template v-slot:title>
@@ -59,7 +64,7 @@
           <uni-easyinput v-model="formData.pwd" type="password" placeholder="请输入密码" />
         </uni-forms-item>
       </uni-forms>
-      <button class="uni-mb-5" type="primary" @click="submit('form')">登录</button>
+      <button :loading="loading" class="uni-mb-5" type="primary" @click="submit('form')">登录</button>
     </uni-card>
     <uni-card v-if="!userinfo" padding="0">
       <template v-slot:title>
@@ -70,28 +75,40 @@
           <uni-easyinput v-model="formData.adminpwd" placeholder="请输入管理密码" />
         </uni-forms-item>
       </uni-forms>
-      <button class="uni-mb-5" type="primary" @click="submit('adminform')">管理员登录</button>
+      <button :loading="loading" class="uni-mb-5" type="primary" @click="submit('adminform')">
+        管理员登录
+      </button>
     </uni-card>
 
     <uni-card v-if="userinfo" padding="0">
       <uni-collapse>
-        <uni-collapse-item>
+        <uni-collapse-item titleBorder="none">
           <template v-slot:title>
             <uni-section title="修改密码" type="line"></uni-section>
           </template>
           <view style="padding-bottom: 10px">
             <uni-forms ref="form1" :modelValue="formData" label-width="80px">
               <uni-forms-item label="旧密码" required name="pwd">
-                <uni-easyinput v-model="formData.pwd" type="password" placeholder="请输入密码" />
+                <uni-easyinput trim="both" v-model="formData.pwd" type="password" placeholder="请输入密码" />
               </uni-forms-item>
               <uni-forms-item label="新密码" required name="newpwd">
-                <uni-easyinput v-model="formData.newpwd" type="password" placeholder="请输入新密码" />
+                <uni-easyinput
+                  trim="both"
+                  v-model="formData.newpwd"
+                  type="password"
+                  placeholder="请输入新密码"
+                />
               </uni-forms-item>
               <uni-forms-item label="确认密码" required name="newpwd2">
-                <uni-easyinput v-model="formData.newpwd2" type="password" placeholder="请确认新密码" />
+                <uni-easyinput
+                  trim="both"
+                  v-model="formData.newpwd2"
+                  type="password"
+                  placeholder="请确认新密码"
+                />
               </uni-forms-item>
             </uni-forms>
-            <button type="primary" @click="submit('form1')">确认</button>
+            <button :loading="loading" type="primary" @click="submit('form1')">确认</button>
           </view>
         </uni-collapse-item>
       </uni-collapse>
@@ -99,21 +116,28 @@
 
     <uni-card v-if="userinfo" padding="0">
       <uni-collapse>
-        <uni-collapse-item>
+        <uni-collapse-item titleBorder="none">
           <template v-slot:title>
             <uni-section title="添加学生（管理员）" type="line"></uni-section>
           </template>
           <view style="padding-bottom: 10px">
             <uni-forms ref="addStudentForm" :modelValue="addStudentformData" label-width="80px">
-              <uni-forms-item label="学号/id" name="pwd">
-                <uni-easyinput v-model="addStudentformData.id" placeholder="输入学号/id（留空自动生成id）" />
+              <uni-forms-item label="学号/id" name="id">
+                <uni-easyinput
+                  trim="both"
+                  v-model="addStudentformData.id"
+                  placeholder="输入学号/id（留空自动生成id）"
+                />
               </uni-forms-item>
-              <uni-forms-item label="姓名" required name="newpwd">
-                <uni-easyinput v-model="addStudentformData.name" placeholder="请输入姓名" />
+              <uni-forms-item label="姓名" required name="name">
+                <uni-easyinput trim="both" v-model="addStudentformData.name" placeholder="请输入姓名" />
               </uni-forms-item>
-              <view style="margin-bottom: 5px; text-align: center; color: #ccc">默认密码为123456</view>
+              <uni-forms-item label="班级" required name="class">
+                <uni-easyinput trim="both" v-model="addStudentformData.class" placeholder="请输入班级" />
+              </uni-forms-item>
+              <view style="margin-bottom: 5px; text-align: center; color: #ccc">初始密码为123456</view>
             </uni-forms>
-            <button type="primary" @click="addStudentFormSubmit">确认</button>
+            <button :loading="loading" type="primary" @click="addStudentFormSubmit">确认</button>
           </view>
         </uni-collapse-item>
       </uni-collapse>
@@ -121,12 +145,12 @@
 
     <uni-card v-if="userinfo" padding="0">
       <uni-collapse>
-        <uni-collapse-item>
+        <uni-collapse-item titleBorder="none">
           <template v-slot:title>
             <uni-section title="批量添加学生（管理员）" type="line"></uni-section>
           </template>
           <view style="padding-bottom: 10px">
-            <button type="primary" @click="submit('form1')">确认</button>
+            <button :loading="loading" type="primary" @click="submit('form1')">确认</button>
           </view>
         </uni-collapse-item>
       </uni-collapse>
@@ -142,9 +166,10 @@
         @confirm="dialogInputConfirm"
         @cancel="ifRenderDialog = false"
       ></uni-popup-dialog>
+      <!-- <view @click="clearPopupValue" class="popup-clear">×</view> -->
     </uni-popup>
 
-    <button v-if="userinfo" class="uni-mx-5" type="warn" @click="logout">退出登录</button>
+    <button :loading="loading" v-if="userinfo" class="uni-mx-5" type="warn" @click="logout">退出登录</button>
     <view class="edgeInsetBottom"></view>
   </view>
 </template>
@@ -155,6 +180,7 @@ import { onLoad, onShow, onReady, onHide, onPullDownRefresh } from "@dcloudio/un
 const page = getCurrentPages().find(item => item.route === "pages/user/user");
 const userinfo = ref(uni.getStorageSync("userinfo"));
 const show = ref(false);
+const loading = ref(false);
 onShow(async () => {
   setTimeout(() => {
     show.value = true;
@@ -164,7 +190,16 @@ onShow(async () => {
 onHide(async () => {
   show.value = false;
 });
-
+const copy = text => {
+  console.log(text);
+  uni.setClipboardData({
+    data: text,
+    showToast: true,
+    success: function () {
+      uni.vibrateShort();
+    },
+  });
+};
 const formData = ref({
   id: "",
   pwd: "",
@@ -175,6 +210,7 @@ const formData = ref({
 const addStudentformData = ref({
   id: "",
   name: "",
+  class: "",
 });
 
 const resetFormData = () => {
@@ -229,6 +265,9 @@ const addStudentFormRules = {
   name: {
     rules: [{ required: true, errorMessage: "请输入姓名" }],
   },
+  class: {
+    rules: [{ required: true, errorMessage: "请输入班级" }],
+  },
 };
 onReady(async () => {
   page.$vm.$refs.form?.setRules(rules);
@@ -241,6 +280,7 @@ const submit = async ref => {
     title: "加载中",
     mask: true,
   });
+  loading.value = true;
   try {
     let data = await page.$vm.$refs[ref].validate();
     if (ref == "adminform") {
@@ -267,6 +307,7 @@ const submit = async ref => {
           icon: "none",
           duration: 2000,
         });
+        loading.value = false;
       }
       return;
     }
@@ -303,26 +344,31 @@ const submit = async ref => {
         icon: "none",
         duration: 2000,
       });
+      loading.value = false;
     }
   } catch (e) {
     console.log(e);
     uni.showToast({
-      title: "请检查输入内容",
-      icon: "none",
+      title: e[0].errorMessage,
+      icon: "error",
       duration: 2000,
     });
+    loading.value = false;
     return;
   }
+  loading.value = false;
   uni.hideLoading();
 };
 
 const logout = () => {
+  loading.value = true;
   uni.setStorageSync("userinfo", "");
   userinfo.value = "";
   uni.showToast({
     title: "退出登录成功",
     icon: "success",
   });
+  loading.value = false;
 };
 
 const popupData = ref({
@@ -384,6 +430,10 @@ const dialogInputConfirm = async input => {
     icon: "none",
   });
 };
+const clearPopupValue = e => {
+  console.log(popupData.value.value);
+  popupData.value.value = "";
+};
 const count = ref(0);
 const onLongPress = async () => {
   count.value++;
@@ -414,6 +464,7 @@ const onChooseAvatar = async e => {
     title: "上传中",
     mask: true,
   });
+  loading.value = true;
   try {
     const { fileID } = await uniCloud.uploadFile({
       filePath: tmpUrl,
@@ -436,19 +487,81 @@ const onChooseAvatar = async e => {
         title: "上传成功",
         icon: "success",
       });
-
+      loading.value = false;
       return;
     }
   } catch (e) {
     console.log(e);
   }
+  loading.value = false;
   uni.showToast({
     title: "上传失败",
     icon: "none",
   });
 };
 const ifRenderDialog = ref(false);
-const inputDialog = ref(null);
+
+const addStudentFormSubmit = async e => {
+  uni.showLoading({
+    title: "加载中",
+    mask: true,
+  });
+  loading.value = true;
+  try {
+    let data = await page.$vm.$refs.addStudentForm.validate();
+    if (data.id != "") data._id = data.id;
+    delete data.id;
+    console.log(data);
+    const db = uniCloud.database();
+    const { result: getRes } = await db.collection("user").doc(data._id).field("_id").get();
+    if (getRes.data.length > 0) {
+      uni.showToast({
+        title: "该id已存在",
+        icon: "none",
+      });
+      loading.value = false;
+      return;
+    }
+    const { result: addRes } = await db.collection("user").add({
+      ...data,
+      avatarUrl: data._id ? `https://api.multiavatar.com/${data._id}.png` : "",
+      pwd: "$2a$10$WOW5NsssssCKafZZNDt9PO54RS1ZgoulTWhPl/1c5TTTnUI/w34Pq",
+      type: 0,
+    });
+    console.log(addRes.id);
+    if (addRes.id) {
+      if (!data._id) {
+        const { result: updateRes } = await db
+          .collection("user")
+          .doc(addRes._id)
+          .update({
+            avatarUrl: `https://api.multiavatar.com/${addRes.id}.png`,
+          });
+      }
+      const copyComfirm = await uni.showModal({
+        title: "添加成功",
+        content: "id:" + addRes.id,
+        showCancel: true,
+        confirmText: "复制",
+      });
+      addStudentformData.value = {};
+      if (copyComfirm.confirm) {
+        uni.setClipboardData({
+          data: addRes._id,
+          showToast: true,
+        });
+      }
+    }
+  } catch (e) {
+    console.log(e);
+    uni.showToast({
+      title: e[0].errorMessage,
+      icon: "none",
+    });
+  }
+  loading.value = false;
+  uni.hideLoading();
+};
 </script>
 
 <style scoped>
@@ -483,6 +596,22 @@ const inputDialog = ref(null);
   width: 80px;
   height: 80px;
   border-radius: 5px;
+}
+.popup-clear {
+  position: absolute;
+  top: calc(50% + 2px);
+  right: 30px;
+  background: rgba(0, 0, 0, 0.2);
+  width: 20px;
+  height: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 12px;
+  z-index: 100;
+  transform: translateY(-50%);
 }
 .edgeInsetBottom {
   height: var(--window-bottom);

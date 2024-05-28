@@ -19,7 +19,7 @@
           <uni-easyinput trim="both" v-model="baseFormData.title" placeholder="请输入标题" />
         </uni-forms-item>
         <uni-forms-item label="备注" name="note">
-          <uni-easyinput trim="true" v-model="baseFormData.note" placeholder="请输入备注" />
+          <uni-easyinput trim="both" v-model="baseFormData.note" placeholder="请输入备注" />
         </uni-forms-item>
 
         <uni-forms-item required label="开放选择时间" name="selectableTimeRange">

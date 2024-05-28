@@ -11,28 +11,24 @@
           <template v-slot:title>
             <uni-section title="课室信息" type="line"></uni-section>
           </template>
-          <uni-list-item title="课室">
+          <uni-list-item title="课室" @longpress="copy(chartDetail?.title)">
             <template v-slot:footer>
-              <text @click="copy(chartDetail?.title)">{{ chartDetail?.title }}</text>
+              <text>{{ chartDetail?.title }}</text>
             </template>
           </uni-list-item>
-          <uni-list-item title="备注">
+          <uni-list-item title="备注" @longpress="copy(chartDetail?.note)">
             <template v-slot:footer>
-              <text @click="copy(chartDetail?.note)">{{ chartDetail?.note }}</text>
+              <text>{{ chartDetail?.note }}</text>
             </template>
           </uni-list-item>
-          <uni-list-item title="选座时间">
+          <uni-list-item title="选座时间" @longpress="copy(chartDetail?.selectableTimeRange.join(' 至 '))">
             <template v-slot:footer>
-              <text user-select @click="copy(chartDetail?.selectableTimeRange.join(' 至 '))">{{
-                chartDetail?.selectableTimeRange.join(" 至 ")
-              }}</text>
+              <text user-select>{{ chartDetail?.selectableTimeRange.join(" 至 ") }}</text>
             </template>
           </uni-list-item>
-          <uni-list-item title="生效时间">
+          <uni-list-item title="生效时间" @longpress="copy(chartDetail?.effectiveTimeRange.join(' 至 '))">
             <template v-slot:footer>
-              <text @click="copy(chartDetail?.effectiveTimeRange.join(' 至 '))">{{
-                chartDetail?.effectiveTimeRange.join(" 至 ")
-              }}</text>
+              <text>{{ chartDetail?.effectiveTimeRange.join(" 至 ") }}</text>
             </template>
           </uni-list-item>
           <view class="edit-chart-btns" v-if="isAdmin">
@@ -66,7 +62,7 @@
             :key="index"
           >
             <template v-slot:footer>
-              <text @click="copy(admin)" user-select>{{ admin }}</text>
+              <text @longpress="copy(admin)" user-select>{{ admin }}</text>
             </template>
           </uni-list-item>
           <view class="edit-chart-btns" v-if="isCreater">
@@ -278,6 +274,7 @@ onReady(() => {});
 
 onPullDownRefresh(async () => {
   await getChartDetail(chartId.value);
+  uni.vibrateShort();
   uni.stopPullDownRefresh();
 });
 const isAdmin = computed(() => {
@@ -493,6 +490,7 @@ const addAdmin = async id => {
       title: "用户不存在",
       icon: "none",
     });
+    loading.value = false;
     return;
   }
   administrators.push(id);
@@ -518,6 +516,14 @@ const deleteAdmin = async id => {
   if (!administrators.includes(id)) {
     uni.showToast({
       title: "该用户不是管理员",
+      icon: "none",
+    });
+    loading.value = false;
+    return;
+  }
+  if (id == userinfo.value._id) {
+    uni.showToast({
+      title: "不能删除自己",
       icon: "none",
     });
     loading.value = false;
@@ -585,13 +591,12 @@ const onSeatDeleteBtnClick = async () => {
 };
 
 const copy = text => {
+  console.log(text);
   uni.setClipboardData({
     data: text,
+    showToast: true,
     success: function () {
-      uni.showToast({
-        title: "复制成功",
-        icon: "none",
-      });
+      uni.vibrateShort();
     },
   });
 };
@@ -655,17 +660,23 @@ const copy = text => {
 .seat.selected {
   border: 2px solid #3292ff;
 }
+.admin-item:first-child {
+  position: relative;
+  padding-left: 15px;
+}
 .admin-item:first-child::before {
+  position: absolute;
   content: "主";
-  color: #3292ff;
-  border: 1px solid #3292ff;
+  color: #fff;
+  background: #2979ff;
   width: 20px;
   height: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
-  font-size: 12px;
+  border-radius: 5px;
+  font-size: 10px;
+  left: 0;
 }
 .btns {
   position: fixed;
