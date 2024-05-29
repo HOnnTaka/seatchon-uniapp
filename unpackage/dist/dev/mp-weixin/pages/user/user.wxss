@@ -29,6 +29,22 @@
   height: 80px;
   border-radius: 5px;
 }
+.popup-clear.data-v-0f7520f0 {
+  position: absolute;
+  top: calc(50% + 2px);
+  right: 30px;
+  background: rgba(0, 0, 0, 0.2);
+  width: 20px;
+  height: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 12px;
+  z-index: 100;
+  transform: translateY(-50%);
+}
 .edgeInsetBottom.data-v-0f7520f0 {
   height: var(--window-bottom);
 }

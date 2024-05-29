@@ -11,7 +11,7 @@
       :rules="rules"
       ref="valiForm"
     >
-      <uni-card padding="0">
+      <uni-card padding="10px">
         <template v-slot:title>
           <uni-section title="课室信息" type="line"></uni-section>
         </template>
@@ -45,7 +45,7 @@
         </uni-forms-item>
       </uni-card>
 
-      <uni-card class="chart-card" padding="0" style="padding-bottom: 10px">
+      <uni-card class="chart-card" padding="10px">
         <template v-slot:title>
           <uni-section title="座位表" type="line"></uni-section>
         </template>
@@ -55,7 +55,7 @@
           v-model="isResetChartCheck"
           :localdata="isResetChartData"
         ></uni-data-checkbox>
-        <view v-if="chartType != 'edit' || isResetChartCheck?.includes(0)">
+        <view  v-if="chartType != 'edit' || isResetChartCheck?.includes(0)">
           <uni-forms-item label-position="left" label="行" required name="row">
             <uni-number-box v-model="baseFormData.row" />
             <!-- <uni-easyinput v-model="baseFormData.row" type="number" placeholder="请输入行数" /> -->
@@ -103,7 +103,7 @@ onReady(() => {
   setTimeout(() => {
     show.value = true;
   }, 100);
-})
+});
 
 const chartType = ref("");
 const chartId = ref("");
@@ -265,6 +265,7 @@ const editChart = async data => {
     showCancel: true,
   });
   if (!modal.confirm) return;
+  const db = uniCloud.database();
   if (isResetChartCheck.value.includes(0)) {
     const resetModal = await uni.showModal({
       title: "提示",
@@ -272,11 +273,17 @@ const editChart = async data => {
       showCancel: true,
     });
     if (!resetModal.confirm) return;
+    const removeOrderRes = await db
+      .collection("order")
+      .where({
+        chartId: chartId.value,
+      })
+      .remove();
+    console.log(removeOrderRes);
   }
   uni.showLoading({
     title: "修改中",
   });
-  const db = uniCloud.database();
   let updateData = {
     ...data,
     stuInfoVisible: data.stuInfoVisible == 0 ? true : false,

@@ -4,7 +4,10 @@
     "pages/detail/detail",
     "pages/user/user",
     "pages/createSeatChart/createSeatChart",
-    "pages/order/order"
+    "pages/order/order",
+    "pages/user/add",
+    "pages/user/edit",
+    "pages/user/list"
   ],
   "window": {
     "navigationBarTextStyle": "black",
@@ -17,7 +20,7 @@
   "tabBar": {
     "color": "#333",
     "selectedColor": "#2979ff",
-    "borderStyle": "white",
+    "borderStyle": "black",
     "backgroundColor": "#fff",
     "list": [
       {

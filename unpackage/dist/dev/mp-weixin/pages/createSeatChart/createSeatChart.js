@@ -25,6 +25,7 @@ if (!Math) {
 const _sfc_main = {
   __name: "createSeatChart",
   setup(__props) {
+    const show = common_vendor.ref(false);
     const baseFormData = common_vendor.reactive({
       title: "",
       note: "",
@@ -33,6 +34,11 @@ const _sfc_main = {
       stuInfoVisible: 0,
       effectiveTimeRange: [],
       selectableTimeRange: []
+    });
+    common_vendor.onReady(() => {
+      setTimeout(() => {
+        show.value = true;
+      }, 100);
     });
     const chartType = common_vendor.ref("");
     const chartId = common_vendor.ref("");
@@ -184,6 +190,7 @@ const _sfc_main = {
       });
       if (!modal.confirm)
         return;
+      const db = common_vendor.Ws.database();
       if (isResetChartCheck.value.includes(0)) {
         const resetModal = await common_vendor.index.showModal({
           title: "提示",
@@ -192,11 +199,14 @@ const _sfc_main = {
         });
         if (!resetModal.confirm)
           return;
+        const removeOrderRes = await db.collection("order").where({
+          chartId: chartId.value
+        }).remove();
+        console.log(removeOrderRes);
       }
       common_vendor.index.showLoading({
         title: "修改中"
       });
-      const db = common_vendor.Ws.database();
       let updateData = {
         ...data,
         stuInfoVisible: data.stuInfoVisible == 0 ? true : false
@@ -246,7 +256,7 @@ const _sfc_main = {
         }),
         e: common_vendor.o(($event) => baseFormData.note = $event),
         f: common_vendor.p({
-          trim: "true",
+          trim: "both",
           placeholder: "请输入备注",
           modelValue: baseFormData.note
         }),
@@ -291,7 +301,7 @@ const _sfc_main = {
           name: "stuInfoVisible"
         }),
         q: common_vendor.p({
-          padding: "0"
+          padding: "10px"
         }),
         r: common_vendor.p({
           title: "座位表",
@@ -337,7 +347,7 @@ const _sfc_main = {
         E: common_vendor.s(`--col:${baseFormData.col};--row:${baseFormData.row};`)
       } : {}, {
         F: common_vendor.p({
-          padding: "0"
+          padding: "10px"
         }),
         G: loading.value,
         H: common_vendor.o(() => submit("valiForm")),
@@ -347,7 +357,8 @@ const _sfc_main = {
           modelValue: baseFormData,
           ["label-position"]: "top",
           rules
-        })
+        }),
+        K: common_vendor.s(show.value ? "transition: all .5s ease; opacity: 1" : "")
       });
     };
   }

@@ -7978,7 +7978,7 @@ const pages = [
   {
     path: "pages/index/index",
     style: {
-      navigationBarTitleText: "主页",
+      navigationBarTitleText: "全部课室",
       enablePullDownRefresh: true
     }
   },
@@ -8007,12 +8007,30 @@ const pages = [
       navigationBarTitleText: "预定",
       enablePullDownRefresh: true
     }
+  },
+  {
+    path: "pages/user/add",
+    style: {
+      navigationBarTitleText: "新增"
+    }
+  },
+  {
+    path: "pages/user/edit",
+    style: {
+      navigationBarTitleText: "编辑"
+    }
+  },
+  {
+    path: "pages/user/list",
+    style: {
+      navigationBarTitleText: "列表"
+    }
   }
 ];
 const tabBar = {
   color: "#333",
   selectedColor: "#2979ff",
-  borderStyle: "white",
+  borderStyle: "black",
   backgroundColor: "#fff",
   list: [
     {
@@ -10768,6 +10786,7 @@ const createHook = (lifecycle) => (hook, target = getCurrentInstance()) => {
   !isInSSRComponentSetup && injectHook(lifecycle, hook, target);
 };
 const onShow = /* @__PURE__ */ createHook(ON_SHOW);
+const onHide = /* @__PURE__ */ createHook(ON_HIDE);
 const onLoad = /* @__PURE__ */ createHook(ON_LOAD);
 const onReady = /* @__PURE__ */ createHook(ON_READY);
 const onPullDownRefresh = /* @__PURE__ */ createHook(ON_PULL_DOWN_REFRESH);
@@ -10820,6 +10839,7 @@ exports.initVueI18n = initVueI18n;
 exports.messages = messages;
 exports.n = n$1;
 exports.o = o$1;
+exports.onHide = onHide;
 exports.onLoad = onLoad;
 exports.onMounted = onMounted;
 exports.onPullDownRefresh = onPullDownRefresh;

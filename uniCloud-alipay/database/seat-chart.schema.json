@@ -42,12 +42,6 @@
 		"seats": {
 			"description": "座位信息"
 		},
-		"creator": {
-			"description": "创建者"
-		},
-		"creatorId": {
-			"description": "创建者ID"
-		},
 		"administrators": {
 			"description": "管理员"
 		},

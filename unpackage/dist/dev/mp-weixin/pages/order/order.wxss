@@ -1,41 +1,15 @@
 
 .container.data-v-93207a4f {
   height: 100%;
+  display: flex;
+  flex-direction: column;
 }
-.userinfo.data-v-93207a4f {
-  font-size: 20px;
+.orderScrollBox.data-v-93207a4f,
+.adminScrollBox.data-v-93207a4f {
+  height: calc((100vh - var(--window-bottom) - var(--window-top)) / 2 - 60px);
 }
-.uni-list-item__container.data-v-93207a4f {
-  align-items: center;
-}
-.uni-list-item__content.data-v-93207a4f {
-  flex-direction: row !important;
-}
-.edit-avatar.data-v-93207a4f {
-  margin: 0;
-  padding: 0;
-  border: none !important;
-}
-.edit-avatar.data-v-93207a4f::after {
-  border: none !important;
-}
-.hover .uni-list-item.data-v-93207a4f {
-  background: #f1f1f1 !important;
-}
-.edit-avatar image.data-v-93207a4f {
-  width: 80px;
-  height: 80px;
-  border-radius: 5px;
-}
-.stuInfo.data-v-93207a4f {
-  font-size: 18px;
-}
-.stuInfo view.data-v-93207a4f {
-  cursor: pointer;
-  margin-bottom: 5px;
-}
-.stuInfo view.data-v-93207a4f:last-child {
-  margin-bottom: 0;
+.item-content.data-v-93207a4f{
+  margin-top: 10px;
 }
 .item-title.data-v-93207a4f {
   font-size: 24px;

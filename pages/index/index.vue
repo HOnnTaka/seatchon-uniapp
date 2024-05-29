@@ -4,14 +4,6 @@
     style="transition: all 1s ease; opacity: 0"
     :style="show ? 'transition: all .5s ease; opacity: 1' : ''"
   >
-    <view class="search-bar">
-      <uni-search-bar
-        bgColor="#fff"
-        @confirm="search"
-        v-model="searchValue"
-        placeholder="请输入搜索内容"
-      ></uni-search-bar>
-    </view>
     <uni-fab
       v-if="userinfo.type == 1"
       ref="fab"
@@ -20,51 +12,80 @@
       vertical="bottom"
       @fabClick="fabClick"
     />
-    <template v-slot:title>
-      <uni-section title="全部课室" type="line"></uni-section>
-    </template>
-    <unicloud-db
-      ref="udb"
-      :options="options"
-      v-slot:default="{ data, loading, hasMore, error, options }"
-      collection="seat-chart"
-      orderby="createdTime desc"
-    >
-      <view v-if="error" class="error">{{ error.message }},下拉刷新试试？</view>
-      <uni-list>
-        <uni-list-item
-          v-for="(item, index) in data"
-          :key="item._id"
-          clickable
-          link
-          @click="onItemClick(item)"
-          :title="item.title"
-          :note="item.note"
+    <view class="search-bar">
+      <uni-search-bar
+        bgColor="#fff"
+        @confirm="search"
+        @cancel="onCancel"
+        radius="5"
+        v-model="searchValue"
+        placeholder="请输入搜索内容"
+      ></uni-search-bar>
+    </view>
+
+    <uni-card padding="0">
+      <scroll-view
+        class="DBscrollBox"
+        scroll-y
+        refresher-enabled
+        enable-back-to-top
+        scroll-with-animation
+        :refresher-triggered="loading"
+        @scrolltolower="onScrolltolower"
+        @refresherrefresh="onRefresherrefresh"
+      >
+        <unicloud-db
+          ref="udb"
+          v-slot:default="{ data, loading, hasMore, error, options }"
+          collection="seat-chart"
+          :page-size="10"
+          orderby="title desc"
+          :where="where"
+          class="DBBox"
         >
-          <template v-slot:header>
-            <view class="item-header"></view>
-          </template>
-          <template v-slot:body>
-            <view class="item-body">
-              <view class="item-content">
-                <text class="item-title">{{ item.title }}</text>
-                <text class="item-note">{{ item.note }}</text>
-              </view>
-              <view class="item-time">
-                <text>选座：{{ formatTimeRange(item.selectableTimeRange) }}</text>
-                <text>生效：{{ formatTimeRange(item.effectiveTimeRange) }}</text>
-              </view>
-            </view>
-          </template>
-          <template v-slot:footer>
-            <view class="item-footer">
-              {{ available(item) }}
-            </view>
-          </template>
-        </uni-list-item>
-      </uni-list>
-      <uni-load-more :status="loading ? 'loading' : hasMore ? 'default' : 'no-more'"></uni-load-more>
-    </unicloud-db>
+          <view v-if="error" class="error">{{ error.message }},下拉刷新试试？</view>
+          <uni-list showArrow>
+            <uni-list-item
+              v-for="(item, index) in data"
+              :key="item._id"
+              clickable
+              showArrow
+              @click="onItemClick(item)"
+              :title="item.title"
+              :note="item.note"
+              class="list-item"
+            >
+              <template v-slot:header>
+                <view class="item-header"></view>
+              </template>
+              <template v-slot:body>
+                <view class="item-body">
+                  <view class="item-content">
+                    <text user-select class="item-title">{{ item.title }}</text>
+                    <text user-select class="item-note">{{ item.note }}</text>
+                  </view>
+                  <view class="item-time">
+                    <text>选座：{{ formatTimeRange(item.selectableTimeRange) }}</text>
+                    <text>生效：{{ formatTimeRange(item.effectiveTimeRange) }}</text>
+                  </view>
+                </view>
+              </template>
+              <template v-slot:footer>
+                <view class="item-footer">
+                  <view class="tag-item" :class="{ disable: isNotAvailable(item.selectableTimeRange) }"
+                    >选</view
+                  >
+                  <view class="tag-item" :class="{ disable: isNotAvailable(item.effectiveTimeRange) }"
+                    >效</view
+                  >
+                </view>
+              </template>
+            </uni-list-item>
+          </uni-list>
+          <uni-load-more :status="loading ? 'loading' : hasMore ? 'more' : 'no-more'"></uni-load-more>
+        </unicloud-db>
+      </scroll-view>
+    </uni-card>
   </view>
 </template>
 
@@ -74,12 +95,14 @@ import { onLoad, onShow, onReady, onHide, onPullDownRefresh } from "@dcloudio/un
 const page = getCurrentPages().find(item => item.route === "pages/index/index");
 const searchValue = ref("");
 const charts = ref([]);
+const option = ref({});
 const userinfo = ref({});
 const show = ref(false);
+const loading = ref(false);
+const where = ref("");
 onLoad(async () => {});
 onShow(async () => {
-  userinfo.value = uni.getStorageSync("userinfo");
-  page.$vm.$refs.udb?.loadData({ clear: true });
+  uni.startPullDownRefresh();
   setTimeout(() => {
     show.value = true;
   }, 100);
@@ -88,32 +111,46 @@ onShow(async () => {
 onHide(async () => {
   show.value = false;
 });
-onPullDownRefresh(async () => {
+const onRefresherrefresh = async () => {
+  loading.value = true;
+  userinfo.value = uni.getStorageSync("userinfo");
   await page.$vm.$refs.udb?.loadData({ clear: true });
-  uni.stopPullDownRefresh();
-});
+  setTimeout(() => {
+    uni.stopPullDownRefresh();
+    loading.value = false;
+    uni.vibrateShort();
+  });
+};
+const onScrolltolower = async e => {
+  console.log(e);
+  await page.$vm.$refs.udb.loadMore();
+  uni.vibrateShort();
+};
+onPullDownRefresh(onRefresherrefresh);
 
 const formatTimeRange = timeRange => {
   return timeRange.join(" 至 ");
 };
-const available = item => {
+const isNotAvailable = timeRange => {
   const now = new Date().getTime();
-  const { selectableTimeRange, effectiveTimeRange } = item;
-  const selectTimeRange = [
-    new Date(selectableTimeRange[0]).getTime(),
-    new Date(selectableTimeRange[1]).getTime(),
-  ];
-  const effectTimeRange = [
-    new Date(effectiveTimeRange[0]).getTime(),
-    new Date(effectiveTimeRange[1]).getTime(),
-  ];
-  if (now > effectTimeRange[0] && now < effectTimeRange[1]) return "生效中";
-  if (now > selectTimeRange[0] && now < selectTimeRange[1]) return "选座中";
-  if (now < selectTimeRange[0]) return "未开始";
-  if (now > effectTimeRange[1]) return "已结束";
+  const formatedTimeRange = [new Date(timeRange[0]).getTime(), new Date(timeRange[1]).getTime()];
+  return now < formatedTimeRange[0] || now > formatedTimeRange[1];
 };
 
-const search = async () => {};
+const search = async () => {
+  const words = searchValue.value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  console.log(words);
+  where.value = `${new RegExp(words, "i")}.test(title) || ${new RegExp(words, "i")}.test(note)`;
+  setTimeout(async () => {
+    await page.$vm.$refs.udb?.loadData({ clear: true });
+  });
+};
+const onCancel = async () => {
+  where.value = "";
+  setTimeout(async () => {
+    await page.$vm.$refs.udb?.loadData({ clear: true });
+  });
+};
 const onItemClick = async item => {
   if (!userinfo.value) {
     const confirm = await uni.showModal({
@@ -150,24 +187,27 @@ const fabClick = () => {
   font-size: 14px;
 }
 
-.search-bar {
-  background: #f8f8f8;
+.DBscrollBox {
+  max-height: calc(100vh - var(--window-bottom) - var(--window-top) - 56px - 10px);
 }
-
-.chart-list {
-  padding: 0 !important;
-  height: calc(100vh - var(--window-bottom) - var(--window-top) - 56px - 30px);
+.search-bar {
+  margin-bottom: -10px;
+}
+.item-content {
+  margin-bottom: 5px;
 }
 .item-title {
   color: #333;
   font-size: 24px;
+  display: inline-block;
+  margin-top: 10px;
   // font-weight: bold;
 }
 .item-header {
   background: #2979ff;
   width: 5px;
   margin-right: 10px;
-  margin-top: 4px;
+  margin-top: 7px;
   border-radius: 5px;
   height: 25px;
   display: flex;
@@ -182,22 +222,34 @@ const fabClick = () => {
   font-size: 12px;
   margin-left: 5px;
 }
-.item-content {
-  margin-bottom: 5px;
-}
 .item-time {
   font-size: 12px;
   color: #666;
+  margin: 0;
+  margin-left: -15px;
   display: flex;
   flex-direction: column;
+  line-height: 1.25em;
 }
 
 .item-footer {
   align-self: center;
   margin-left: auto;
   color: #666;
+  display: flex;
+  gap: 10px;
 }
 .item-footer > view {
-  font-size: 12px;
+  color: #fff;
+  background: #2979ff;
+  width: 25px;
+  height: 25px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 5px;
+}
+.item-footer > view.disable {
+  background: #ccc;
 }
 </style>

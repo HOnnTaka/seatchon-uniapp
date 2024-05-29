@@ -22,34 +22,55 @@ const _sfc_main = {
   __name: "order",
   setup(__props) {
     const userinfo = common_vendor.ref(common_vendor.index.getStorageSync("userinfo"));
+    const show = common_vendor.ref(false);
+    const loading = common_vendor.ref({
+      orderDB: false,
+      adminDB: false
+    });
     const page = getCurrentPages().find((page2) => page2.route === "pages/order/order");
     const db = common_vendor.Ws.database();
-    const dbList = common_vendor.ref([
+    const orderDBList = common_vendor.ref([
       db.collection("order").where('userId ==  "216124125"').field("chartId,x,y,userId").getTemp(),
       db.collection("seat-chart").field("_id,effectiveTimeRange,selectableTimeRange,title,note").getTemp()
     ]);
     const formatTimeRange = (timeRange) => {
       return timeRange.join(" 至 ");
     };
-    common_vendor.onShow(() => {
-      var _a;
-      userinfo.value = common_vendor.index.getStorageSync("userinfo");
-      console.log(getCurrentPages());
-      (_a = getCurrentPages()[0].$vm.$refs.udb) == null ? void 0 : _a.loadData({ clear: true });
+    common_vendor.onShow(async () => {
+      common_vendor.index.startPullDownRefresh();
+      setTimeout(() => {
+        show.value = true;
+      }, 100);
     });
-    common_vendor.onPullDownRefresh(async () => {
-      await page.$vm.$refs.udb.loadData({ clear: true });
-      common_vendor.index.stopPullDownRefresh();
+    common_vendor.onHide(async () => {
+      show.value = false;
+    });
+    const onScrolltolower = async (ref) => {
+      await page.$vm.$refs[ref].loadMore();
+      common_vendor.index.vibrateShort();
+    };
+    const onRefresherrefresh = async (ref) => {
+      loading.value[ref] = true;
+      await page.$vm.$refs[ref].loadData({ clear: true });
+      setTimeout(() => {
+        common_vendor.index.stopPullDownRefresh();
+        loading.value[ref] = false;
+        common_vendor.index.vibrateShort();
+      });
+    };
+    common_vendor.onPullDownRefresh(() => {
+      onRefresherrefresh("orderDB");
+      onRefresherrefresh("adminDB");
     });
     return (_ctx, _cache) => {
       return {
         a: common_vendor.p({
-          title: "我的预定",
+          title: "我的选座",
           type: "line"
         }),
         b: common_vendor.w(({
           data,
-          loading,
+          loading: loading2,
           hasMore,
           error,
           options
@@ -70,7 +91,7 @@ const _sfc_main = {
                 g: "93207a4f-4-" + i0 + "-" + i1 + "," + ("93207a4f-3-" + i0),
                 h: common_vendor.p({
                   clickable: true,
-                  link: true,
+                  showArrow: true,
                   to: "/pages/detail/detail?chartId=" + item.chartId[0]._id,
                   title: item.chartId[0].title,
                   note: item.chartId[0].note
@@ -80,7 +101,7 @@ const _sfc_main = {
             d: "93207a4f-3-" + i0 + ",93207a4f-2",
             e: "93207a4f-5-" + i0 + ",93207a4f-2",
             f: common_vendor.p({
-              status: loading ? "loading" : hasMore ? "default" : "no-more"
+              status: loading2 ? "loading" : hasMore ? "default" : "no-more"
             }),
             g: i0,
             h: s0
@@ -90,16 +111,79 @@ const _sfc_main = {
           path: "b",
           vueId: "93207a4f-2,93207a4f-0"
         }),
-        c: common_vendor.sr("udb", "93207a4f-2,93207a4f-0"),
+        c: common_vendor.sr("orderDB", "93207a4f-2,93207a4f-0"),
         d: common_vendor.p({
-          options: _ctx.options,
-          collection: dbList.value,
+          ["page-size"]: 10,
+          collection: orderDBList.value,
           where: `userId=='${userinfo.value._id}'`,
           orderby: "orderTime desc"
         }),
-        e: common_vendor.p({
+        e: loading.value.orderDB,
+        f: common_vendor.o(($event) => onScrolltolower("orderDB")),
+        g: common_vendor.o(($event) => onRefresherrefresh("orderDB")),
+        h: common_vendor.p({
           padding: "0"
-        })
+        }),
+        i: common_vendor.p({
+          title: "我的管理",
+          type: "line"
+        }),
+        j: common_vendor.w(({
+          data,
+          loading: loading2,
+          hasMore,
+          error,
+          options
+        }, s0, i0) => {
+          return common_vendor.e({
+            a: error
+          }, error ? {
+            b: common_vendor.t(error.message)
+          } : {}, {
+            c: common_vendor.f(data, (item, index, i1) => {
+              return {
+                a: common_vendor.t(item.title),
+                b: common_vendor.t(item.note),
+                c: common_vendor.t(item.administrators.length),
+                d: item._id,
+                e: "93207a4f-10-" + i0 + "-" + i1 + "," + ("93207a4f-9-" + i0),
+                f: common_vendor.p({
+                  clickable: true,
+                  showArrow: true,
+                  to: "/pages/detail/detail?chartId=" + item._id,
+                  title: item.title,
+                  note: item.note
+                })
+              };
+            }),
+            d: "93207a4f-9-" + i0 + ",93207a4f-8",
+            e: "93207a4f-11-" + i0 + ",93207a4f-8",
+            f: common_vendor.p({
+              status: loading2 ? "loading" : hasMore ? "default" : "no-more"
+            }),
+            g: i0,
+            h: s0
+          });
+        }, {
+          name: "d",
+          path: "j",
+          vueId: "93207a4f-8,93207a4f-6"
+        }),
+        k: common_vendor.sr("adminDB", "93207a4f-8,93207a4f-6"),
+        l: common_vendor.p({
+          collection: "seat-chart",
+          ["page-size"]: 10,
+          field: `title,note,administrators`,
+          where: `in('${userinfo.value._id}', administrators)`,
+          orderby: "createTime desc"
+        }),
+        m: loading.value.adminDB,
+        n: common_vendor.o(($event) => onScrolltolower("adminDB")),
+        o: common_vendor.o(($event) => onRefresherrefresh("adminDB")),
+        p: common_vendor.p({
+          padding: "0"
+        }),
+        q: common_vendor.s(show.value ? "transition: all .5s ease; opacity: 1" : "")
       };
     };
   }

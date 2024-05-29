@@ -53,16 +53,18 @@ exports.main = async (event, context) => {
 	const chart = data[0];
 	const seatInfo = data[0].seats[seatIndex - 1];
 
-	const alreadySelected = Array.from(data[0].seats).find(v => v.stuInfo?.id == (edit ? userinfo.id : userinfo
-		._id));
-	if (alreadySelected)
-		return {
-			message: edit ? "此id已选座" : "您已选过座位",
-		};
-	if (!edit && seatInfo.status != 1)
-		return {
-			message: "座位已被占用",
-		};
+	if (!edit) {
+		const alreadySelected = Array.from(data[0].seats).find(v => v.stuInfo?.id == (userinfo
+			._id));
+		if (alreadySelected)
+			return {
+				message: "您已选过座位",
+			};
+		if (seatInfo.status != 1)
+			return {
+				message: "座位已被占用",
+			};
+	}
 
 	const selectTime = new Date()
 	if (edit) {
@@ -85,9 +87,9 @@ exports.main = async (event, context) => {
 					.update({
 						[`seats.${seatIndex - 1}.selectTime`]: selectTime,
 						[`seats.${seatIndex - 1}.stuInfo`]: _.set({
-							name: user.name,
+							name: userinfo.name,
 							id: user._id,
-							class: user.class,
+							class: userinfo.class,
 							avatar: user.avatarUrl,
 						}),
 					});
@@ -114,9 +116,9 @@ exports.main = async (event, context) => {
 					[`seats.${seatIndex - 1}.selectTime`]: selectTime,
 					[`seats.${seatIndex - 1}.orderId`]: orderResult.id,
 					[`seats.${seatIndex - 1}.stuInfo`]: _.set({
-						name: user.name,
+						name: userinfo.name,
 						id: user._id,
-						class: user.class,
+						class: userinfo.class,
 						avatar: user.avatarUrl,
 					}),
 				});

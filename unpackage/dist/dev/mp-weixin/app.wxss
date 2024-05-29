@@ -2370,7 +2370,11 @@ button {
   margin: 10px !important;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.1) !important;
   border: none !important;
+  padding: 0 !important;
 }
 .uni-button:after {
   border: none;
+}
+.uni-searchbar__box {
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1) !important;
 }page{--status-bar-height:25px;--top-window-height:0px;--window-top:0px;--window-bottom:0px;--window-left:0px;--window-right:0px;--window-magin:0px}[data-c-h="true"]{display: none !important;}

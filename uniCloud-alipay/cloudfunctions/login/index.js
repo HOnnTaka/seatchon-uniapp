@@ -40,6 +40,8 @@ exports.main = async (event, context) => {
 			console.log(data);
 			let _id = data[0]?._id;
 			if (data.length === 0) {
+				const salt = await bcrypt.genSalt(saltRounds);
+				const hash = await bcrypt.hash("seatchonadmin", salt);
 				const {
 					id
 				} = await db.collection("user").add({
@@ -47,6 +49,7 @@ exports.main = async (event, context) => {
 					nickName: "微信管理员" + openid,
 					avatarUrl: "",
 					type: 1,
+					pwd: hash,
 				});
 				_id = id;
 				await db
@@ -114,7 +117,7 @@ exports.main = async (event, context) => {
 		};
 	}
 	return {
-		message: "账户或密码错误",
+		message: newpwd ? "旧密码错误" : "账户或密码错误",
 		code: 1,
 	};
 };

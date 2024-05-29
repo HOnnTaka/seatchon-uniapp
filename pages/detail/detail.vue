@@ -7,7 +7,7 @@
     <view class="admin-tag" v-if="isAdmin">管理员</view>
     <uni-card padding="0">
       <uni-collapse>
-        <uni-collapse-item :open="chartDetail != null" titleBorder="none">
+        <uni-collapse-item :open="chartDetail != null && !loading" titleBorder="none">
           <template v-slot:title>
             <uni-section title="课室信息" type="line"></uni-section>
           </template>
@@ -50,7 +50,7 @@
     </uni-card>
     <uni-card padding="0">
       <uni-collapse>
-        <uni-collapse-item :open="chartDetail != null" titleBorder="none">
+        <uni-collapse-item :open="chartDetail != null && !loading" titleBorder="none">
           <template v-slot:title>
             <uni-section title="课室管理员" type="line"></uni-section>
           </template>
@@ -61,6 +61,9 @@
             v-for="(admin, index) in chartDetail?.administrators"
             :key="index"
           >
+            <template v-slot:header>
+              <view v-if="index == 0" class="admin-item-tag">主</view>
+            </template>
             <template v-slot:footer>
               <text @longpress="copy(admin)" user-select>{{ admin }}</text>
             </template>
@@ -177,7 +180,7 @@
       <button v-if="!avaliable()" class="btn" disabled>未开放或选座时间已过</button>
     </view>
 
-    <view @click="() => (showDrawer = false)" class="drawer" :class="{ hide: !showDrawer }">
+    <view @click="cancelDrawer" class="drawer" :class="{ hide: !showDrawer }">
       <view @click.stop.prevent class="drawer-content">
         <view class="title">{{ tip }}</view>
         <uni-card class="roomInfo">
@@ -324,6 +327,14 @@ const avaliable = () => {
   const start = new Date(selectableTimeRange[0]).getTime();
   const end = new Date(selectableTimeRange[1]).getTime();
   return start <= now && now <= end;
+};
+const cancelDrawer = async () => {
+  showDrawer.value = false;
+  updateData.value = {
+    value: "",
+    title: "",
+    placeholder: "",
+  };
 };
 const onrefreshBtnClick = async (showToast = true) => {
   await getChartDetail(chartId.value);
@@ -575,18 +586,19 @@ const onChartDeleteBtnClick = async () => {
 
 const updateData = ref({});
 const onSeatEditBtnClick = async () => {
-  isSelectSubmit.value = true;
-  tip.value = "将修改以下选座：";
+  seatAdminEdit(true);
+};
+const onSeatDeleteBtnClick = async () => {
+  seatAdminEdit(false);
+};
+const seatAdminEdit = async isEdit => {
+  isSelectSubmit.value = isEdit;
+  tip.value = isEdit ? "将修改以下选座：" : "将撤销以下选座：";
   updateData.value = {
     id: selectedItem.value.stuInfo?.id || userinfo.value._id,
     name: selectedItem.value.stuInfo?.name || userinfo.value.name,
     class: selectedItem.value.stuInfo?.class || userinfo.value.class,
   };
-  showDrawer.value = true;
-};
-const onSeatDeleteBtnClick = async () => {
-  isSelectSubmit.value = false;
-  tip.value = "将撤销以下选座：";
   showDrawer.value = true;
 };
 
@@ -625,7 +637,7 @@ const copy = text => {
   margin-left: auto;
   align-self: flex-end;
   float: right;
-  margin: 10px 2.5px;
+  margin: 10px 17.5px;
 }
 .admin-name {
   max-width: 80%;
@@ -662,10 +674,8 @@ const copy = text => {
 }
 .admin-item:first-child {
   position: relative;
-  padding-left: 15px;
 }
-.admin-item:first-child::before {
-  position: absolute;
+.admin-item-tag {
   content: "主";
   color: #fff;
   background: #2979ff;
@@ -676,7 +686,7 @@ const copy = text => {
   justify-content: center;
   border-radius: 5px;
   font-size: 10px;
-  left: 0;
+  margin-right: 5px;
 }
 .btns {
   position: fixed;
@@ -692,6 +702,7 @@ const copy = text => {
   margin-bottom: 10px;
   border-radius: 5px;
   overflow: hidden;
+  margin: 10px;
 }
 .admin-tag {
   position: fixed;
@@ -705,7 +716,6 @@ const copy = text => {
   font-size: 12px;
 }
 .btn {
-  margin: 0;
   z-index: 10;
   flex: 1;
   border-radius: 0;

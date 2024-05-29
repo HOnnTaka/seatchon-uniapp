@@ -21,7 +21,7 @@
   margin-left: auto;
   align-self: flex-end;
   float: right;
-  margin: 10px 2.5px;
+  margin: 10px 17.5px;
 }
 .admin-name.data-v-eca06f3c {
   max-width: 80%;
@@ -56,6 +56,22 @@
 .seat.selected.data-v-eca06f3c {
   border: 2px solid #3292ff;
 }
+.admin-item.data-v-eca06f3c:first-child {
+  position: relative;
+}
+.admin-item-tag.data-v-eca06f3c {
+  content: "主";
+  color: #fff;
+  background: #2979ff;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px;
+  font-size: 10px;
+  margin-right: 5px;
+}
 .btns.data-v-eca06f3c {
   position: fixed;
   bottom: 0;
@@ -70,6 +86,7 @@
   margin-bottom: 10px;
   border-radius: 5px;
   overflow: hidden;
+  margin: 10px;
 }
 .admin-tag.data-v-eca06f3c {
   position: fixed;
@@ -83,7 +100,6 @@
   font-size: 12px;
 }
 .btn.data-v-eca06f3c {
-  margin: 0;
   z-index: 10;
   flex: 1;
   border-radius: 0;

@@ -10,45 +10,43 @@
           <template v-slot:title>
             <uni-section title="我的信息" type="line"></uni-section>
           </template>
-          <uni-list class="userinfo">
-            <button
-              :loading="loading"
-              @longpress="onLongPress"
-              @chooseavatar="onChooseAvatar"
-              open-type="chooseAvatar"
-              hover-class="hover"
-              class="edit-avatar"
-            >
-              <uni-list-item :border="false" clickable showArrow>
-                <template v-slot:header>
-                  <text class="title">头像</text>
-                </template>
-                <template v-slot:footer>
-                  <image :src="userinfo.avatarUrl" />
-                </template>
-              </uni-list-item>
-            </button>
-            <uni-list-item clickable @click="edit('昵称', userinfo.nickName)" showArrow title="昵称">
+
+          <button
+            @longpress="onLongPress"
+            @chooseavatar="onChooseAvatar"
+            open-type="chooseAvatar"
+            hover-class="hover"
+            class="edit-avatar"
+          >
+            <uni-list-item clickable showArrow>
+              <template v-slot:header>
+                <text class="title">头像</text>
+              </template>
               <template v-slot:footer>
-                <view class="title">{{ userinfo.nickName }}</view>
+                <image :src="userinfo.avatarUrl" />
               </template>
             </uni-list-item>
-            <uni-list-item @longpress="copy(userinfo.name)" title="姓名">
-              <template v-slot:footer>
-                <text user-select selectable>{{ userinfo.name }}</text>
-              </template>
-            </uni-list-item>
-            <uni-list-item @longpress="copy(userinfo._id)" :title="userinfo.type == 1 ? '学号/id' : '学号'">
-              <template v-slot:footer>
-                <text user-select selectable>{{ userinfo._id }}</text>
-              </template>
-            </uni-list-item>
-            <uni-list-item title="班级">
-              <template v-slot:footer>
-                <text user-select selectable>{{ userinfo.class }}</text>
-              </template>
-            </uni-list-item>
-          </uni-list>
+          </button>
+          <uni-list-item clickable @click="edit('昵称', userinfo.nickName)" showArrow title="昵称">
+            <template v-slot:footer>
+              <view class="title">{{ userinfo.nickName }}</view>
+            </template>
+          </uni-list-item>
+          <uni-list-item @longpress="copy(userinfo.name)" title="姓名">
+            <template v-slot:footer>
+              <text user-select selectable>{{ userinfo.name }}</text>
+            </template>
+          </uni-list-item>
+          <uni-list-item @longpress="copy(userinfo._id)" :title="userinfo.type == 1 ? '学号/id' : '学号'">
+            <template v-slot:footer>
+              <text user-select selectable>{{ userinfo._id }}</text>
+            </template>
+          </uni-list-item>
+          <uni-list-item title="班级">
+            <template v-slot:footer>
+              <text user-select selectable>{{ userinfo.class }}</text>
+            </template>
+          </uni-list-item>
         </uni-collapse-item>
       </uni-collapse>
     </uni-card>
@@ -56,28 +54,30 @@
       <template v-slot:title>
         <uni-section title="登录" type="line"></uni-section>
       </template>
-      <uni-forms ref="form" :modelValue="formData">
-        <uni-forms-item label="账号" required name="id">
-          <uni-easyinput v-model="formData.id" placeholder="请输入账号/学号" />
-        </uni-forms-item>
-        <uni-forms-item label="密码" required name="pwd">
-          <uni-easyinput v-model="formData.pwd" type="password" placeholder="请输入密码" />
-        </uni-forms-item>
-      </uni-forms>
-      <button :loading="loading" class="uni-mb-5" type="primary" @click="submit('form')">登录</button>
+      <view style="padding: 10px">
+        <uni-forms ref="form" :modelValue="formData">
+          <uni-forms-item label="账号" required name="id">
+            <uni-easyinput v-model="formData.id" placeholder="请输入账号/学号" />
+          </uni-forms-item>
+          <uni-forms-item label="密码" required name="pwd">
+            <uni-easyinput v-model="formData.pwd" type="password" placeholder="请输入密码" />
+          </uni-forms-item>
+        </uni-forms>
+        <button :loading="loading" type="primary" @click="submit('form')">登录</button>
+      </view>
     </uni-card>
     <uni-card v-if="!userinfo" padding="0">
       <template v-slot:title>
         <uni-section title="管理员登录" type="line"></uni-section>
       </template>
-      <uni-forms ref="adminform" :modelValue="formData">
-        <uni-forms-item name="adminpwd">
-          <uni-easyinput v-model="formData.adminpwd" placeholder="请输入管理密码" />
-        </uni-forms-item>
-      </uni-forms>
-      <button :loading="loading" class="uni-mb-5" type="primary" @click="submit('adminform')">
-        管理员登录
-      </button>
+      <view style="padding: 10px">
+        <uni-forms ref="adminform" :modelValue="formData">
+          <uni-forms-item name="adminpwd">
+            <uni-easyinput v-model="formData.adminpwd" placeholder="请输入管理密码" />
+          </uni-forms-item>
+        </uni-forms>
+        <button :loading="loading" type="primary" @click="submit('adminform')">管理员登录</button>
+      </view>
     </uni-card>
 
     <uni-card v-if="userinfo" padding="0">
@@ -86,7 +86,7 @@
           <template v-slot:title>
             <uni-section title="修改密码" type="line"></uni-section>
           </template>
-          <view style="padding-bottom: 10px">
+          <view style="padding: 10px">
             <uni-forms ref="form1" :modelValue="formData" label-width="80px">
               <uni-forms-item label="旧密码" required name="pwd">
                 <uni-easyinput trim="both" v-model="formData.pwd" type="password" placeholder="请输入密码" />
@@ -114,13 +114,13 @@
       </uni-collapse>
     </uni-card>
 
-    <uni-card v-if="userinfo" padding="0">
+    <uni-card v-if="userinfo.type == 1" padding="0">
       <uni-collapse>
         <uni-collapse-item titleBorder="none">
           <template v-slot:title>
             <uni-section title="添加学生（管理员）" type="line"></uni-section>
           </template>
-          <view style="padding-bottom: 10px">
+          <view style="padding: 10px">
             <uni-forms ref="addStudentForm" :modelValue="addStudentformData" label-width="80px">
               <uni-forms-item label="学号/id" name="id">
                 <uni-easyinput
@@ -143,13 +143,32 @@
       </uni-collapse>
     </uni-card>
 
-    <uni-card v-if="userinfo" padding="0">
+    <uni-card v-if="userinfo.type == 1" padding="0">
+      <uni-collapse>
+        <uni-collapse-item titleBorder="none">
+          <template v-slot:title>
+            <uni-section title="重置密码（管理员）" type="line"></uni-section>
+          </template>
+          <view style="padding: 10px">
+            <uni-forms ref="resetPwdForm" :modelValue="resetPwdFormData" label-width="80px">
+              <uni-forms-item required label="学号/id" name="id">
+                <uni-easyinput trim="both" v-model="resetPwdFormData.id" placeholder="输入学号/id" />
+              </uni-forms-item>
+              <view style="margin-bottom: 5px; text-align: center; color: #ccc">初始密码为123456</view>
+            </uni-forms>
+            <button :loading="loading" type="primary" @click="resetPwdFormSubmit">确认</button>
+          </view>
+        </uni-collapse-item>
+      </uni-collapse>
+    </uni-card>
+
+    <uni-card v-if="userinfo.type == 1" padding="0">
       <uni-collapse>
         <uni-collapse-item titleBorder="none">
           <template v-slot:title>
             <uni-section title="批量添加学生（管理员）" type="line"></uni-section>
           </template>
-          <view style="padding-bottom: 10px">
+          <view style="padding: 10px">
             <button :loading="loading" type="primary" @click="submit('form1')">确认</button>
           </view>
         </uni-collapse-item>
@@ -212,7 +231,9 @@ const addStudentformData = ref({
   name: "",
   class: "",
 });
-
+const resetPwdFormData = ref({
+  id: "",
+});
 const resetFormData = () => {
   formData.value = {
     id: "",
@@ -225,7 +246,7 @@ const resetFormData = () => {
 onLoad(() => {});
 const rules = {
   id: {
-    rules: [{ required: true, errorMessage: "请输入账号/学号" }],
+    rules: [{ required: true, errorMessage: "请输入学号/id" }],
   },
   pwd: {
     rules: [{ required: true, errorMessage: "请输入密码" }],
@@ -274,6 +295,7 @@ onReady(async () => {
   page.$vm.$refs.form1?.setRules(rules);
   page.$vm.$refs.adminform?.setRules(rules);
   page.$vm.$refs.addStudentForm?.setRules(addStudentFormRules);
+  page.$vm.$refs.resetPwdForm?.setRules(rules);
 });
 const submit = async ref => {
   uni.showLoading({
@@ -551,6 +573,37 @@ const addStudentFormSubmit = async e => {
           showToast: true,
         });
       }
+    }
+  } catch (e) {
+    console.log(e);
+    uni.showToast({
+      title: e[0].errorMessage,
+      icon: "none",
+    });
+  }
+  loading.value = false;
+  uni.hideLoading();
+};
+const resetPwdFormSubmit = async e => {
+  uni.showLoading({
+    title: "加载中",
+    mask: true,
+  });
+  loading.value = true;
+  try {
+    let data = await page.$vm.$refs.resetPwdForm.validate();
+    console.log(data);
+    const db = uniCloud.database();
+    const { result: updateRes } = await db.collection("user").doc(data.id).update({
+      pwd: "$2a$10$WOW5NsssssCKafZZNDt9PO54RS1ZgoulTWhPl/1c5TTTnUI/w34Pq",
+    });
+    if (updateRes.updated > 0) {
+      uni.showToast({
+        title: "重置成功",
+        icon: "success",
+      });
+      loading.value = false;
+      return;
     }
   } catch (e) {
     console.log(e);
