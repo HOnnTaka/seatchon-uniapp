@@ -18,15 +18,16 @@
 		</uni-forms>
 		<uni-captcha v-if="needCaptcha" focus ref="captcha" scene="login-by-pwd" v-model="captcha" />
 		<!-- 带选择框的隐私政策协议组件 -->
-		<uni-id-pages-agreements scope="login" ref="agreements"></uni-id-pages-agreements>
+		<!-- <uni-id-pages-agreements scope="login" ref="agreements"></uni-id-pages-agreements> -->
 		<button class="uni-btn" type="primary" @click="pwdLogin">登录</button>
 		<!-- 忘记密码 -->
 		<view class="link-box">
 			<view v-if="!config.isAdmin">
 				<text class="forget">忘记了？</text>
-				<text class="link" @click="toRetrievePwd">找回密码</text>
+				<text class="link">联系管理员重置密码</text>
+				<!-- <text class="link" @click="toRetrievePwd">找回密码</text> -->
 			</view>
-			<text class="link" @click="toRegister">{{config.isAdmin ? '注册管理员账号': '注册账号'}}</text>
+			<!-- <text class="link" @click="toRegister">{{config.isAdmin ? '注册管理员账号': '注册账号'}}</text> -->
 			<!-- <text class="link" @click="toRegister" v-if="!config.isAdmin">注册账号</text> -->
 		</view>
 		<!-- 悬浮登录方式组件 -->

@@ -32,7 +32,13 @@
               <view class="title">{{ userinfo.nickName }}</view>
             </template>
           </uni-list-item>
-          <uni-list-item @longpress="copy(userinfo.name)" title="姓名">
+          <uni-list-item
+            :clickable="userinfo.type == 1"
+            :showArrow="userinfo.type == 1"
+            @click="edit('姓名', userinfo.name)"
+            @longpress="copy(userinfo.name)"
+            title="姓名"
+          >
             <template v-slot:footer>
               <text user-select selectable>{{ userinfo.name }}</text>
             </template>
@@ -42,7 +48,12 @@
               <text user-select selectable>{{ userinfo._id }}</text>
             </template>
           </uni-list-item>
-          <uni-list-item title="班级">
+          <uni-list-item
+            :clickable="userinfo.type == 1"
+            :showArrow="userinfo.type == 1"
+            @click="edit('班级', userinfo.class)"
+            title="班级"
+          >
             <template v-slot:footer>
               <text user-select selectable>{{ userinfo.class }}</text>
             </template>
@@ -121,23 +132,23 @@
             <uni-section title="添加学生（管理员）" type="line"></uni-section>
           </template>
           <view style="padding: 10px">
-            <uni-forms ref="addStudentForm" :modelValue="addStudentformData" label-width="80px">
+            <uni-forms ref="addStudentForm" :modelValue="addUserFormData" label-width="80px">
               <uni-forms-item label="学号/id" name="id">
                 <uni-easyinput
                   trim="both"
-                  v-model="addStudentformData.id"
+                  v-model="addUserFormData.id"
                   placeholder="输入学号/id（留空自动生成id）"
                 />
               </uni-forms-item>
               <uni-forms-item label="姓名" required name="name">
-                <uni-easyinput trim="both" v-model="addStudentformData.name" placeholder="请输入姓名" />
+                <uni-easyinput trim="both" v-model="addUserFormData.name" placeholder="请输入姓名" />
               </uni-forms-item>
               <uni-forms-item label="班级" required name="class">
-                <uni-easyinput trim="both" v-model="addStudentformData.class" placeholder="请输入班级" />
+                <uni-easyinput trim="both" v-model="addUserFormData.class" placeholder="请输入班级" />
               </uni-forms-item>
               <view style="margin-bottom: 5px; text-align: center; color: #ccc">初始密码为123456</view>
             </uni-forms>
-            <button :loading="loading" type="primary" @click="addStudentFormSubmit">确认</button>
+            <button :loading="loading" type="primary" @click="addUserFormSubmit">确认</button>
           </view>
         </uni-collapse-item>
       </uni-collapse>
@@ -162,7 +173,7 @@
       </uni-collapse>
     </uni-card>
 
-    <uni-card v-if="userinfo.type == 1" padding="0">
+    <!-- <uni-card v-if="userinfo.type == 1" padding="0">
       <uni-collapse>
         <uni-collapse-item titleBorder="none">
           <template v-slot:title>
@@ -170,6 +181,29 @@
           </template>
           <view style="padding: 10px">
             <button :loading="loading" type="primary" @click="submit('form1')">确认</button>
+          </view>
+        </uni-collapse-item>
+      </uni-collapse>
+    </uni-card> -->
+
+    <uni-card v-if="userinfo.type == 1" padding="0">
+      <uni-collapse>
+        <uni-collapse-item titleBorder="none">
+          <template v-slot:title>
+            <uni-section title="添加全局管理员（管理员）" type="line"></uni-section>
+          </template>
+          <view style="padding: 10px">
+            <uni-forms ref="addAdminForm" :modelValue="addUserFormData" label-width="80px">
+              <uni-forms-item label="id" name="id">
+                <uni-easyinput
+                  trim="both"
+                  v-model="addUserFormData.id"
+                  placeholder="输入学号/id（留空自动生成id）"
+                />
+              </uni-forms-item>
+              <view style="margin-bottom: 5px; text-align: center; color: #ccc">初始密码为123456</view>
+            </uni-forms>
+            <button :loading="loading" type="primary" @click="addUserFormSubmit(1)">确认</button>
           </view>
         </uni-collapse-item>
       </uni-collapse>
@@ -226,7 +260,7 @@ const formData = ref({
   newpwd: "",
   newpwd2: "",
 });
-const addStudentformData = ref({
+const addUserFormData = ref({
   id: "",
   name: "",
   class: "",
@@ -382,15 +416,21 @@ const submit = async ref => {
   uni.hideLoading();
 };
 
-const logout = () => {
+const logout = async () => {
   loading.value = true;
-  uni.setStorageSync("userinfo", "");
-  userinfo.value = "";
-  uni.showToast({
-    title: "退出登录成功",
-    icon: "success",
+  const logoutRes = await uniCloud.callFunction({
+    name: "logout",
   });
-  loading.value = false;
+  console.log(logoutRes);
+  if (logoutRes) {
+    uni.setStorageSync("userinfo", "");
+    userinfo.value = "";
+    uni.showToast({
+      title: "退出登录成功",
+      icon: "success",
+    });
+    loading.value = false;
+  }
 };
 
 const popupData = ref({
@@ -413,6 +453,8 @@ const edit = async (type, value) => {
 };
 const types = {
   昵称: "nickName",
+  姓名: "name",
+  班级: "class",
 };
 const dialogInputConfirm = async input => {
   const text = input.trim();
@@ -435,7 +477,7 @@ const dialogInputConfirm = async input => {
     if (type == "昵称") {
       userinfo.value.nickName = text;
     } else {
-      userinfo.value.stuInfo[types[type].replace("stuInfo.", "")] = text;
+      userinfo.value[types[type].replace("stuInfo.", "")] = text;
     }
     uni.setStorageSync("userinfo", userinfo.value);
     popupData.value = {};
@@ -523,14 +565,17 @@ const onChooseAvatar = async e => {
 };
 const ifRenderDialog = ref(false);
 
-const addStudentFormSubmit = async e => {
+const addUserFormSubmit = async (type = 0) => {
   uni.showLoading({
     title: "加载中",
     mask: true,
   });
   loading.value = true;
   try {
-    let data = await page.$vm.$refs.addStudentForm.validate();
+    let data =
+      type == 0
+        ? await page.$vm.$refs.addStudentForm.validate()
+        : await page.$vm.$refs.addAdminForm.validate();
     if (data.id != "") data._id = data.id;
     delete data.id;
     console.log(data);
@@ -546,30 +591,30 @@ const addStudentFormSubmit = async e => {
     }
     const { result: addRes } = await db.collection("user").add({
       ...data,
-      avatarUrl: data._id ? `https://api.multiavatar.com/${data._id}.png` : "",
+      avatarUrl: "",
       pwd: "$2a$10$WOW5NsssssCKafZZNDt9PO54RS1ZgoulTWhPl/1c5TTTnUI/w34Pq",
-      type: 0,
+      type: type,
     });
     console.log(addRes.id);
     if (addRes.id) {
-      if (!data._id) {
-        const { result: updateRes } = await db
-          .collection("user")
-          .doc(addRes._id)
-          .update({
-            avatarUrl: `https://api.multiavatar.com/${addRes.id}.png`,
-          });
-      }
+      const { result: updateRes } = await db
+        .collection("user")
+        .doc(addRes.id)
+        .update({
+          avatarUrl: `https://api.multiavatar.com/${addRes.id}.png`,
+          nickName: `微信管理员${addRes.id}`,
+        });
+      console.log(updateRes);
       const copyComfirm = await uni.showModal({
         title: "添加成功",
         content: "id:" + addRes.id,
         showCancel: true,
         confirmText: "复制",
       });
-      addStudentformData.value = {};
+      addUserFormData.value = {};
       if (copyComfirm.confirm) {
         uni.setClipboardData({
-          data: addRes._id,
+          data: addRes.id,
           showToast: true,
         });
       }

@@ -151,9 +151,9 @@
 	}
 
 	.checkbox-box ::v-deep .uni-checkbox-input.uni-checkbox-input-checked{
-		border-color: $uni-color-primary;
+		border-color: #ccc;
 		color: #FFFFFF !important;
-		background-color: $uni-color-primary;
+		background-color: #ccc;
 	}
 	
 	.content{

@@ -27,7 +27,7 @@
             :where="`userId=='${userinfo._id}'`"
             orderby="orderTime desc"
           >
-            <view v-if="error">{{ error.message }}</view>
+            <view v-if="error" class="error">{{ console.log(error.message) }}获取列表失败,下拉刷新试试？</view>
             <uni-list>
               <uni-list-item
                 v-for="(item, index) in data"
@@ -83,7 +83,7 @@
           :where="`in('${userinfo._id}', administrators)`"
           orderby="createTime desc"
         >
-          <view v-if="error">{{ error.message }}</view>
+          <view v-if="error" class="error">{{ console.log(error.message) }}获取列表失败,下拉刷新试试？</view>
           <uni-list>
             <uni-list-item
               v-for="(item, index) in data"
@@ -174,6 +174,12 @@ onPullDownRefresh(() => {
 .orderScrollBox,
 .adminScrollBox {
   height: calc((100vh - var(--window-bottom) - var(--window-top)) / 2 - 60px);
+}
+.error {
+  padding: 10px;
+  text-align: center;
+  background: #ff7626;
+  color: #fff;
 }
 .item-content{
   margin-top: 10px;

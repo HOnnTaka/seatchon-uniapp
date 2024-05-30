@@ -43,7 +43,7 @@
           :where="where"
           class="DBBox"
         >
-          <view v-if="error" class="error">{{ error.message }},下拉刷新试试？</view>
+          <view v-if="error" class="error">{{ console.log(error.message) }}获取列表失败,下拉刷新试试？</view>
           <uni-list showArrow>
             <uni-list-item
               v-for="(item, index) in data"
@@ -161,6 +161,9 @@ const onItemClick = async item => {
     });
 
     if (confirm.confirm) {
+      // uni.navigateTo({
+      //   url: "/uni_modules/uni-id-pages/pages/login/login-withpwd",
+      // });
       uni.switchTab({
         url: "/pages/user/user",
       });
@@ -216,6 +219,7 @@ const fabClick = () => {
   padding: 10px;
   text-align: center;
   background: #ff7626;
+  color: #fff;
 }
 .item-note {
   color: #666;

@@ -1,6 +1,9 @@
 <script>
+import uniIdPageInit from "@/uni_modules/uni-id-pages/init.js";
 export default {
-  onLaunch: async () => {},
+  onLaunch: async () => {
+    await uniIdPageInit();
+  },
   onShow() {},
   onHide() {},
   globalData: {},
@@ -10,6 +13,15 @@ export default {
       title: "出错了",
       icon: "error",
       mask: true,
+    });
+    uni.getNetworkType(res => {
+      if (res.networkType == "none") {
+        uni.showToast({
+          title: "网络异常，请检查网络",
+          icon: "none",
+          mask: true,
+        });
+      }
     });
   },
 };
