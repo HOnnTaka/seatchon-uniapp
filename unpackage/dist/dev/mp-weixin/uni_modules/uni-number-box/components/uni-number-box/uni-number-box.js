@@ -35,6 +35,10 @@ const _sfc_main = {
     disabled: {
       type: Boolean,
       default: false
+    },
+    width: {
+      type: Number,
+      default: 40
     }
   },
   data() {
@@ -48,6 +52,11 @@ const _sfc_main = {
     },
     modelValue(val) {
       this.inputValue = +val;
+    }
+  },
+  computed: {
+    widthWithPx() {
+      return this.width + "px";
     }
   },
   created() {
@@ -85,9 +94,9 @@ const _sfc_main = {
         }
       }
       this.inputValue = (value / scale).toFixed(String(scale).length - 1);
-      this.$emit("change", +this.inputValue);
       this.$emit("input", +this.inputValue);
       this.$emit("update:modelValue", +this.inputValue);
+      this.$emit("change", +this.inputValue);
     },
     _getDecimalScale() {
       let scale = 1;
@@ -100,7 +109,7 @@ const _sfc_main = {
       this.$emit("blur", event);
       let value = event.detail.value;
       if (isNaN(value)) {
-        this.inputValue = this.min;
+        this.inputValue = this.value;
         return;
       }
       value = +value;
@@ -111,9 +120,9 @@ const _sfc_main = {
       }
       const scale = this._getDecimalScale();
       this.inputValue = value.toFixed(String(scale).length - 1);
-      this.$emit("change", +this.inputValue);
       this.$emit("input", +this.inputValue);
       this.$emit("update:modelValue", +this.inputValue);
+      this.$emit("change", +this.inputValue);
     },
     _onFocus(event) {
       this.$emit("focus", event);
@@ -129,14 +138,16 @@ function _sfc_render(_ctx, _cache, $props, $setup, $data, $options) {
     e: $props.disabled,
     f: common_vendor.o((...args) => $options._onFocus && $options._onFocus(...args)),
     g: common_vendor.o((...args) => $options._onBlur && $options._onBlur(...args)),
-    h: $props.background,
-    i: $props.color,
-    j: $data.inputValue,
-    k: common_vendor.o(($event) => $data.inputValue = $event.detail.value),
-    l: $data.inputValue >= $props.max || $props.disabled ? 1 : "",
-    m: $props.color,
-    n: common_vendor.o(($event) => $options._calcValue("plus")),
-    o: $props.background
+    h: $props.step < 1 ? "digit" : "number",
+    i: $props.background,
+    j: $props.color,
+    k: $options.widthWithPx,
+    l: $data.inputValue,
+    m: common_vendor.o(($event) => $data.inputValue = $event.detail.value),
+    n: $data.inputValue >= $props.max || $props.disabled ? 1 : "",
+    o: $props.color,
+    p: common_vendor.o(($event) => $options._calcValue("plus")),
+    q: $props.background
   };
 }
 const Component = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["render", _sfc_render], ["__file", "D:/code/seatchon-uniapp/uni_modules/uni-number-box/components/uni-number-box/uni-number-box.vue"]]);

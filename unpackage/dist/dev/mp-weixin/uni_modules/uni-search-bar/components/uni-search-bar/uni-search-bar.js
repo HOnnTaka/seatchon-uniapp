@@ -26,11 +26,15 @@ const _sfc_main = {
     },
     cancelText: {
       type: String,
-      default: "取消"
+      default: ""
     },
     bgColor: {
       type: String,
       default: "#F8F8F8"
+    },
+    textColor: {
+      type: String,
+      default: "#000000"
     },
     maxlength: {
       type: [Number, String],
@@ -109,10 +113,10 @@ const _sfc_main = {
       });
     },
     clear() {
-      this.$emit("clear", {
-        value: this.searchVal
-      });
       this.searchVal = "";
+      this.$nextTick(() => {
+        this.$emit("clear", { value: "" });
+      });
     },
     cancel() {
       if (this.readonly)
@@ -163,30 +167,31 @@ function _sfc_render(_ctx, _cache, $props, $setup, $data, $options) {
     d: $props.readonly,
     e: $options.placeholderText,
     f: $props.maxlength,
-    g: common_vendor.o((...args) => $options.confirm && $options.confirm(...args)),
-    h: common_vendor.o((...args) => $options.blur && $options.blur(...args)),
-    i: common_vendor.o((...args) => $options.emitFocus && $options.emitFocus(...args)),
-    j: $data.searchVal,
-    k: common_vendor.o(($event) => $data.searchVal = $event.detail.value)
+    g: $props.textColor,
+    h: common_vendor.o((...args) => $options.confirm && $options.confirm(...args)),
+    i: common_vendor.o((...args) => $options.blur && $options.blur(...args)),
+    j: common_vendor.o((...args) => $options.emitFocus && $options.emitFocus(...args)),
+    k: $data.searchVal,
+    l: common_vendor.o(($event) => $data.searchVal = $event.detail.value)
   } : {
-    l: common_vendor.t($props.placeholder)
+    m: common_vendor.t($props.placeholder)
   }, {
-    m: $data.show && ($props.clearButton === "always" || $props.clearButton === "auto" && $data.searchVal !== "") && !$props.readonly
+    n: $data.show && ($props.clearButton === "always" || $props.clearButton === "auto" && $data.searchVal !== "") && !$props.readonly
   }, $data.show && ($props.clearButton === "always" || $props.clearButton === "auto" && $data.searchVal !== "") && !$props.readonly ? {
-    n: common_vendor.p({
+    o: common_vendor.p({
       color: "#c0c4cc",
       size: "20",
       type: "clear"
     }),
-    o: common_vendor.o((...args) => $options.clear && $options.clear(...args))
+    p: common_vendor.o((...args) => $options.clear && $options.clear(...args))
   } : {}, {
-    p: $props.radius + "px",
-    q: $props.bgColor,
-    r: common_vendor.o((...args) => $options.searchClick && $options.searchClick(...args)),
-    s: $props.cancelButton === "always" || $data.show && $props.cancelButton === "auto"
+    q: $props.radius + "px",
+    r: $props.bgColor,
+    s: common_vendor.o((...args) => $options.searchClick && $options.searchClick(...args)),
+    t: $props.cancelButton === "always" || $data.show && $props.cancelButton === "auto"
   }, $props.cancelButton === "always" || $data.show && $props.cancelButton === "auto" ? {
-    t: common_vendor.t($options.cancelTextI18n),
-    v: common_vendor.o((...args) => $options.cancel && $options.cancel(...args))
+    v: common_vendor.t($options.cancelTextI18n),
+    w: common_vendor.o((...args) => $options.cancel && $options.cancel(...args))
   } : {});
 }
 const Component = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["render", _sfc_render], ["__file", "D:/code/seatchon-uniapp/uni_modules/uni-search-bar/components/uni-search-bar/uni-search-bar.vue"]]);

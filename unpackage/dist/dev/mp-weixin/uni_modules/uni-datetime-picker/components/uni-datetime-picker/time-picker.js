@@ -2,7 +2,9 @@
 const common_vendor = require("../../../../common/vendor.js");
 const uni_modules_uniDatetimePicker_components_uniDatetimePicker_i18n_index = require("./i18n/index.js");
 const uni_modules_uniDatetimePicker_components_uniDatetimePicker_util = require("./util.js");
-const { t } = common_vendor.initVueI18n(uni_modules_uniDatetimePicker_components_uniDatetimePicker_i18n_index.i18nMessages);
+const {
+  t
+} = common_vendor.initVueI18n(uni_modules_uniDatetimePicker_components_uniDatetimePicker_i18n_index.i18nMessages);
 const _sfc_main = {
   name: "UniDatetimePicker",
   data() {
@@ -37,6 +39,9 @@ const _sfc_main = {
       endMinute: 59,
       endSecond: 59
     };
+  },
+  options: {
+    virtualHost: true
   },
   props: {
     type: {
@@ -501,13 +506,6 @@ const _sfc_main = {
     // 每个月的实际天数
     daysInMonth(year, month) {
       return new Date(year, month, 0).getDate();
-    },
-    //兼容 iOS、safari 日期格式
-    fixIosDateFormat(value) {
-      if (typeof value === "string") {
-        value = value.replace(/-/g, "/");
-      }
-      return value;
     },
     /**
      * 生成时间戳

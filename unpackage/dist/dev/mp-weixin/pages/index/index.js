@@ -34,9 +34,9 @@ const _sfc_main = {
     common_vendor.onLoad(async () => {
     });
     common_vendor.onShow(async () => {
-      common_vendor.index.startPullDownRefresh();
       setTimeout(() => {
         show.value = true;
+        common_vendor.index.startPullDownRefresh();
       }, 100);
     });
     common_vendor.onHide(async () => {
@@ -46,6 +46,7 @@ const _sfc_main = {
       var _a;
       loading.value = true;
       userinfo.value = common_vendor.index.getStorageSync("userinfo");
+      console.log(userinfo.value);
       await ((_a = page.$vm.$refs.udb) == null ? void 0 : _a.loadData({ clear: true }));
       setTimeout(() => {
         common_vendor.index.stopPullDownRefresh();
@@ -143,7 +144,7 @@ const _sfc_main = {
           return common_vendor.e({
             a: error
           }, error ? {
-            b: common_vendor.t(error.message)
+            b: common_vendor.t(console.log(error.message))
           } : {}, {
             c: common_vendor.f(data, (item, index, i1) => {
               return {

@@ -8,7 +8,13 @@
 .adminScrollBox.data-v-93207a4f {
   height: calc((100vh - var(--window-bottom) - var(--window-top)) / 2 - 60px);
 }
-.item-content.data-v-93207a4f{
+.error.data-v-93207a4f {
+  padding: 10px;
+  text-align: center;
+  background: #ff7626;
+  color: #fff;
+}
+.item-content.data-v-93207a4f {
   margin-top: 10px;
 }
 .item-title.data-v-93207a4f {

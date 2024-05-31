@@ -4,11 +4,16 @@ const common_vendor = require("../../../../common/vendor.js");
 const uni_modules_uniDatetimePicker_components_uniDatetimePicker_i18n_index = require("./i18n/index.js");
 const calendarItem = () => "./calendar-item.js";
 const timePicker = () => "./time-picker.js";
-const { t } = common_vendor.initVueI18n(uni_modules_uniDatetimePicker_components_uniDatetimePicker_i18n_index.i18nMessages);
+const {
+  t
+} = common_vendor.initVueI18n(uni_modules_uniDatetimePicker_components_uniDatetimePicker_i18n_index.i18nMessages);
 const _sfc_main = {
   components: {
     calendarItem,
     timePicker
+  },
+  options: {
+    virtualHost: true
   },
   props: {
     date: {
@@ -329,7 +334,9 @@ const _sfc_main = {
       this.cale.setDate(date || /* @__PURE__ */ new Date());
       this.weeks = this.cale.weeks;
       this.nowDate = this.cale.getInfo(date);
-      this.calendar = { ...this.nowDate };
+      this.calendar = {
+        ...this.nowDate
+      };
       if (!date) {
         this.calendar.fullDate = "";
         if (this.defaultValue && !this.range) {
@@ -387,8 +394,8 @@ const _sfc_main = {
     /**
      * 变化触发
      */
-    change() {
-      if (!this.insert)
+    change(isSingleChange) {
+      if (!this.insert && !isSingleChange)
         return;
       this.setEmit("change");
     },
@@ -458,7 +465,7 @@ const _sfc_main = {
         this.tempRange.before = this.cale.multipleStatus.before;
         this.tempRange.after = this.cale.multipleStatus.after;
       }
-      this.change();
+      this.change(true);
     },
     changeMonth(type) {
       let newDate;
@@ -507,7 +514,7 @@ function _sfc_render(_ctx, _cache, $props, $setup, $data, $options) {
     i: common_vendor.o(($event) => $options.changeMonth("next")),
     j: !$props.insert
   }, !$props.insert ? {
-    k: common_vendor.o((...args) => $options.close && $options.close(...args))
+    k: common_vendor.o((...args) => $options.maskClick && $options.maskClick(...args))
   } : {}, {
     l: !$props.insert ? 1 : "",
     m: $props.showMonth

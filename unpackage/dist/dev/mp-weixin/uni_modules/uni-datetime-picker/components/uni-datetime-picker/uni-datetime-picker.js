@@ -300,17 +300,26 @@ const _sfc_main = {
       right.setDate(this.$refs.right.nowDate.fullDate);
     },
     platform() {
-      const { windowWidth } = common_vendor.index.getSystemInfoSync();
+      if (typeof navigator !== "undefined") {
+        this.isPhone = navigator.userAgent.toLowerCase().indexOf("mobile") !== -1;
+        return;
+      }
+      const {
+        windowWidth
+      } = common_vendor.index.getSystemInfoSync();
       this.isPhone = windowWidth <= 500;
       this.windowWidth = windowWidth;
     },
     show() {
+      this.$emit("show");
       if (this.disabled) {
         return;
       }
       this.platform();
       if (this.isPhone) {
-        this.$refs.mobile.open();
+        setTimeout(() => {
+          this.$refs.mobile.open();
+        }, 0);
         return;
       }
       this.pickerPositionStyle = {
@@ -335,8 +344,9 @@ const _sfc_main = {
               this.$refs.right.changeMonth("pre");
             }
           } else {
-            this.$refs.right.changeMonth("next");
-            this.$refs.right.cale.lastHover = false;
+            if (this.isPhone) {
+              this.$refs.right.cale.lastHover = false;
+            }
           }
         }
       }, 50);
@@ -448,6 +458,7 @@ const _sfc_main = {
         fulldate: e.fulldate
       };
       this.startMultipleStatus = Object.assign({}, this.startMultipleStatus, obj);
+      this.$emit("calendarClick", e);
     },
     rightChange(e) {
       const {
@@ -462,11 +473,15 @@ const _sfc_main = {
         fulldate: e.fulldate
       };
       this.endMultipleStatus = Object.assign({}, this.endMultipleStatus, obj);
+      this.$emit("calendarClick", e);
     },
     mobileChange(e) {
       if (this.isRange) {
-        const { before, after } = e.range;
-        if (!before || !after) {
+        const {
+          before,
+          after
+        } = e.range;
+        if (!before) {
           return;
         }
         this.handleStartAndEnd(before, after, true);
@@ -578,8 +593,10 @@ const _sfc_main = {
       this.pickerVisible = false;
     },
     handleStartAndEnd(before, after, temp = false) {
-      if (!(before && after))
+      if (!before)
         return;
+      if (!after)
+        after = before;
       const type = temp ? "tempRange" : "range";
       const isStartEarlierEnd = uni_modules_uniDatetimePicker_components_uniDatetimePicker_util.dateCompare(before, after);
       this[type].startDate = isStartEarlierEnd ? before : after;
@@ -637,6 +654,9 @@ const _sfc_main = {
           this.$emit("update:modelValue", []);
         }
       }
+    },
+    calendarClick(e) {
+      this.$emit("calendarClick", e);
     }
   }
 };
@@ -799,7 +819,8 @@ function _sfc_render(_ctx, _cache, $props, $setup, $data, $options) {
     at: common_vendor.sr("mobile", "514eda9c-10"),
     av: common_vendor.o($options.mobileChange),
     aw: common_vendor.o($options.close),
-    ax: common_vendor.p({
+    ax: common_vendor.o($options.calendarClick),
+    ay: common_vendor.p({
       clearDate: false,
       date: $data.calendarDate,
       defTime: $options.mobileCalendarTime,

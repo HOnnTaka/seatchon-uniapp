@@ -126,7 +126,10 @@ class Calendar {
         beforeMultiple: this.isLogicBefore(currentDate, this.multipleStatus.before, this.multipleStatus.after),
         afterMultiple: this.isLogicAfter(currentDate, this.multipleStatus.before, this.multipleStatus.after),
         month: dateObj.month,
-        disable: this.startDate && !dateCompare(this.startDate, currentDate) || this.endDate && !dateCompare(currentDate, this.endDate),
+        disable: this.startDate && !dateCompare(this.startDate, currentDate) || this.endDate && !dateCompare(
+          currentDate,
+          this.endDate
+        ),
         isToday,
         userChecked: false,
         extraInfo: info
@@ -228,6 +231,7 @@ class Calendar {
     } else {
       if (!before) {
         this.multipleStatus.before = fullDate;
+        this.multipleStatus.after = void 0;
         this.lastHover = false;
       } else {
         this.multipleStatus.after = fullDate;
@@ -247,7 +251,9 @@ class Calendar {
   setHoverMultiple(fullDate) {
     if (!this.range || this.lastHover)
       return;
-    const { before } = this.multipleStatus;
+    const {
+      before
+    } = this.multipleStatus;
     if (!before) {
       this.multipleStatus.before = fullDate;
     } else {
@@ -341,7 +347,7 @@ function checkDate(date) {
   const dateReg = /((19|20)\d{2})(-|\/)\d{1,2}(-|\/)\d{1,2}/g;
   return date.match(dateReg);
 }
-const dateTimeReg = /^\d{4}-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])( [0-5][0-9]:[0-5][0-9]:[0-5][0-9])?$/;
+const dateTimeReg = /^\d{4}-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])( [0-5]?[0-9]:[0-5]?[0-9](:[0-5]?[0-9])?)?$/;
 function fixIosDateFormat(value) {
   if (typeof value === "string" && dateTimeReg.test(value)) {
     value = value.replace(/-/g, "/");

@@ -37,6 +37,7 @@ button[type=primary].data-v-1cf27b2a {
   padding: 10px;
   text-align: center;
   background: #ff7626;
+  color: #fff;
 }
 .item-note.data-v-1cf27b2a {
   color: #666;

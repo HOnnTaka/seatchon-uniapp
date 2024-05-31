@@ -8007,24 +8007,6 @@ const pages = [
       navigationBarTitleText: "预定",
       enablePullDownRefresh: true
     }
-  },
-  {
-    path: "pages/user/add",
-    style: {
-      navigationBarTitleText: "新增"
-    }
-  },
-  {
-    path: "pages/user/edit",
-    style: {
-      navigationBarTitleText: "编辑"
-    }
-  },
-  {
-    path: "pages/user/list",
-    style: {
-      navigationBarTitleText: "列表"
-    }
   }
 ];
 const tabBar = {

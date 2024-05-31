@@ -102,9 +102,9 @@ const loading = ref(false);
 const where = ref("");
 onLoad(async () => {});
 onShow(async () => {
-  uni.startPullDownRefresh();
   setTimeout(() => {
     show.value = true;
+    uni.startPullDownRefresh();
   }, 100);
 });
 
@@ -114,6 +114,7 @@ onHide(async () => {
 const onRefresherrefresh = async () => {
   loading.value = true;
   userinfo.value = uni.getStorageSync("userinfo");
+  console.log(userinfo.value);
   await page.$vm.$refs.udb?.loadData({ clear: true });
   setTimeout(() => {
     uni.stopPullDownRefresh();

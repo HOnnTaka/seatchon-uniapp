@@ -58,7 +58,7 @@ const _sfc_main = {
       newpwd: "",
       newpwd2: ""
     });
-    const addStudentformData = common_vendor.ref({
+    const addUserFormData = common_vendor.ref({
       id: "",
       name: "",
       class: ""
@@ -146,6 +146,7 @@ const _sfc_main = {
               name: "login",
               data: { adminpwd: data.adminpwd, code }
             });
+            common_vendor.index.hideLoading();
             console.log(result);
             common_vendor.index.showToast({
               title: result.message,
@@ -172,6 +173,7 @@ const _sfc_main = {
         try {
           console.log(data, userinfo.value);
           const { result } = await common_vendor.Ws.callFunction({ name: "login", data });
+          common_vendor.index.hideLoading();
           console.log(result);
           common_vendor.index.showToast({
             title: result.message,
@@ -179,10 +181,15 @@ const _sfc_main = {
           });
           if (result.code != 1) {
             if (result.code != 3) {
-              common_vendor.index.setStorageSync("userinfo", result.userinfo);
+              console.log(result.userinfo);
               userinfo.value = result.userinfo;
-              common_vendor.index.reLaunch({
+              common_vendor.index.setStorageSync("userinfo", result.userinfo);
+              common_vendor.index.setStorageSync("token", result.token);
+              common_vendor.index.switchTab({
                 url: "/pages/user/user"
+              });
+              setTimeout(() => {
+                show.value = true;
               });
               if (result.code == 2) {
                 common_vendor.index.showToast({
@@ -210,21 +217,27 @@ const _sfc_main = {
           icon: "error",
           duration: 2e3
         });
+        common_vendor.index.hideLoading();
         loading.value = false;
         return;
       }
       loading.value = false;
-      common_vendor.index.hideLoading();
     };
-    const logout = () => {
+    const logout = async () => {
       loading.value = true;
-      common_vendor.index.setStorageSync("userinfo", "");
-      userinfo.value = "";
-      common_vendor.index.showToast({
-        title: "退出登录成功",
-        icon: "success"
+      const logoutRes = await common_vendor.Ws.callFunction({
+        name: "logout"
       });
-      loading.value = false;
+      console.log(logoutRes);
+      if (logoutRes) {
+        common_vendor.index.setStorageSync("userinfo", "");
+        userinfo.value = "";
+        common_vendor.index.showToast({
+          title: "退出登录成功",
+          icon: "success"
+        });
+        loading.value = false;
+      }
     };
     const popupData = common_vendor.ref({
       value: "",
@@ -244,7 +257,9 @@ const _sfc_main = {
       });
     };
     const types = {
-      昵称: "nickName"
+      昵称: "nickName",
+      姓名: "name",
+      班级: "class"
     };
     const dialogInputConfirm = async (input) => {
       const text = input.trim();
@@ -263,7 +278,7 @@ const _sfc_main = {
         if (type == "昵称") {
           userinfo.value.nickName = text;
         } else {
-          userinfo.value.stuInfo[types[type].replace("stuInfo.", "")] = text;
+          userinfo.value[types[type].replace("stuInfo.", "")] = text;
         }
         common_vendor.index.setStorageSync("userinfo", userinfo.value);
         popupData.value = {};
@@ -338,14 +353,14 @@ const _sfc_main = {
       });
     };
     const ifRenderDialog = common_vendor.ref(false);
-    const addStudentFormSubmit = async (e) => {
+    const addUserFormSubmit = async (type = 0) => {
       common_vendor.index.showLoading({
         title: "加载中",
         mask: true
       });
       loading.value = true;
       try {
-        let data = await page.$vm.$refs.addStudentForm.validate();
+        let data = type == 0 ? await page.$vm.$refs.addStudentForm.validate() : await page.$vm.$refs.addAdminForm.validate();
         if (data.id != "")
           data._id = data.id;
         delete data.id;
@@ -362,35 +377,35 @@ const _sfc_main = {
         }
         const { result: addRes } = await db.collection("user").add({
           ...data,
-          avatarUrl: data._id ? `https://api.multiavatar.com/${data._id}.png` : "",
+          avatarUrl: "",
           pwd: "$2a$10$WOW5NsssssCKafZZNDt9PO54RS1ZgoulTWhPl/1c5TTTnUI/w34Pq",
-          type: 0
+          type
         });
         console.log(addRes.id);
         if (addRes.id) {
-          if (!data._id) {
-            const { result: updateRes } = await db.collection("user").doc(addRes._id).update({
-              avatarUrl: `https://api.multiavatar.com/${addRes.id}.png`
-            });
-          }
+          const { result: updateRes } = await db.collection("user").doc(addRes.id).update({
+            avatarUrl: `https://api.multiavatar.com/${addRes.id}.png`,
+            nickName: `微信管理员${addRes.id}`
+          });
+          console.log(updateRes);
           const copyComfirm = await common_vendor.index.showModal({
             title: "添加成功",
             content: "id:" + addRes.id,
             showCancel: true,
             confirmText: "复制"
           });
-          addStudentformData.value = {};
+          addUserFormData.value = {};
           if (copyComfirm.confirm) {
             common_vendor.index.setClipboardData({
-              data: addRes._id,
+              data: addRes.id,
               showToast: true
             });
           }
         }
-      } catch (e2) {
-        console.log(e2);
+      } catch (e) {
+        console.log(e);
         common_vendor.index.showToast({
-          title: e2[0].errorMessage,
+          title: e[0].errorMessage,
           icon: "none"
         });
       }
@@ -451,265 +466,262 @@ const _sfc_main = {
           title: "昵称"
         }),
         j: common_vendor.t(userinfo.value.name),
-        k: common_vendor.o(($event) => copy(userinfo.value.name)),
-        l: common_vendor.p({
+        k: common_vendor.o(($event) => edit("姓名", userinfo.value.name)),
+        l: common_vendor.o(($event) => copy(userinfo.value.name)),
+        m: common_vendor.p({
+          clickable: userinfo.value.type == 1,
+          showArrow: userinfo.value.type == 1,
           title: "姓名"
         }),
-        m: common_vendor.t(userinfo.value._id),
-        n: common_vendor.o(($event) => copy(userinfo.value._id)),
-        o: common_vendor.p({
+        n: common_vendor.t(userinfo.value._id),
+        o: common_vendor.o(($event) => copy(userinfo.value._id)),
+        p: common_vendor.p({
           title: userinfo.value.type == 1 ? "学号/id" : "学号"
         }),
-        p: common_vendor.t(userinfo.value.class),
-        q: common_vendor.p({
+        q: common_vendor.t(userinfo.value.class),
+        r: common_vendor.o(($event) => edit("班级", userinfo.value.class)),
+        s: common_vendor.p({
+          clickable: userinfo.value.type == 1,
+          showArrow: userinfo.value.type == 1,
           title: "班级"
         }),
-        r: common_vendor.p({
+        t: common_vendor.p({
           open: show.value,
           titleBorder: "none"
         }),
-        s: common_vendor.p({
+        v: common_vendor.p({
           padding: "0"
         })
       } : {}, {
-        t: !userinfo.value
+        w: !userinfo.value
       }, !userinfo.value ? {
-        v: common_vendor.p({
+        x: common_vendor.p({
           title: "登录",
           type: "line"
         }),
-        w: common_vendor.o(($event) => formData.value.id = $event),
-        x: common_vendor.p({
+        y: common_vendor.o(($event) => formData.value.id = $event),
+        z: common_vendor.p({
           placeholder: "请输入账号/学号",
           modelValue: formData.value.id
         }),
-        y: common_vendor.p({
+        A: common_vendor.p({
           label: "账号",
           required: true,
           name: "id"
         }),
-        z: common_vendor.o(($event) => formData.value.pwd = $event),
-        A: common_vendor.p({
+        B: common_vendor.o(($event) => formData.value.pwd = $event),
+        C: common_vendor.p({
           type: "password",
           placeholder: "请输入密码",
           modelValue: formData.value.pwd
         }),
-        B: common_vendor.p({
+        D: common_vendor.p({
           label: "密码",
           required: true,
           name: "pwd"
         }),
-        C: common_vendor.sr("form", "0f7520f0-11,0f7520f0-9"),
-        D: common_vendor.p({
+        E: common_vendor.sr("form", "0f7520f0-11,0f7520f0-9"),
+        F: common_vendor.p({
           modelValue: formData.value
         }),
-        E: loading.value,
-        F: common_vendor.o(($event) => submit("form")),
-        G: common_vendor.p({
-          padding: "0"
-        })
-      } : {}, {
-        H: !userinfo.value
-      }, !userinfo.value ? {
+        G: loading.value,
+        H: common_vendor.o(($event) => submit("form")),
         I: common_vendor.p({
-          title: "管理员登录",
-          type: "line"
-        }),
-        J: common_vendor.o(($event) => formData.value.adminpwd = $event),
-        K: common_vendor.p({
-          placeholder: "请输入管理密码",
-          modelValue: formData.value.adminpwd
-        }),
-        L: common_vendor.p({
-          name: "adminpwd"
-        }),
-        M: common_vendor.sr("adminform", "0f7520f0-18,0f7520f0-16"),
-        N: common_vendor.p({
-          modelValue: formData.value
-        }),
-        O: loading.value,
-        P: common_vendor.o(($event) => submit("adminform")),
-        Q: common_vendor.p({
           padding: "0"
         })
       } : {}, {
-        R: userinfo.value
+        J: userinfo.value
       }, userinfo.value ? {
-        S: common_vendor.p({
+        K: common_vendor.p({
           title: "修改密码",
           type: "line"
         }),
-        T: common_vendor.o(($event) => formData.value.pwd = $event),
-        U: common_vendor.p({
+        L: common_vendor.o(($event) => formData.value.pwd = $event),
+        M: common_vendor.p({
           trim: "both",
           type: "password",
           placeholder: "请输入密码",
           modelValue: formData.value.pwd
         }),
-        V: common_vendor.p({
+        N: common_vendor.p({
           label: "旧密码",
           required: true,
           name: "pwd"
         }),
-        W: common_vendor.o(($event) => formData.value.newpwd = $event),
-        X: common_vendor.p({
+        O: common_vendor.o(($event) => formData.value.newpwd = $event),
+        P: common_vendor.p({
           trim: "both",
           type: "password",
           placeholder: "请输入新密码",
           modelValue: formData.value.newpwd
         }),
-        Y: common_vendor.p({
+        Q: common_vendor.p({
           label: "新密码",
           required: true,
           name: "newpwd"
         }),
-        Z: common_vendor.o(($event) => formData.value.newpwd2 = $event),
-        aa: common_vendor.p({
+        R: common_vendor.o(($event) => formData.value.newpwd2 = $event),
+        S: common_vendor.p({
           trim: "both",
           type: "password",
           placeholder: "请确认新密码",
           modelValue: formData.value.newpwd2
         }),
-        ab: common_vendor.p({
+        T: common_vendor.p({
           label: "确认密码",
           required: true,
           name: "newpwd2"
         }),
-        ac: common_vendor.sr("form1", "0f7520f0-25,0f7520f0-23"),
-        ad: common_vendor.p({
+        U: common_vendor.sr("form1", "0f7520f0-20,0f7520f0-18"),
+        V: common_vendor.p({
           modelValue: formData.value,
           ["label-width"]: "80px"
         }),
-        ae: loading.value,
-        af: common_vendor.o(($event) => submit("form1")),
-        ag: common_vendor.p({
+        W: loading.value,
+        X: common_vendor.o(($event) => submit("form1")),
+        Y: common_vendor.p({
           titleBorder: "none"
         }),
-        ah: common_vendor.p({
+        Z: common_vendor.p({
           padding: "0"
         })
       } : {}, {
-        ai: userinfo.value.type == 1
+        aa: userinfo.value.type == 1
       }, userinfo.value.type == 1 ? {
-        aj: common_vendor.p({
+        ab: common_vendor.p({
           title: "添加学生（管理员）",
           type: "line"
         }),
-        ak: common_vendor.o(($event) => addStudentformData.value.id = $event),
-        al: common_vendor.p({
+        ac: common_vendor.o(($event) => addUserFormData.value.id = $event),
+        ad: common_vendor.p({
           trim: "both",
           placeholder: "输入学号/id（留空自动生成id）",
-          modelValue: addStudentformData.value.id
+          modelValue: addUserFormData.value.id
         }),
-        am: common_vendor.p({
+        ae: common_vendor.p({
           label: "学号/id",
           name: "id"
         }),
-        an: common_vendor.o(($event) => addStudentformData.value.name = $event),
-        ao: common_vendor.p({
+        af: common_vendor.o(($event) => addUserFormData.value.name = $event),
+        ag: common_vendor.p({
           trim: "both",
           placeholder: "请输入姓名",
-          modelValue: addStudentformData.value.name
+          modelValue: addUserFormData.value.name
         }),
-        ap: common_vendor.p({
+        ah: common_vendor.p({
           label: "姓名",
           required: true,
           name: "name"
         }),
-        aq: common_vendor.o(($event) => addStudentformData.value.class = $event),
-        ar: common_vendor.p({
+        ai: common_vendor.o(($event) => addUserFormData.value.class = $event),
+        aj: common_vendor.p({
           trim: "both",
           placeholder: "请输入班级",
-          modelValue: addStudentformData.value.class
+          modelValue: addUserFormData.value.class
         }),
-        as: common_vendor.p({
+        ak: common_vendor.p({
           label: "班级",
           required: true,
           name: "class"
         }),
-        at: common_vendor.sr("addStudentForm", "0f7520f0-36,0f7520f0-34"),
-        av: common_vendor.p({
-          modelValue: addStudentformData.value,
+        al: common_vendor.sr("addStudentForm", "0f7520f0-31,0f7520f0-29"),
+        am: common_vendor.p({
+          modelValue: addUserFormData.value,
           ["label-width"]: "80px"
         }),
-        aw: loading.value,
-        ax: common_vendor.o(addStudentFormSubmit),
-        ay: common_vendor.p({
+        an: loading.value,
+        ao: common_vendor.o(addUserFormSubmit),
+        ap: common_vendor.p({
           titleBorder: "none"
         }),
-        az: common_vendor.p({
+        aq: common_vendor.p({
           padding: "0"
         })
       } : {}, {
-        aA: userinfo.value.type == 1
+        ar: userinfo.value.type == 1
       }, userinfo.value.type == 1 ? {
-        aB: common_vendor.p({
+        as: common_vendor.p({
           title: "重置密码（管理员）",
           type: "line"
         }),
-        aC: common_vendor.o(($event) => resetPwdFormData.value.id = $event),
-        aD: common_vendor.p({
+        at: common_vendor.o(($event) => resetPwdFormData.value.id = $event),
+        av: common_vendor.p({
           trim: "both",
           placeholder: "输入学号/id",
           modelValue: resetPwdFormData.value.id
         }),
-        aE: common_vendor.p({
+        aw: common_vendor.p({
           required: true,
           label: "学号/id",
           name: "id"
         }),
-        aF: common_vendor.sr("resetPwdForm", "0f7520f0-47,0f7520f0-45"),
-        aG: common_vendor.p({
+        ax: common_vendor.sr("resetPwdForm", "0f7520f0-42,0f7520f0-40"),
+        ay: common_vendor.p({
           modelValue: resetPwdFormData.value,
           ["label-width"]: "80px"
         }),
-        aH: loading.value,
-        aI: common_vendor.o(resetPwdFormSubmit),
-        aJ: common_vendor.p({
+        az: loading.value,
+        aA: common_vendor.o(resetPwdFormSubmit),
+        aB: common_vendor.p({
           titleBorder: "none"
         }),
-        aK: common_vendor.p({
+        aC: common_vendor.p({
           padding: "0"
         })
       } : {}, {
-        aL: userinfo.value.type == 1
+        aD: userinfo.value.type == 1
       }, userinfo.value.type == 1 ? {
-        aM: common_vendor.p({
-          title: "批量添加学生（管理员）",
+        aE: common_vendor.p({
+          title: "添加全局管理员（管理员）",
           type: "line"
         }),
-        aN: loading.value,
-        aO: common_vendor.o(($event) => submit("form1")),
-        aP: common_vendor.p({
+        aF: common_vendor.o(($event) => addUserFormData.value.id = $event),
+        aG: common_vendor.p({
+          trim: "both",
+          placeholder: "输入学号/id（留空自动生成id）",
+          modelValue: addUserFormData.value.id
+        }),
+        aH: common_vendor.p({
+          label: "id",
+          name: "id"
+        }),
+        aI: common_vendor.sr("addAdminForm", "0f7520f0-49,0f7520f0-47"),
+        aJ: common_vendor.p({
+          modelValue: addUserFormData.value,
+          ["label-width"]: "80px"
+        }),
+        aK: loading.value,
+        aL: common_vendor.o(($event) => addUserFormSubmit(1)),
+        aM: common_vendor.p({
           titleBorder: "none"
         }),
-        aQ: common_vendor.p({
+        aN: common_vendor.p({
           padding: "0"
         })
       } : {}, {
-        aR: ifRenderDialog.value
+        aO: ifRenderDialog.value
       }, ifRenderDialog.value ? {
-        aS: common_vendor.sr("inputClose", "0f7520f0-55,0f7520f0-54"),
-        aT: common_vendor.o(dialogInputConfirm),
-        aU: common_vendor.o(($event) => ifRenderDialog.value = false),
-        aV: common_vendor.o(($event) => popupData.value.value = $event),
-        aW: common_vendor.p({
+        aP: common_vendor.sr("inputClose", "0f7520f0-53,0f7520f0-52"),
+        aQ: common_vendor.o(dialogInputConfirm),
+        aR: common_vendor.o(($event) => ifRenderDialog.value = false),
+        aS: common_vendor.o(($event) => popupData.value.value = $event),
+        aT: common_vendor.p({
           mode: "input",
           title: popupData.value.title,
           placeholder: popupData.value.placeholder,
           modelValue: popupData.value.value
         }),
-        aX: common_vendor.sr("inputDialog", "0f7520f0-54"),
-        aY: common_vendor.p({
+        aU: common_vendor.sr("inputDialog", "0f7520f0-52"),
+        aV: common_vendor.p({
           type: "dialog"
         })
       } : {}, {
-        aZ: userinfo.value
+        aW: userinfo.value
       }, userinfo.value ? {
-        ba: loading.value,
-        bb: common_vendor.o(logout)
+        aX: loading.value,
+        aY: common_vendor.o(logout)
       } : {}, {
-        bc: common_vendor.s(show.value ? "transition: all .5s ease; opacity: 1" : "")
+        aZ: common_vendor.s(show.value ? "transition: all .5s ease; opacity: 1" : "")
       });
     };
   }

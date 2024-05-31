@@ -27,7 +27,9 @@
             :where="`userId=='${userinfo._id}'`"
             orderby="orderTime desc"
           >
-            <view v-if="error" class="error">{{ console.log(error.message) }}获取列表失败,下拉刷新试试？</view>
+            <view v-if="error" class="error"
+              >{{ console.log(error.message) }}获取列表失败,下拉刷新试试？</view
+            >
             <uni-list>
               <uni-list-item
                 v-for="(item, index) in data"
@@ -135,8 +137,9 @@ const formatTimeRange = timeRange => {
   return timeRange.join(" 至 ");
 };
 onShow(async () => {
-  uni.startPullDownRefresh();
+  userinfo.value = uni.getStorageSync("userinfo");
   setTimeout(() => {
+    uni.startPullDownRefresh();
     show.value = true;
   }, 100);
 });
@@ -181,7 +184,7 @@ onPullDownRefresh(() => {
   background: #ff7626;
   color: #fff;
 }
-.item-content{
+.item-content {
   margin-top: 10px;
 }
 .item-title {

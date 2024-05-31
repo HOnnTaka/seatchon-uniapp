@@ -1,8 +1,29 @@
 <script>
-import uniIdPageInit from "@/uni_modules/uni-id-pages/init.js";
 export default {
   onLaunch: async () => {
-    await uniIdPageInit();
+    // uni.addInterceptor("request", {
+    //   invoke: args => {},
+    //   complete: res => {
+    //     console.log(res);
+
+    //   },
+    // });
+    const { result } = await uniCloud.callFunction({
+      name: "check",
+      data: {
+        token: uni.getStorageSync("token"),
+      },
+    });
+    if (result?.error == "Unauthorized") {
+      if (uni.getStorageSync("token")) {
+        uni.showToast({
+          title: "登录过期，请重新登录",
+          icon: "error",
+        });
+      }
+      uni.removeStorageSync("token");
+      uni.removeStorageSync("userinfo");
+    }
   },
   onShow() {},
   onHide() {},

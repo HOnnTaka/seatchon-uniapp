@@ -4,10 +4,7 @@
     "pages/detail/detail",
     "pages/user/user",
     "pages/createSeatChart/createSeatChart",
-    "pages/order/order",
-    "pages/user/add",
-    "pages/user/edit",
-    "pages/user/list"
+    "pages/order/order"
   ],
   "window": {
     "navigationBarTextStyle": "black",

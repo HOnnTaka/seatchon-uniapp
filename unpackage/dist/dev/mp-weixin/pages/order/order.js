@@ -37,8 +37,9 @@ const _sfc_main = {
       return timeRange.join(" 至 ");
     };
     common_vendor.onShow(async () => {
-      common_vendor.index.startPullDownRefresh();
+      userinfo.value = common_vendor.index.getStorageSync("userinfo");
       setTimeout(() => {
+        common_vendor.index.startPullDownRefresh();
         show.value = true;
       }, 100);
     });
@@ -78,7 +79,7 @@ const _sfc_main = {
           return common_vendor.e({
             a: error
           }, error ? {
-            b: common_vendor.t(error.message)
+            b: common_vendor.t(console.log(error.message))
           } : {}, {
             c: common_vendor.f(data, (item, index, i1) => {
               return {
@@ -138,7 +139,7 @@ const _sfc_main = {
           return common_vendor.e({
             a: error
           }, error ? {
-            b: common_vendor.t(error.message)
+            b: common_vendor.t(console.log(error.message))
           } : {}, {
             c: common_vendor.f(data, (item, index, i1) => {
               return {
