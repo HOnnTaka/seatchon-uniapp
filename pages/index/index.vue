@@ -72,12 +72,8 @@
               </template>
               <template v-slot:footer>
                 <view class="item-footer">
-                  <view class="tag-item" :class="{ disable: isNotAvailable(item.selectableTimeRange) }"
-                    >选</view
-                  >
-                  <view class="tag-item" :class="{ disable: isNotAvailable(item.effectiveTimeRange) }"
-                    >效</view
-                  >
+                  <view class="tag-item" :class="{ disable: !isAvailable(item.selectableTimeRange) }">选</view>
+                  <view class="tag-item" :class="{ disable: !isAvailable(item.effectiveTimeRange) }">效</view>
                 </view>
               </template>
             </uni-list-item>
@@ -132,10 +128,11 @@ onPullDownRefresh(onRefresherrefresh);
 const formatTimeRange = timeRange => {
   return timeRange.join(" 至 ");
 };
-const isNotAvailable = timeRange => {
-  const now = new Date().getTime();
+const isAvailable = timeRange => {
+  const now = new Date(new Date().toISOString().substring(0, 10)).getTime();
   const formatedTimeRange = [new Date(timeRange[0]).getTime(), new Date(timeRange[1]).getTime()];
-  return now < formatedTimeRange[0] || now > formatedTimeRange[1];
+  // console.log(formatedTimeRange[0], now, formatedTimeRange[1],now >= formatedTimeRange[0] && now <= formatedTimeRange[1]);
+  return now >= formatedTimeRange[0] && now <= formatedTimeRange[1];
 };
 
 const search = async () => {

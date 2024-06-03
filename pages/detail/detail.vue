@@ -323,7 +323,7 @@ const getAdminName = async () => {
 const avaliable = () => {
   if (!chartDetail.value) return false;
   const selectableTimeRange = chartDetail.value?.selectableTimeRange;
-  const now = new Date().getTime();
+  const now = new Date(new Date().toISOString().substring(0, 10)).getTime();
   const start = new Date(selectableTimeRange[0]).getTime();
   const end = new Date(selectableTimeRange[1]).getTime();
   return start <= now && now <= end;
