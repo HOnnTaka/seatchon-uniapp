@@ -1,0 +1,9 @@
+{
+  "name": "exportExcel",
+  "dependencies": {
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz"
+  },
+  "extensions": {
+    "uni-cloud-jql": {}
+  }
+}

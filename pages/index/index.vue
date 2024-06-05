@@ -72,7 +72,9 @@
               </template>
               <template v-slot:footer>
                 <view class="item-footer">
-                  <view class="tag-item" :class="{ disable: !isAvailable(item.selectableTimeRange) }">选</view>
+                  <view class="tag-item" :class="{ disable: !isAvailable(item.selectableTimeRange) }"
+                    >选</view
+                  >
                   <view class="tag-item" :class="{ disable: !isAvailable(item.effectiveTimeRange) }">效</view>
                 </view>
               </template>
@@ -150,6 +152,7 @@ const onCancel = async () => {
   });
 };
 const onItemClick = async item => {
+  userinfo.value = uni.getStorageSync("userinfo");
   if (!userinfo.value) {
     const confirm = await uni.showModal({
       title: "提示",

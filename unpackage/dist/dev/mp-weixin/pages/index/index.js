@@ -63,10 +63,10 @@ const _sfc_main = {
     const formatTimeRange = (timeRange) => {
       return timeRange.join(" 至 ");
     };
-    const isNotAvailable = (timeRange) => {
-      const now = (/* @__PURE__ */ new Date()).getTime();
+    const isAvailable = (timeRange) => {
+      const now = new Date((/* @__PURE__ */ new Date()).toISOString().substring(0, 10)).getTime();
       const formatedTimeRange = [new Date(timeRange[0]).getTime(), new Date(timeRange[1]).getTime()];
-      return now < formatedTimeRange[0] || now > formatedTimeRange[1];
+      return now >= formatedTimeRange[0] && now <= formatedTimeRange[1];
     };
     const search = async () => {
       const words = searchValue.value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -85,6 +85,7 @@ const _sfc_main = {
       });
     };
     const onItemClick = async (item) => {
+      userinfo.value = common_vendor.index.getStorageSync("userinfo");
       if (!userinfo.value) {
         const confirm = await common_vendor.index.showModal({
           title: "提示",
@@ -152,8 +153,8 @@ const _sfc_main = {
                 b: common_vendor.t(item.note),
                 c: common_vendor.t(formatTimeRange(item.selectableTimeRange)),
                 d: common_vendor.t(formatTimeRange(item.effectiveTimeRange)),
-                e: isNotAvailable(item.selectableTimeRange) ? 1 : "",
-                f: isNotAvailable(item.effectiveTimeRange) ? 1 : "",
+                e: !isAvailable(item.selectableTimeRange) ? 1 : "",
+                f: !isAvailable(item.effectiveTimeRange) ? 1 : "",
                 g: item._id,
                 h: common_vendor.o(($event) => onItemClick(item), item._id),
                 i: "1cf27b2a-5-" + i0 + "-" + i1 + "," + ("1cf27b2a-4-" + i0),
@@ -199,5 +200,5 @@ const _sfc_main = {
     };
   }
 };
-const MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__scopeId", "data-v-1cf27b2a"], ["__file", "D:/code/seatchon-uniapp/pages/index/index.vue"]]);
+const MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__scopeId", "data-v-1cf27b2a"], ["__file", "D:/mcct/seatchon-uniapp/pages/index/index.vue"]]);
 wx.createPage(MiniProgramPage);

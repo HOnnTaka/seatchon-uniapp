@@ -726,5 +726,5 @@ const _sfc_main = {
     };
   }
 };
-const MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__scopeId", "data-v-0f7520f0"], ["__file", "D:/code/seatchon-uniapp/pages/user/user.vue"]]);
+const MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__scopeId", "data-v-0f7520f0"], ["__file", "D:/mcct/seatchon-uniapp/pages/user/user.vue"]]);
 wx.createPage(MiniProgramPage);

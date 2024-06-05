@@ -4,41 +4,6 @@
     style="transition: all 1s ease; opacity: 0"
     :style="chartDetail != null ? 'transition: all .5s ease; opacity: 1' : ''"
   >
-    <table ref="tableSheet1" style="border: 1px solid">
-      <tr>
-        <td>课室：</td>
-        <td>{{ chartDetail?.title }}</td>
-      </tr>
-      <tr>
-        <td>备注：</td>
-        <td>{{ chartDetail?.note }}</td>
-      </tr>
-      <tr>
-        <td>可选时间：</td>
-        <td>{{ chartDetail?.selectableTimeRange }}</td>
-      </tr>
-      <tr>
-        <td>生效时间：</td>
-        <td>{{ chartDetail?.effectiveTimeRange }}</td>
-      </tr>
-      <tr>
-        <td>课室id：</td>
-        <td>{{ chartDetail?._id }}</td>
-      </tr>
-    </table>
-    <table ref="tableSheet2" style="border: 1px solid">
-      <tr v-for="row in chartDetail?.row" :key="row">
-        <td v-for="col in chartDetail?.col" :key="col">
-          <view v-if="chartDetail?.seats[(row - 1) * chartDetail?.col + col - 1].stuInfo">
-            {{ chartDetail?.seats[(row - 1) * chartDetail?.col + col - 1].stuInfo?.name }}
-            {{ chartDetail?.seats[(row - 1) * chartDetail?.col + col - 1].stuInfo?.id }}
-            {{ chartDetail?.seats[(row - 1) * chartDetail?.col + col - 1].stuInfo?.class }}
-          </view>
-          <view v-else>未选择 </view>
-          <view>{{ col }}列 {{ row }}行</view>
-        </td>
-      </tr>
-    </table>
     <view class="admin-tag" v-if="isAdmin">管理员</view>
     <uni-card padding="0">
       <uni-collapse>
@@ -289,7 +254,6 @@
 </template>
 
 <script setup>
-import * as XLSX from "xlsx";
 import { ref, computed } from "vue";
 import { onLoad, onShow, onReady, onPullDownRefresh } from "@dcloudio/uni-app";
 const page = getCurrentPages().find(item => item.route === "pages/detail/detail");
@@ -652,21 +616,58 @@ const copy = text => {
   });
 };
 
-const tableSheet1 = ref();
-const tableSheet2 = ref();
 const onExportBtnClick = async () => {
-  await uni.startPullDownRefresh();
-  console.dir(tableSheet1.value, tableSheet2.value);
-  const wb = XLSX.utils.book_new();
-  const ws1 = XLSX.utils.table_to_sheet(tableSheet1.value, { raw: true });
-  const ws2 = XLSX.utils.table_to_sheet(tableSheet2.value, { raw: true });
-  console.log(ws1, ws2);
-  if (!ws["!cols"]) ws["!cols"] = [];
-  if (!ws["!cols"][1]) ws["!cols"][1] = { wch: 8 };
-  ws1["!cols"][1].wpx = 100;
-  XLSX.utils.book_append_sheet(wb, ws1, "课室信息");
-  XLSX.utils.book_append_sheet(wb, ws2, "座位表");
-  XLSX.writeFile(wb, "SheetJSTable.xlsx");
+  uni.showLoading({
+    title: "加载中",
+    mask: true,
+  });
+  loading.value = true;
+  uniCloud.callFunction({
+    name: "exportExcel",
+    data: {
+      chartId: chartId.value,
+    },
+    success: function (res) {
+      if (res.result.fileID) {
+        // 获取文件下载链接
+        uniCloud.getTempFileURL({
+          fileList: [res.result.fileID],
+          success: function (downloadRes) {
+            if (downloadRes.fileList.length > 0) {
+              const downloadURL = downloadRes.fileList[0].tempFileURL;
+              // 下载文件
+              uni.downloadFile({
+                url: downloadURL,
+                success:async function (downloadFileRes) {
+                  loading.value = false;
+                  uni.hideLoading();
+                  if (downloadFileRes.statusCode === 200) {
+                    //#ifdef MP
+                    await uni.showModal({
+                      title: "下载成功",
+                      content: "打开后使用右上角功能保存",
+                      showCancel: false,
+                      confirmText: "确定",
+                    })
+                    //#endif
+                    uni.openDocument({
+                      filePath: downloadFileRes.tempFilePath,
+                      showMenu:true,
+                    });
+                  }
+                },
+              });
+            }
+          },
+        });
+      }
+    },
+    fail: function (error) {
+      console.error(error);
+      uni.hideLoading();
+      loading.value = false;
+    },
+  });
 };
 </script>
 

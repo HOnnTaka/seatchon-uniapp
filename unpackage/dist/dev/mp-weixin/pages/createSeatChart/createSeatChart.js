@@ -351,7 +351,7 @@ const _sfc_main = {
         }),
         G: loading.value,
         H: common_vendor.o(() => submit("valiForm")),
-        I: common_vendor.sr("valiForm", "03a545ff-0"),
+        I: common_vendor.sr("valiForm", "05355019-0"),
         J: common_vendor.p({
           ["label-width"]: "100%",
           modelValue: baseFormData,
@@ -363,5 +363,5 @@ const _sfc_main = {
     };
   }
 };
-const MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__file", "D:/code/seatchon-uniapp/pages/createSeatChart/createSeatChart.vue"]]);
+const MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__file", "D:/mcct/seatchon-uniapp/pages/createSeatChart/createSeatChart.vue"]]);
 wx.createPage(MiniProgramPage);

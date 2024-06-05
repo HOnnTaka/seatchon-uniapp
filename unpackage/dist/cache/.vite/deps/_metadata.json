@@ -1,13 +1,13 @@
 {
-  "hash": "603be526",
-  "configHash": "1ed470a2",
-  "lockfileHash": "4941d465",
-  "browserHash": "5f811670",
+  "hash": "b01ce4c0",
+  "configHash": "84e9ab70",
+  "lockfileHash": "1e3bd234",
+  "browserHash": "574e5f9b",
   "optimized": {
     "xlsx": {
       "src": "../../../../../node_modules/xlsx/xlsx.mjs",
       "file": "xlsx.js",
-      "fileHash": "80b5948c",
+      "fileHash": "69018448",
       "needsInterop": false
     }
   },

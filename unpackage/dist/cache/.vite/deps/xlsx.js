@@ -1,4 +1,4 @@
-// ../../../../code/seatchon-uniapp/node_modules/xlsx/xlsx.mjs
+// ../../../../mcct/seatchon-uniapp/node_modules/xlsx/xlsx.mjs
 var XLSX = {};
 XLSX.version = "0.20.2";
 var current_codepage = 1200;
